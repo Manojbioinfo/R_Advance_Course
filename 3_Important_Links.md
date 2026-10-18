@@ -12,7 +12,7 @@ If you're new to R or need a refresher, these curated resources will help you ge
 * Harvard Data Science Book (Getting Started): [https://rafalab.dfci.harvard.edu/dsbook/getting-started.html](https://rafalab.dfci.harvard.edu/dsbook/getting-started.html)
 * LMU R Tutorial (Part 1): [https://www.oer.psy.lmu.de/R_Tutorial/Teil1_translated.html](https://www.oer.psy.lmu.de/R_Tutorial/Teil1_translated.html)
 * Dataquest R & RStudio Tutorial: [https://www.dataquest.io/blog/tutorial-getting-started-with-r-and-rstudio/](https://www.dataquest.io/blog/tutorial-getting-started-with-r-and-rstudio/)
-
+* R Programming — Basic Statistical Analysis Exercises: [https://iamdonovan.github.io/teaching/r-programming/exercises/stats.html](https://iamdonovan.github.io/teaching/r-programming/exercises/stats.html)
 ---
 
 ### 📘 Statistical Inference & Tidyverse Learning
