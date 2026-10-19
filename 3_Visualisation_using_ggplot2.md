@@ -1,4 +1,4 @@
-## Setup
+### Setup
 
 Run this once from the course root folder.
 
