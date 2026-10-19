@@ -44,7 +44,6 @@ Packages let developers and users:
 - Reuse solutions across projects
 - Extend R's core functionality dramatically
 
-<p align="center"><a href="images2/Slide35.png"><img src="images2/Slide35.png" alt="What is an R package?" width="500"></a></p>
 
 ---
 
@@ -59,7 +58,6 @@ The core of R is small. Packages add tools for specific jobs:
 | Visualization | `ggplot2`, `plotly` |
 | Reporting | `rmarkdown`, `knitr` |
 
-<p align="center"><a href="images2/Slide36.png"><img src="images2/Slide36.png" alt="Packages around the core R engine" width="500"></a></p>
 
 Most R packages live in one of two places:
 
