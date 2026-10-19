@@ -145,7 +145,7 @@ For `readr`, the Windows file is `readr_2.2.0.zip`.
 
 3. Browse to the downloaded file (for example `readr_2.2.0.zip` in *Downloads*) and click **Open**.
 
-<p align="center"><a href="images2/Slide47.png"><img src="images2/Slide48.png" alt="Select the package archive and click Open" width="500"></a></p>
+
 
 4. Click **Install**.
 
@@ -175,19 +175,19 @@ Bioconductor hosts packages for biological data analysis, such as `DESeq2` for d
 
 Go to https://bioconductor.org/
 
-<p align="center"><a href="images2/Slide48.png"><img src="images2/Slide49.png" alt="Bioconductor home page" width="500"></a></p>
+<p align="center"><a href="images2/Slide48.png"><img src="images2/Slide50.png" alt="Bioconductor home page" width="500"></a></p>
 
 ### Step 2: Search for the package
 
 Type the package name in the search box, for example `deseq2`, and click the matching package.
 
-<p align="center"><a href="images2/Slide49.png"><img src="images2/Slide50.png" alt="Searching for DESeq2" width="500"></a></p>
+<p align="center"><a href="images2/Slide49.png"><img src="images2/Slide51.png" alt="Searching for DESeq2" width="500"></a></p>
 
 ### Step 3: Copy the install code
 
 The package page shows the installation code:
 
-<p align="center"><a href="images2/Slide50.png"><img src="images2/Slide51.png" alt="DESeq2 installation code" width="500"></a></p>
+<p align="center"><a href="images2/Slide50.png"><img src="images2/Slide52.png" alt="DESeq2 installation code" width="500"></a></p>
 
 ```r
 if (!require("BiocManager", quietly = TRUE))
@@ -217,7 +217,7 @@ Each Bioconductor package page has a **Package Archives** table:
 | Windows Binary (`.zip`) | Windows |
 | macOS Binary (`.tgz`) | macOS (choose Intel or Apple silicon) |
 
-<p align="center"><a href="images2/Slide51.png"><img src="images2/Slide52.png" alt="DESeq2 Package Archives" width="500"></a></p>
+<p align="center"><a href="images2/Slide51.png"><img src="images2/Slide53.png" alt="DESeq2 Package Archives" width="500"></a></p>
 
 Install it with **Tools > Install Packages... > Package Archive File**, or in code:
 
@@ -234,7 +234,7 @@ install.packages("~/Downloads/DESeq2_1.52.0.tar.gz",
 
 Installing a package is a one-time step. Loading it is needed in every new R session.
 
-<p align="center"><a href="images2/Slide52.png"><img src="images2/Slide53.png" alt="Install, load, get help, use it" width="500"></a></p>
+<p align="center"><a href="images2/Slide52.png"><img src="images2/Slide54.png" alt="Install, load, get help, use it" width="500"></a></p>
 
 ### The four steps
 
@@ -265,7 +265,7 @@ chickens <- read_csv(readr_example("chickens.csv"))
 
 `readr_example()` points to a small example file that ships with the package. R prints the column specification when it reads the file.
 
-<p align="center"><a href="images2/Slide53.png"><img src="images2/Slide54.png" alt="Running the readr example" width="500"></a></p>
+<p align="center"><a href="images2/Slide53.png"><img src="images2/Slide55.png" alt="Running the readr example" width="500"></a></p>
 
 Inspect the result:
 
