@@ -64,8 +64,6 @@ Most R packages live in one of two places:
 - **CRAN**, the main repository for general R packages
 - **Bioconductor**, for computational biology and bioinformatics
 
-<p align="center"><a href="images2/Slide37.png"><img src="images2/Slide37.png" alt="CRAN and Bioconductor" width="500"></a></p>
-
 ---
 
 ## 3. Install from CRAN (online)
