@@ -1,498 +1,543 @@
-# Tutorial 3 — Data visualization with ggplot2
+# Tutorial 3: Data Visualization with ggplot2
 
-A practical, static Markdown tutorial for learning the **grammar of graphics** with a 579-row clinical dataset. You will build plots one layer at a time, compare distributions and associations, and finish by combining and annotating figures.
+This tutorial uses **only** `data/clinical_data.csv` (579 rows) to introduce the grammar of graphics and build clear, reproducible clinical data visualizations. Every example is designed to be copied into an R script or an R Markdown/Quarto document.
 
-## Contents
+## Table of contents
 
 - [Learning objectives](#learning-objectives)
 - [Before you start](#before-you-start)
 - [Cheat sheet](#cheat-sheet)
-- [Grammar of graphics & one variable](#grammar-of-graphics--one-variable)
-- [Numeric by category](#numeric-by-category)
-- [Two numeric variables](#two-numeric-variables)
-- [Two categorical variables](#two-categorical-variables)
-- [Facets, themes, and colour-blind design](#facets-themes-and-colour-blind-design)
-- [Combining & annotating](#combining--annotating)
+- [1. Grammar of graphics and one variable](#1-grammar-of-graphics--one-variable)
+- [2. Numeric by category](#2-numeric-by-category)
+- [3. Two numeric variables](#3-two-numeric-variables)
+- [4. Two categorical variables](#4-two-categorical-variables)
+- [5. Facets, themes, and colour-blind design](#5-facets-themes-and-colour-blind-design)
+- [6. Combining and annotating](#6-combining--annotating)
 - [Common mistakes](#common-mistakes)
 - [Practice exercises](#practice-exercises)
-- [Reflection](#reflection)
+- [Closing reflection](#closing-reflection)
 
 ## Learning objectives
 
-By the end, you should be able to:
+By the end of this tutorial, you should be able to:
 
-- Map variables to aesthetics such as x, y, colour, fill, and facets.
-- Choose geoms that match numeric and categorical variables.
-- Compare counts, proportions, distributions, and associations.
-- Use scales, themes, palettes, and annotations to improve communication.
-- Combine plots into a coherent, reproducible figure.
+- Explain how data, aesthetics, geoms, scales, facets, and themes work together in the grammar of graphics.
+- Select an appropriate `ggplot2` geometry for one numeric variable, one categorical variable, comparisons, associations, and compositions.
+- Distinguish counts from proportions and describe what a visualization does—and does not—show.
+- Use colour-blind-friendly palettes, faceting, labels, and themes to make figures easier to interpret.
+- Save, combine, and annotate plots reproducibly without changing the underlying clinical data.
 
 ## Before you start
 
-> **Setup:** Run the following code from the project root. It expects `data/clinical_data.csv` and creates a `figures/` folder for saved images. The dataset should contain `Age`, `Cigarettes_per_day`, `Gender`, `Race`, `Vital_Status`, `Pathologic_stage`, and `Age_Group`.
+Run this setup from the project root. It reads the single source file, converts categorical columns to factors, previews the structure, and creates a folder for exported figures. `read_csv()` will show a parsing message if the file contains an unexpected value; investigate such messages rather than silently ignoring them.
 
 ```r
 library(tidyverse)
 library(ggpubr)
 library(patchwork)
+library(RColorBrewer)
 library(scales)
 
 clinical <- read_csv("data/clinical_data.csv", show_col_types = FALSE) |>
   mutate(
-    Vital_Status = factor(Vital_Status),
     Gender = factor(Gender),
     Race = factor(Race),
+    Vital_Status = factor(Vital_Status),
     Pathologic_stage = factor(Pathologic_stage),
     Age_Group = factor(Age_Group)
   )
 
-dir.create("figures", showWarnings = FALSE)
 glimpse(clinical)
+dir.create("figures", showWarnings = FALSE)
 ```
 
-The examples use `tidyverse`, `ggpubr`, `patchwork`, and `scales`. Install any missing packages once with `install.packages(c("tidyverse", "ggpubr", "patchwork", "scales"))`.
+The numeric variables in this tutorial are `Age` and `Cigarettes_per_day`; the categorical variables are `Gender`, `Race`, `Vital_Status`, `Pathologic_stage`, and `Age_Group`. Missing values are handled explicitly where a calculation requires complete pairs.
 
 ## Cheat sheet
 
-| Variable type | Useful plot | Common geom(s) |
+| Variable type or question | Plot choice | Typical `ggplot2` geom or tool |
 |---|---|---|
-| One numeric variable | Distribution | `geom_histogram()`, `geom_density()` |
-| One categorical variable | Counts or proportions | `geom_bar()` |
-| Numeric by category | Group comparison | `geom_boxplot()`, `geom_violin()`, `geom_jitter()` |
-| Two numeric variables | Association | `geom_point()`, `geom_smooth()` |
-| Two categorical variables | Composition | `geom_bar(position = "fill")` |
-| Any plot split by a variable | Small multiples | `facet_wrap()` |
+| One numeric variable | Distribution and shape | `geom_histogram()`, `geom_density()` |
+| One categorical variable | Counts or percentages | `geom_bar()`, `after_stat()` |
+| Numeric by category | Compare distributions | `geom_boxplot()`, `geom_violin()`, `geom_jitter()` |
+| Two numeric variables | Association and trend | `geom_point()`, `geom_smooth()` |
+| Two categorical variables | Composition or counts | `geom_bar(position = "fill")`, stacked bars |
+| Many groups or subgroups | Small multiples | `facet_wrap()` |
+| Publication-ready output | Consistent styling and export | `theme_*()`, `scale_*()`, `ggsave()` |
 
----
+## 1. Grammar of graphics & one variable
 
-## 🎨 Grammar of graphics & one variable
+### **Q1. How do you show the distribution of Age with histogram bins five years wide?**
 
-### Q1. What is a ggplot object made from?
-
-Identify the data, aesthetic mapping, geometry, scale, and theme.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
+**Hint:** Put `Age` on the x-axis and set `binwidth = 5`. A histogram counts observations in intervals; the bin boundaries can affect the visual impression.
 
 ```r
 p_age_hist <- ggplot(clinical, aes(x = Age)) +
-  geom_histogram(binwidth = 5, fill = "#0072B2", colour = "white") +
-  labs(title = "Age distribution", x = "Age (years)", y = "Count")
+  geom_histogram(binwidth = 5, boundary = 0, colour = "white", fill = "#0072B2") +
+  labs(title = "Age distribution", x = "Age (years)", y = "Number of patients") +
+  theme_minimal()
+
 p_age_hist
 ```
 
-**What to look for:** Look for how `ggplot()` supplies data and mappings, while geoms, scales, and themes build the visual result.
+**What to look for:** Look for the centre, spread, skew, gaps, and unusually high or low ages. Do not interpret a tall bin as a rate; it is a count.
 
-### Q2. How does age vary as a smooth distribution?
+### **Q2. How can you display Age as a smoothed density curve?**
 
-Use a density curve instead of histogram bins.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
+**Hint:** `geom_density()` estimates a smooth curve. Save the plot as `p_age_density` so that it can be reused later.
 
 ```r
 p_age_density <- ggplot(clinical, aes(x = Age)) +
-  geom_density(fill = "#56B4E9", alpha = 0.6) +
-  labs(title = "Smoothed age distribution", x = "Age (years)", y = "Density") +
+  geom_density(fill = "#56B4E9", colour = "#0072B2", alpha = 0.65, na.rm = TRUE) +
+  labs(title = "Smoothed age density", x = "Age (years)", y = "Density") +
   theme_minimal()
+
 p_age_density
 ```
 
-**What to look for:** Look for peaks, spread, and possible skew in the age distribution.
+**What to look for:** Peaks indicate ages where observations are concentrated; the area under a density curve is one, so the y-axis is not a patient count.
 
-### Q3. Which age group is more common?
+### **Q3. How do you count patients in each Age_Group?**
 
-Count the observations in each categorical level.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
+**Hint:** Map a categorical variable to `x` and use `geom_bar()`. With no `y` mapping, `geom_bar()` counts rows.
 
 ```r
-p_age_group <- ggplot(clinical, aes(x = Age_Group, fill = Age_Group)) +
-  geom_bar() +
-  scale_fill_manual(values = c("Young" = "#009E73", "Old" = "#E69F00")) +
-  labs(title = "Patients by age group", x = "Age group", y = "Count") +
-  theme_minimal() +
-  guides(fill = "none")
-p_age_group
+p_age_group_counts <- ggplot(clinical, aes(x = Age_Group)) +
+  geom_bar(fill = "#009E73") +
+  labs(title = "Patients by age group", x = "Age group", y = "Number of patients") +
+  theme_minimal()
+
+p_age_group_counts
 ```
 
-**What to look for:** Look for the taller bar; it represents the more frequent age group.
+**What to look for:** Compare the number of records in each age group and check whether factor ordering communicates the intended progression.
 
-### Q4. Can you label a bar chart with percentages?
+### **Q4. How do you label the Age_Group bars with percentages?**
 
-Compute each bar's share of the full sample and format the y-axis as percentages.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
+**Hint:** Use `after_stat(count / sum(count))` inside `aes()` and format the result with `scales::percent()`. The denominator is the total count represented in the plot.
 
 ```r
-p_age_group_pct <- ggplot(clinical, aes(x = Age_Group)) +
-  geom_bar(aes(y = after_stat(count / sum(count)), group = 1, fill = Age_Group)) +
-  scale_y_continuous(labels = scales::label_percent()) +
-  scale_fill_manual(values = c("Young" = "#009E73", "Old" = "#E69F00")) +
-  labs(title = "Age-group composition", x = "Age group", y = "Percent") +
-  theme_minimal() +
-  guides(fill = "none")
-p_age_group_pct
+p_age_group_percent <- ggplot(clinical, aes(x = Age_Group)) +
+  geom_bar(fill = "#009E73") +
+  geom_text(
+    aes(
+      y = after_stat(count),
+      label = scales::percent(after_stat(count / sum(count)), accuracy = 0.1)
+    ),
+    stat = "count",
+    vjust = -0.35
+  ) +
+  labs(title = "Patients by age group", x = "Age group", y = "Number of patients") +
+  expand_limits(y = NA) +
+  theme_minimal()
+
+p_age_group_percent
 ```
 
-**What to look for:** Check that the bars sum to 100% and that the labels are proportions rather than raw counts.
+**What to look for:** Each label should represent that group’s share of all plotted records; percentages should sum to approximately 100% after rounding.
 
-### Q5. How would you save a plot?
+### **Q5. How do you save an age distribution figure?**
 
-Pass a file path, plot object, dimensions, and resolution to `ggsave()`.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
+**Hint:** `ggsave()` saves the last plot by default, but naming the object explicitly is safer and reproducible.
 
 ```r
 ggsave(
   filename = "figures/age_distribution.png",
-  plot = p_age_density,
+  plot = p_age_hist,
   width = 7,
   height = 5,
+  units = "in",
   dpi = 300
 )
 ```
 
-**What to look for:** The saved file should preserve the plot's intended dimensions and readable text.
+**What to look for:** Confirm that `figures/age_distribution.png` is created at the requested size and resolution, and that the labels remain legible outside the R plotting pane.
 
----
+## 2. Numeric by category
 
-## 📊 Numeric by category
+### **Q6. How does Age differ by Vital_Status in a boxplot?**
 
-### Q6. Does age differ by vital status?
-
-Compare distributions with a boxplot.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
+**Hint:** Put the category on x and the numeric measure on y. A boxplot shows the median, quartiles, and potential outliers.
 
 ```r
-p_age_status <- ggplot(clinical, aes(x = Vital_Status, y = Age, fill = Vital_Status)) +
-  geom_boxplot(alpha = 0.7) +
+p_age_status_box <- ggplot(clinical, aes(x = Vital_Status, y = Age)) +
+  geom_boxplot(fill = "#E69F00", na.rm = TRUE) +
   labs(title = "Age by vital status", x = "Vital status", y = "Age (years)") +
-  theme_minimal() +
-  guides(fill = "none")
-p_age_status
+  theme_minimal()
+
+p_age_status_box
 ```
 
-**What to look for:** Compare medians, interquartile ranges, whiskers, and potential outliers across status groups.
+**What to look for:** Compare medians and interquartile ranges, while remembering that group sizes and overlapping distributions affect how convincing a visual difference is.
 
-### Q7. How can you show individual observations?
+### **Q7. How can jittered points reveal individual ages by Vital_Status?**
 
-Add jitter with low opacity so overlapping points remain visible.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
+**Hint:** Add horizontal noise with `width` so points do not stack exactly. Use transparency to show overplotting.
 
 ```r
-ggplot(clinical, aes(x = Vital_Status, y = Age, colour = Vital_Status)) +
-  geom_jitter(width = 0.15, alpha = 0.35) +
+p_age_status_jitter <- ggplot(clinical, aes(x = Vital_Status, y = Age)) +
+  geom_jitter(width = 0.18, height = 0, alpha = 0.45, colour = "#0072B2", na.rm = TRUE) +
   labs(title = "Individual ages by vital status", x = "Vital status", y = "Age (years)") +
-  theme_classic() +
-  guides(colour = "none")
+  theme_minimal()
+
+p_age_status_jitter
 ```
 
-**What to look for:** Look for clustering, overlap, and observations that are hidden by a summary-only plot.
+**What to look for:** Look for the raw observations, repeated ages, gaps, and unequal group sizes that a boxplot alone can hide.
 
-### Q8. What does a violin reveal that a boxplot may hide?
+### **Q8. How do you combine a violin plot and a boxplot for Age by Vital_Status?**
 
-Combine a violin with a narrow boxplot.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
+**Hint:** Draw the violin first, then put a narrower boxplot on top with `width` and `outlier.shape = NA`.
 
 ```r
-ggplot(clinical, aes(x = Vital_Status, y = Age, fill = Vital_Status)) +
-  geom_violin(trim = FALSE, alpha = 0.6) +
-  geom_boxplot(width = 0.12, outlier.shape = NA) +
-  labs(title = "Age distributions by vital status", x = "Vital status", y = "Age (years)") +
-  theme_minimal() +
-  guides(fill = "none")
+p_age_status_violin <- ggplot(clinical, aes(x = Vital_Status, y = Age, fill = Vital_Status)) +
+  geom_violin(alpha = 0.55, trim = FALSE, na.rm = TRUE) +
+  geom_boxplot(width = 0.14, outlier.shape = NA, fill = "white", na.rm = TRUE) +
+  labs(title = "Age distribution by vital status", x = "Vital status", y = "Age (years)") +
+  guides(fill = "none") +
+  theme_minimal()
+
+p_age_status_violin
 ```
 
-**What to look for:** The violin shape highlights density and multimodality, while the boxplot gives familiar summary statistics.
+**What to look for:** The violin shows distribution shape, while the boxplot anchors the median and quartiles. Avoid treating the smoothed violin width as extra observations.
 
-### Q9. Is smoking intensity different by age group?
+### **Q9. How do Cigarettes_per_day distributions vary across Age_Group?**
 
-Use `Cigarettes_per_day` as the numeric outcome.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
+**Hint:** Overlay jittered observations on a boxplot; use `position_jitter()` so points stay within their group.
 
 ```r
-ggplot(clinical, aes(x = Age_Group, y = Cigarettes_per_day, fill = Age_Group)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(width = 0.1, alpha = 0.2) +
-  labs(title = "Smoking intensity by age group", x = "Age group", y = "Cigarettes per day") +
-  theme_minimal() +
-  guides(fill = "none")
+p_smoking_age_group <- ggplot(clinical, aes(x = Age_Group, y = Cigarettes_per_day)) +
+  geom_boxplot(outlier.shape = NA, fill = "#D55E00", alpha = 0.65, na.rm = TRUE) +
+  geom_jitter(width = 0.16, alpha = 0.4, colour = "#333333", na.rm = TRUE) +
+  labs(
+    title = "Cigarettes per day by age group",
+    x = "Age group",
+    y = "Cigarettes per day"
+  ) +
+  theme_minimal()
+
+p_smoking_age_group
 ```
 
-**What to look for:** Compare the typical smoking intensity and the amount of within-group variability.
+**What to look for:** Compare medians, variability, zeros, and extreme values. Missing smoking values should not be mistaken for zero cigarettes per day.
 
-### Q10. How can you reorder categories by a numeric summary?
+### **Q10. How do you reorder Race by the median Age and flip the coordinates?**
 
-Reorder race levels by the median age and flip the coordinates.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
+**Hint:** Use `reorder(Race, Age, FUN = median, na.rm = TRUE)` inside the x aesthetic, then `coord_flip()` for readable labels.
 
 ```r
-ggplot(clinical, aes(x = reorder(Race, Age, FUN = median), y = Age)) +
-  geom_boxplot(fill = "#0072B2", alpha = 0.75) +
+p_age_race <- ggplot(
+  clinical,
+  aes(x = reorder(Race, Age, FUN = median, na.rm = TRUE), y = Age)
+) +
+  geom_boxplot(fill = "#CC79A7", na.rm = TRUE) +
   coord_flip() +
-  labs(title = "Age distributions ordered by median", x = "Race", y = "Age (years)") +
+  labs(title = "Age by race, ordered by median age", x = "Race", y = "Age (years)") +
   theme_minimal()
+
+p_age_race
 ```
 
-**What to look for:** The category order should make median differences easier to compare than alphabetical order.
+**What to look for:** Race categories are ordered by their observed median Age, not alphabetically. Small groups may have unstable medians and should be interpreted cautiously.
 
----
+## 3. Two numeric variables
 
-## 📈 Two numeric variables
+### **Q11. What is the relationship between Age and Cigarettes_per_day?**
 
-### Q11. Are cigarettes per day associated with age?
-
-Map one numeric variable to each axis.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
+**Hint:** Use points for individual observations and save the result as `p_scatter` for later layers.
 
 ```r
-p_scatter <- ggplot(clinical, aes(x = Age, y = Cigarettes_per_day)) +
-  geom_point(alpha = 0.55, colour = "#0072B2") +
-  labs(title = "Age and smoking intensity", x = "Age (years)", y = "Cigarettes per day") +
+p_scatter <- ggplot(
+  clinical,
+  aes(x = Age, y = Cigarettes_per_day)
+) +
+  geom_point(alpha = 0.55, colour = "#0072B2", na.rm = TRUE) +
+  labs(
+    title = "Age and cigarettes per day",
+    x = "Age (years)",
+    y = "Cigarettes per day"
+  ) +
   theme_minimal()
+
 p_scatter
 ```
 
-**What to look for:** Look for direction, strength, curvature, clusters, and unusual observations.
+**What to look for:** Look for direction, strength, nonlinearity, clusters, and influential points. A cloud of points without a visible trend is still informative.
 
-### Q12. How would you add a linear model and confidence band?
+### **Q12. How do you add a linear-model smooth to the scatterplot?**
 
-Add `geom_smooth(method = "lm")` to the scatter plot.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
+**Hint:** Add `geom_smooth(method = "lm")` to `p_scatter` and set `se = TRUE` to show the model-based confidence band.
 
 ```r
 p_lm <- p_scatter +
-  geom_smooth(method = "lm", se = TRUE, colour = "#D55E00")
+  geom_smooth(method = "lm", formula = y ~ x, se = TRUE, colour = "#D55E00", na.rm = TRUE) +
+  labs(title = "Age and cigarettes per day with a linear trend")
+
 p_lm
 ```
 
-**What to look for:** The fitted line summarizes the linear trend; the shaded band represents model uncertainty around the mean trend.
+**What to look for:** The line summarizes the average linear trend; the band reflects uncertainty in the fitted mean, not the range of individual future observations.
 
-### Q13. Can you colour the relationship by vital status?
+### **Q13. How does the Age–Cigarettes_per_day relationship vary by Vital_Status?**
 
-Map `colour` inside `aes()` and fit separate lines by group.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
+**Hint:** Map `Vital_Status` to colour and use `aes(group = Vital_Status)` so `geom_smooth()` fits one model per group.
 
 ```r
-ggplot(clinical, aes(x = Age, y = Cigarettes_per_day, colour = Vital_Status)) +
-  geom_point(alpha = 0.55) +
-  geom_smooth(method = "lm", se = FALSE) +
-  labs(title = "Age and smoking intensity by vital status", x = "Age (years)", y = "Cigarettes per day") +
+p_status_lm <- ggplot(
+  clinical,
+  aes(x = Age, y = Cigarettes_per_day, colour = Vital_Status)
+) +
+  geom_point(alpha = 0.5, na.rm = TRUE) +
+  geom_smooth(aes(group = Vital_Status), method = "lm", formula = y ~ x, se = FALSE, na.rm = TRUE) +
+  labs(
+    title = "Age and cigarettes per day by vital status",
+    x = "Age (years)",
+    y = "Cigarettes per day",
+    colour = "Vital status"
+  ) +
   theme_minimal()
+
+p_status_lm
 ```
 
-**What to look for:** Compare the group-specific patterns, while remembering that fitted lines describe association rather than causation.
+**What to look for:** Compare the fitted slopes and the amount of overlap, but do not claim a group difference from line separation alone; sample size, confounding, and uncertainty matter.
 
-### Q14. What is the Pearson correlation?
+### **Q14. How do you test the correlation using complete pairs?**
 
-Run `cor.test()` on complete pairs of numeric observations.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
+**Hint:** Select only `Age` and `Cigarettes_per_day`, remove rows missing either variable, then pass the two numeric vectors to `cor.test()`.
 
 ```r
 complete_numeric <- clinical |>
   select(Age, Cigarettes_per_day) |>
   drop_na()
-cor.test(complete_numeric$Age, complete_numeric$Cigarettes_per_day, method = "pearson")
+
+cor.test(
+  complete_numeric$Age,
+  complete_numeric$Cigarettes_per_day,
+  method = "pearson"
+)
 ```
 
-**What to look for:** Read the correlation estimate, confidence interval, and p-value together; statistical significance is not effect size.
+**What to look for:** Read the correlation estimate, confidence interval, and p-value together. Correlation measures linear association and does not establish causation.
 
----
+## 4. Two categorical variables
 
-## 🧩 Two categorical variables
+### **Q15. How do you show Vital_Status counts within Race using stacked bars?**
 
-### Q15. How is vital status distributed within each race?
-
-Use stacked bars to count status within race.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
+**Hint:** Map `Race` to x and `Vital_Status` to fill. The default bar position is stacked.
 
 ```r
-ggplot(clinical, aes(x = Race, fill = Vital_Status)) +
+p_race_status_counts <- ggplot(clinical, aes(x = Race, fill = Vital_Status)) +
   geom_bar() +
-  labs(title = "Vital status counts by race", x = "Race", y = "Count", fill = "Vital status") +
+  labs(title = "Vital status counts within race", x = "Race", y = "Number of patients", fill = "Vital status") +
+  theme_minimal()
+
+p_race_status_counts
+```
+
+**What to look for:** Total bar height shows the number of records in each Race; segment height shows the count for each Vital_Status.
+
+### **Q16. How do you compare Vital_Status percentages within Race?**
+
+**Hint:** `position = "fill"` scales every bar to the same height. Add percentage labels using `after_stat()` within each x group.
+
+```r
+p_race_status_percent <- ggplot(clinical, aes(x = Race, fill = Vital_Status)) +
+  geom_bar(position = "fill") +
+  geom_text(
+    aes(
+      label = scales::percent(after_stat(count / sum(count)), accuracy = 1)
+    ),
+    stat = "count",
+    position = position_fill(vjust = 0.5),
+    colour = "white",
+    size = 3
+  ) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = "Vital status composition within race", x = "Race", y = "Percent", fill = "Vital status") +
+  theme_minimal()
+
+p_race_status_percent
+```
+
+**What to look for:** Compare composition rather than group size. A small Race group can have a high percentage based on relatively few records.
+
+### **Q17. How do you flip the Race-by-Vital_Status chart for readable labels?**
+
+**Hint:** Add `coord_flip()` after the geoms and scales; the categorical axis becomes vertical.
+
+```r
+p_race_status_flipped <- p_race_status_counts +
+  coord_flip() +
+  labs(title = "Vital status counts within race (flipped)")
+
+p_race_status_flipped
+```
+
+**What to look for:** Long Race labels should be easier to read, and the stacked counts remain the same after flipping.
+
+### **Q18. How do you display Pathologic_stage counts with a flipped bar chart?**
+
+**Hint:** Use `geom_bar()` for counts and `coord_flip()` to make stage labels easier to scan.
+
+```r
+p_stage_counts <- ggplot(clinical, aes(x = Pathologic_stage)) +
+  geom_bar(fill = "#0072B2") +
+  coord_flip() +
+  labs(title = "Patients by pathologic stage", x = "Pathologic stage", y = "Number of patients") +
+  theme_minimal()
+
+p_stage_counts
+```
+
+**What to look for:** Identify common and uncommon stages and check whether missing or non-standard stage labels are present as separate categories.
+
+## 5. Facets, themes, and colour-blind design
+
+### **Q19. How do you facet an Age histogram by Gender?**
+
+**Hint:** Add `facet_wrap(~ Gender)` after the histogram. Keep binwidth and axis units consistent so panels can be compared.
+
+```r
+p_age_gender <- ggplot(clinical, aes(x = Age)) +
+  geom_histogram(binwidth = 5, boundary = 0, fill = "#0072B2", colour = "white", na.rm = TRUE) +
+  facet_wrap(~ Gender) +
+  labs(title = "Age distribution by gender", x = "Age (years)", y = "Number of patients") +
+  theme_minimal()
+
+p_age_gender
+```
+
+**What to look for:** Compare the shape and sample size across Gender panels. Facets reduce overplotting but do not automatically make groups comparable if scales differ.
+
+### **Q20. How do you facet by Race while filling by Vital_Status?**
+
+**Hint:** Use `facet_wrap(~ Race)` and map `Vital_Status` to `fill`; `drop = FALSE` can preserve factor levels when useful.
+
+```r
+p_stage_race_status <- ggplot(
+  clinical,
+  aes(x = Pathologic_stage, fill = Vital_Status)
+) +
+  geom_bar() +
+  facet_wrap(~ Race, scales = "free_x") +
+  labs(
+    title = "Pathologic stage and vital status by race",
+    x = "Pathologic stage",
+    y = "Number of patients",
+    fill = "Vital status"
+  ) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+p_stage_race_status
 ```
 
-**What to look for:** Compare both the total bar heights and the composition of each race group.
+**What to look for:** Look for within-Race patterns while remembering that free x scales can change the visual width of categories and that small facets may be noisy.
 
-### Q16. How do proportions compare across race?
+### **Q21. How do you apply theme_minimal() and rotate crowded labels?**
 
-Set `position = "fill"` and format the y-axis as percentages.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
+**Hint:** Apply `theme_minimal()` and adjust `element_text()` for the axis that contains long labels.
 
 ```r
-ggplot(clinical, aes(x = Race, fill = Vital_Status)) +
-  geom_bar(position = "fill") +
-  scale_y_continuous(labels = scales::label_percent()) +
-  labs(title = "Vital status proportions within race", x = "Race", y = "Percent", fill = "Vital status") +
-  theme_minimal()
-```
-
-**What to look for:** Every bar should reach 100%; compare the relative shares rather than the sample sizes.
-
-### Q17. Can you make the comparison horizontal?
-
-Reuse the proportional bar chart and add `coord_flip()`.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
-
-```r
-ggplot(clinical, aes(x = Race, fill = Vital_Status)) +
-  geom_bar(position = "fill") +
-  coord_flip() +
-  scale_x_discrete(limits = rev(levels(clinical$Race))) +
-  scale_y_continuous(labels = scales::label_percent()) +
-  labs(title = "Vital status proportions within race", x = "Race", y = "Percent", fill = "Vital status") +
-  theme_minimal()
-```
-
-**What to look for:** Horizontal labels are often easier to read when category names are long or numerous.
-
-### Q18. Which stage counts are largest?
-
-Count `Pathologic_stage` and flip the coordinates.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
-
-```r
-ggplot(clinical, aes(x = Pathologic_stage, fill = Vital_Status)) +
-  geom_bar() +
-  coord_flip() +
-  labs(title = "Patients by pathologic stage", x = "Pathologic stage", y = "Count", fill = "Vital status") +
-  theme_minimal()
-```
-
-**What to look for:** Identify the most common stages and note whether their status composition appears similar or different.
-
----
-
-## 🖌️ Facets, themes, and colour-blind design
-
-### Q19. How does the age distribution vary by sex?
-
-Facet a histogram by `Gender` and suppress the redundant fill legend.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
-
-```r
-ggplot(clinical, aes(x = Age, fill = Gender)) +
-  geom_histogram(binwidth = 5) +
-  facet_wrap(~ Gender) +
-  guides(fill = "none") +
-  labs(title = "Age distributions by gender", x = "Age (years)", y = "Count") +
-  theme_minimal()
-```
-
-**What to look for:** Compare the shapes and ranges across panels using consistent axes.
-
-### Q20. How can you show age patterns by race and vital status?
-
-Facet by race and fill the histograms by vital status.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
-
-```r
-ggplot(clinical, aes(x = Age, fill = Vital_Status)) +
-  geom_histogram(binwidth = 5, position = "identity", alpha = 0.5) +
-  facet_wrap(~ Race) +
-  labs(title = "Age by race and vital status", x = "Age (years)", y = "Count", fill = "Vital status") +
-  theme_bw()
-```
-
-**What to look for:** Use the common axes to compare distributions across race panels without over-interpreting sparse groups.
-
-### Q21. Which theme improves a dense categorical plot?
-
-Try a restrained theme and rotate crowded x-axis labels.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
-
-```r
-ggplot(clinical, aes(x = Pathologic_stage, y = Age, fill = Vital_Status)) +
-  geom_boxplot() +
-  labs(title = "Age by pathologic stage and vital status", x = "Pathologic stage", y = "Age (years)", fill = "Vital status") +
+p_stage_theme <- ggplot(clinical, aes(x = Pathologic_stage, fill = Vital_Status)) +
+  geom_bar(position = "dodge") +
   theme_minimal(base_size = 12) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+    legend.position = "top",
+    plot.title = element_text(face = "bold")
+  ) +
+  labs(title = "Pathologic stage by vital status", x = "Pathologic stage", y = "Number of patients", fill = "Vital status")
+
+p_stage_theme
 ```
 
-**What to look for:** A theme should improve legibility without competing with the data; label rotation is useful but not a substitute for sensible ordering.
+**What to look for:** Labels should not overlap, the hierarchy should be clear, and the theme should support the data rather than compete with it.
 
-### Q22. Can you use a colour-blind-friendly palette?
+### **Q22. How do you build an Okabe–Ito colour-blind-friendly palette from Vital_Status levels?**
 
-Use Okabe–Ito colours and derive names from the actual factor levels.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
+**Hint:** Create the palette as a named vector whose names are exactly `levels(clinical$Vital_Status)`, then use `scale_fill_manual()` and `scale_colour_manual()`.
 
 ```r
-okabe <- setNames(
-  c("#0072B2", "#D55E00"),
-  levels(clinical$Vital_Status)
+okabe_ito <- c(
+  "#E69F00", "#56B4E9", "#009E73", "#F0E442",
+  "#0072B2", "#D55E00", "#CC79A7", "#000000"
 )
 
-ggplot(clinical, aes(x = Vital_Status, y = Age, fill = Vital_Status)) +
-  geom_boxplot() +
-  scale_fill_manual(values = okabe) +
-  labs(title = "Age by vital status", x = "Vital status", y = "Age (years)", fill = "Vital status") +
-  theme_classic()
+vital_levels <- levels(clinical$Vital_Status)
+vital_palette <- setNames(
+  rep(okabe_ito, length.out = length(vital_levels)),
+  vital_levels
+)
+
+p_colour_blind <- ggplot(clinical, aes(x = Race, fill = Vital_Status)) +
+  geom_bar() +
+  scale_fill_manual(values = vital_palette, drop = FALSE) +
+  labs(title = "Vital status by race", x = "Race", y = "Number of patients", fill = "Vital status") +
+  theme_minimal()
+
+p_colour_blind
 ```
 
-**What to look for:** Check that each status level has the intended colour and that the contrast remains clear without relying on hue alone.
+**What to look for:** The legend names should match the data levels exactly, and categories should remain distinguishable without relying on red-versus-green perception alone.
 
----
+### **Q23. How do you make a publication-ready plot and save it as p_pub?**
 
-## 🧱 Combining & annotating
-
-### Q23. How do you make a figure publication-ready?
-
-Add informative labels, a caption, and a restrained theme to the previously defined model plot.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
+**Hint:** Combine a clear title and labels with a restrained theme, accessible palette, legible text, and an explicit legend position.
 
 ```r
-p_pub <- p_lm +
+p_pub <- ggplot(clinical, aes(x = Age_Group, y = Age, fill = Vital_Status)) +
+  geom_boxplot(outlier.alpha = 0.35, na.rm = TRUE) +
+  scale_fill_manual(values = vital_palette, drop = FALSE) +
   labs(
-    title = "Age and smoking intensity",
-    subtitle = "Linear trend with 95% confidence band",
-    x = "Age (years)",
-    y = "Cigarettes per day",
-    caption = "Clinical teaching dataset"
+    title = "Age distribution across age groups",
+    subtitle = "Stratified by vital status",
+    x = "Age group",
+    y = "Age (years)",
+    fill = "Vital status",
+    caption = "Source: data/clinical_data.csv"
   ) +
-  theme_classic(base_size = 12)
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(face = "bold", size = 15),
+    plot.subtitle = element_text(colour = "grey30"),
+    legend.position = "top",
+    panel.grid.minor = element_blank(),
+    plot.caption = element_text(hjust = 0)
+  )
+
 p_pub
 ```
 
-**What to look for:** A publication-ready figure makes the variables, units, uncertainty, and context explicit.
+**What to look for:** A publication-ready figure has an explicit message, readable typography, an honest scale, and a palette that remains interpretable in grayscale or for readers with colour-vision differences.
 
-### Q24. Can you combine several panels?
+## 6. Combining & annotating
 
-Use `patchwork` to arrange the density, scatter, and model plots.
+### **Q24. How do you combine related plots with patchwork?**
 
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
+**Hint:** The `patchwork` package lets you compose named ggplot objects with `+` and control layout with `/` or `plot_layout()`.
 
 ```r
-p_combo <- (p_age_density | p_scatter) / p_lm +
-  plot_annotation(title = "Clinical overview")
+p_combo <- (
+  p_age_hist + p_age_density
+) / (
+  p_scatter + p_lm
+) +
+  patchwork::plot_annotation(
+    title = "Clinical data overview",
+    subtitle = "Distributions and the Age–Cigarettes_per_day relationship"
+  )
+
 p_combo
 ```
 
-**What to look for:** Check that each panel contributes a distinct view and that the combined figure has a coherent visual story.
+**What to look for:** The combined figure should tell a coherent story: univariate distributions first, followed by the two-variable relationship and its fitted trend.
 
-### Q25. How do you save the multi-panel figure?
+### **Q25. How do you save a multi-panel ggplot2 figure?**
 
-Pass the patchwork object to `ggsave()` with a larger canvas.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
+**Hint:** Pass the patchwork object explicitly to `ggsave()` and set dimensions that preserve the panel layout.
 
 ```r
 ggsave(
@@ -500,56 +545,60 @@ ggsave(
   plot = p_combo,
   width = 11,
   height = 8,
+  units = "in",
   dpi = 300
 )
 ```
 
-**What to look for:** The output should be large enough for all panels, labels, and the shared title to remain readable.
+**What to look for:** Check the exported PNG at its final viewing size. A figure that looks fine in an interactive pane may need larger dimensions or text for a report.
 
-### Q26. How would you preview a group-comparison annotation?
+### **Q26. How can you add a Wilcoxon comparison to a ggpubr boxplot?**
 
-Use `stat_compare_means()` as a visual aid, not as a substitute for a prespecified analysis.
-
-> **Hint:** Use the prompt and inspect the relevant visual encoding before changing the code.
+**Hint:** `ggboxplot()` creates a publication-style boxplot and `stat_compare_means(method = "wilcox.test")` adds a non-parametric comparison. This is a **visual aid only**: use a pre-specified analysis for formal inference and account for multiple comparisons or study design as appropriate.
 
 ```r
-p_annotation <- ggboxplot(
+p_wilcox_visual <- ggpubr::ggboxplot(
   clinical,
   x = "Vital_Status",
   y = "Age",
   color = "Vital_Status",
-  add = "jitter"
+  palette = unname(vital_palette[levels(clinical$Vital_Status)]),
+  add = "jitter",
+  add.params = list(alpha = 0.35, width = 0.15)
 ) +
-  stat_compare_means(method = "wilcox.test") +
-  labs(title = "Age by vital status", x = "Vital status", y = "Age (years)") +
+  ggpubr::stat_compare_means(
+    method = "wilcox.test",
+    label = "p.format"
+  ) +
+  labs(title = "Age by vital status with Wilcoxon annotation", x = "Vital status", y = "Age (years)") +
   theme_minimal()
-p_annotation
+
+p_wilcox_visual
 ```
 
-**What to look for:** Treat the annotation as exploratory context and report the study design, estimand, and assumptions separately.
-
----
+**What to look for:** The annotation reports a test result for the displayed groups; it does not measure effect size, prove causality, or replace inspection of the distributions and sample sizes.
 
 ## Common mistakes
 
-- Mapping a constant inside `aes()` instead of setting it outside, or doing the reverse when you want a legend.
-- Comparing raw counts when group sizes differ; use `position = "fill"` for within-group proportions.
-- Forgetting `drop_na()` before a correlation or model when missing pairs are present.
-- Using a palette whose names do not match the factor levels; derive manual names from `levels()`.
-- Overplotting every point without transparency or jitter.
-- Treating a fitted line or p-value as evidence of causation.
+1. **Confusing counts and percentages.** `geom_bar()` without a y aesthetic counts rows; `position = "fill"` shows within-bar proportions. State which denominator you are using.
+2. **Using a histogram for a categorical variable.** Use `geom_bar()` for categories and `geom_histogram()` for continuous numeric measurements.
+3. **Choosing an arbitrary binwidth.** Try a defensible binwidth and explain how it affects the apparent shape.
+4. **Overplotting every observation.** Use transparency, jitter, faceting, or a summary layer when points overlap.
+5. **Treating a smooth as proof.** `geom_smooth(method = "lm")` describes a fitted model; it does not establish causation or guarantee that a linear model is appropriate.
+6. **Ignoring missingness.** `drop_na()` is appropriate for a complete-pair calculation, but do not silently reinterpret missing values as zeros.
+7. **Letting factor order happen by accident.** Use `factor()` levels or `reorder()` when order communicates meaning.
+8. **Using colour without a legend or accessible contrast.** Use labels, a named palette, and colour-blind-friendly choices.
+9. **Comparing facets with inconsistent scales without saying so.** Free scales can be useful but can also mislead visual comparisons.
+10. **Saving only what is displayed.** Pass the intended object explicitly to `ggsave()` and specify width, height, units, and resolution.
 
 ## Practice exercises
 
-Try these without looking for an answer key:
+1. Recreate the Age histogram with binwidths of 2 and 10. Which features are stable, and which are artifacts of binning?
+2. Add `Gender` as a colour aesthetic to the Age density plot. Explain whether a common or separate density scale is more appropriate for your comparison.
+3. Create a dodged bar chart of `Pathologic_stage` by `Vital_Status`, then create a filled version. Describe how the question changes between counts and composition.
+4. Add a smoother of your choice to the Age–Cigarettes_per_day scatterplot and write two sentences about whether the linear model seems adequate.
+5. Design a final figure for a clinical audience using one faceted plot, the Okabe–Ito palette, a concise title, and a caption that names the data source. Save it at 300 dpi.
 
-1. Recreate Q1 with a different bin width and explain how the story changes.
-2. Add a median marker to the Q6 boxplot using a summary layer.
-3. Make a proportional bar chart of `Pathologic_stage` by `Vital_Status`.
-4. Facet the Q11 scatter plot by `Race` and compare the slopes visually.
-5. Choose one plot and export a version with a descriptive filename and caption.
+## Closing reflection
 
-## Reflection
-
-A useful visualization states the population, variable roles, graphical encoding, uncertainty, and limitations. Ask whether the plot answers the question, whether the scale is honest, and whether missingness or sparse groups could change the interpretation. Avoid implying causation from an observational plot.
-
+Before you finish, choose one figure that communicates a useful clinical pattern and one that could be misread. For each, identify the data variables, the visual encodings, the denominator or model being used, and the uncertainty or limitation that should accompany it. Good visualization is not decoration: it is a transparent argument about what the data support.
