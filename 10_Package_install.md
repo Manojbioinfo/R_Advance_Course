@@ -265,7 +265,7 @@ chickens <- read_csv(readr_example("chickens.csv"))
 
 `readr_example()` points to a small example file that ships with the package. R prints the column specification when it reads the file.
 
-<p align="center"><a href="images2/Slide53.png"><img src="images2/Slide55.png" alt="Running the readr example" width="500"></a></p>
+
 
 Inspect the result:
 
@@ -276,7 +276,6 @@ View(chickens)
 
 The `chickens` object has 5 rows and 4 columns: `chicken`, `sex`, `eggs_laid`, and `motto`.
 
-<p align="center"><a href="images2/Slide54.png"><img src="images2/Slide55.png" alt="The chickens data frame" width="500"></a></p>
 
 More about `readr`: https://readr.tidyverse.org/
 
