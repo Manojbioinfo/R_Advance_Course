@@ -591,14 +591,301 @@ p_wilcox_visual
 9. **Comparing facets with inconsistent scales without saying so.** Free scales can be useful but can also mislead visual comparisons.
 10. **Saving only what is displayed.** Pass the intended object explicitly to `ggsave()` and specify width, height, units, and resolution.
 
-## Practice exercises
+## Quiz: test your understanding
 
-1. Recreate the Age histogram with binwidths of 2 and 10. Which features are stable, and which are artifacts of binning?
-2. Add `Gender` as a colour aesthetic to the Age density plot. Explain whether a common or separate density scale is more appropriate for your comparison.
-3. Create a dodged bar chart of `Pathologic_stage` by `Vital_Status`, then create a filled version. Describe how the question changes between counts and composition.
-4. Add a smoother of your choice to the Age–Cigarettes_per_day scatterplot and write two sentences about whether the linear model seems adequate.
-5. Design a final figure for a clinical audience using one faceted plot, the Okabe–Ito palette, a concise title, and a caption that names the data source. Save it at 300 dpi.
+Try each question before opening the answer. Questions are grouped by difficulty, and every answer is hidden until you click it.
 
-## Closing reflection
+---
 
+### Part A: Multiple choice
+
+**Q27. In the grammar of graphics, which component maps a variable to a visual property such as x, y, colour, or fill?**
+
+- A. Geometry
+- B. Aesthetic mapping
+- C. Theme
+- D. Facet
+
+<details><summary>Show answer</summary>
+
+**B.** Aesthetic mappings, written inside `aes()`, connect data variables to visual properties.
+
+</details>
+
+**Q28. Which geom is the most appropriate for showing the distribution of a single continuous variable such as `Age`?**
+
+- A. `geom_bar()`
+- B. `geom_histogram()`
+- C. `geom_col()`
+- D. `geom_tile()`
+
+<details><summary>Show answer</summary>
+
+**B.** `geom_histogram()` bins a continuous variable, while `geom_bar()` counts the rows in each category of a discrete variable.
+
+</details>
+
+**Q29. What does `geom_bar(position = "fill")` display?**
+
+- A. The raw count in each group
+- B. The proportion of each fill category within each bar
+- C. The mean of the y variable
+- D. A smoothed density
+
+<details><summary>Show answer</summary>
+
+**B.** Every bar is scaled to the same height, so you compare composition rather than group size.
+
+</details>
+
+**Q30. What is the difference between `geom_bar()` and `geom_col()`?**
+
+- A. None, they are aliases
+- B. `geom_bar()` counts rows by default, while `geom_col()` plots a y value you already computed
+- C. `geom_col()` is only for histograms
+- D. `geom_bar()` cannot be used with factors
+
+<details><summary>Show answer</summary>
+
+**B.** `geom_bar()` uses `stat = "count"`, and `geom_col()` uses `stat = "identity"`.
+
+</details>
+
+**Q31. A boxplot's central line represents which statistic?**
+
+- A. Mean
+- B. Mode
+- C. Median
+- D. Maximum
+
+<details><summary>Show answer</summary>
+
+**C.** The line is the median. The box spans the first to third quartile (the interquartile range).
+
+</details>
+
+**Q32. What does the shaded band around `geom_smooth(method = "lm")` represent?**
+
+- A. The range of all observed data points
+- B. A confidence interval for the fitted mean trend
+- C. The standard deviation of y
+- D. The prediction interval for new patients
+
+<details><summary>Show answer</summary>
+
+**B.** It reflects uncertainty in the fitted *mean*, not the spread of individual observations, so it is much narrower than the data.
+
+</details>
+
+**Q33. Which function adds a separate panel for each level of a variable?**
+
+- A. `facet_wrap()`
+- B. `coord_flip()`
+- C. `scale_fill_manual()`
+- D. `theme_minimal()`
+
+<details><summary>Show answer</summary>
+
+**A.** `facet_wrap(~ variable)` creates small multiples.
+
+</details>
+
+**Q34. Which statement about the Okabe–Ito palette is correct?**
+
+- A. It is designed to be distinguishable by people with common forms of colour-vision deficiency
+- B. It contains only shades of red and green
+- C. It works only in grayscale
+- D. It cannot be used with `scale_fill_manual()`
+
+<details><summary>Show answer</summary>
+
+**A.** It was designed for colour-blind accessibility. Pass it to `scale_fill_manual()` or `scale_colour_manual()`.
+
+</details>
+
+**Q35. What does `coord_flip()` do?**
+
+- A. Swaps the x and y axes
+- B. Reverses the data order
+- C. Transposes the dataset
+- D. Rotates the legend
+
+<details><summary>Show answer</summary>
+
+**A.** It swaps the axes visually. The underlying data and statistics are unchanged.
+
+</details>
+
+---
+
+### Part B: True or False
+
+**Q36. A density curve's y-axis shows the number of patients at each age.**
+
+<details><summary>Show answer</summary>
+
+**False.** The y-axis is density, and the area under the curve equals 1.
+
+</details>
+
+**Q37. `stat_compare_means()` provides a formal analysis that replaces a prespecified statistical plan.**
+
+<details><summary>Show answer</summary>
+
+**False.** It is a visual aid only. Formal inference needs a prespecified analysis, with multiple comparisons and study design considered.
+
+</details>
+
+**Q38. A correlation coefficient close to zero proves there is no relationship between two variables.**
+
+<details><summary>Show answer</summary>
+
+**False.** Pearson correlation measures only *linear* association. A strong nonlinear relationship can still give r near 0.
+
+</details>
+
+**Q39. Changing the histogram binwidth can change the apparent shape of the distribution.**
+
+<details><summary>Show answer</summary>
+
+**True.** That is why you should try several binwidths and not over-interpret fine detail.
+
+</details>
+
+**Q40. Missing smoking values should be treated as zero cigarettes per day.**
+
+<details><summary>Show answer</summary>
+
+**False.** Missing means unknown, not zero. Treating `NA` as 0 would bias any summary.
+
+</details>
+
+**Q41. `ggsave()` can save a patchwork object, not just a single plot.**
+
+<details><summary>Show answer</summary>
+
+**True.** Pass the patchwork object explicitly via `plot =`.
+
+</details>
+
+---
+
+### Part C: Short answer
+
+**Q42. When would you choose a violin plot over a boxplot?**
+
+<details><summary>Show answer</summary>
+
+When distribution *shape* matters, for example bimodality or skew, that a box summary would hide. Overlaying a narrow boxplot (as in Q8) gives both the shape and the quartiles.
+
+</details>
+
+**Q43. Why add jitter and transparency (`alpha`) to a scatter or strip plot?**
+
+<details><summary>Show answer</summary>
+
+Many patients share the same values (such as ages and zeros), so points stack on top of each other. Jitter spreads them apart and transparency shows density, which reduces overplotting.
+
+</details>
+
+**Q44. Write code to make a bar chart of `Gender` counts, filled by `Vital_Status`, with side-by-side bars.**
+
+<details><summary>Show answer</summary>
+
+```r
+ggplot(clinical, aes(x = Gender, fill = Vital_Status)) +
+  geom_bar(position = "dodge")
+```
+
+</details>
+
+**Q45. Write code to draw a scatterplot of `Age` vs `Cigarettes_per_day` coloured by `Gender`, with a title and axis labels.**
+
+<details><summary>Show answer</summary>
+
+```r
+ggplot(clinical, aes(x = Age, y = Cigarettes_per_day, colour = Gender)) +
+  geom_point(alpha = 0.5, na.rm = TRUE) +
+  labs(
+    title = "Age and cigarettes per day by gender",
+    x = "Age (years)",
+    y = "Cigarettes per day",
+    colour = "Gender"
+  ) +
+  theme_minimal()
+```
+
+</details>
+
+**Q46. Write code to facet an `Age` histogram by `Pathologic_stage` using 4 columns.**
+
+<details><summary>Show answer</summary>
+
+```r
+ggplot(clinical, aes(x = Age)) +
+  geom_histogram(binwidth = 5, fill = "#0072B2", colour = "white") +
+  facet_wrap(~ Pathologic_stage, ncol = 4)
+```
+
+</details>
+
+**Q47. Your colleague says "the lines for Alive and Dead patients have different slopes, so smoking affects survival differently with age." What is wrong with this conclusion?**
+
+<details><summary>Show answer</summary>
+
+Slope differences in a descriptive plot do not establish an interaction, let alone causation. Group sizes, confounding, and uncertainty matter. You would need a formal model (for example, an interaction term) and confidence intervals before drawing a conclusion.
+
+</details>
+
+---
+
+### Part D: Try it yourself
+
+1. Draw a boxplot of `Cigarettes_per_day` by `Pathologic_stage`, flip the coordinates, and order the stages by median smoking.
+2. Make a filled bar chart of `Age_Group` by `Gender` with percentage labels, using a colour-blind-friendly palette.
+3. Build a two-panel `patchwork` figure (one distribution plot and one comparison plot), give it a title, and save it as a 300 dpi PNG.
+4. Pick one plot from this tutorial and write a two-sentence caption stating what it shows and one limitation.
+
+<details><summary>Show hints</summary>
+
+```r
+# 1
+ggplot(clinical, aes(x = reorder(Pathologic_stage, Cigarettes_per_day,
+                                 FUN = median, na.rm = TRUE),
+                     y = Cigarettes_per_day)) +
+  geom_boxplot(na.rm = TRUE) +
+  coord_flip() +
+  labs(x = "Pathologic stage", y = "Cigarettes per day")
+
+# 2
+ggplot(clinical, aes(x = Gender, fill = Age_Group)) +
+  geom_bar(position = "fill") +
+  geom_text(
+    aes(label = scales::percent(after_stat(count / sum(count)), accuracy = 1)),
+    stat = "count", position = position_fill(vjust = 0.5), size = 3
+  ) +
+  scale_fill_manual(values = c("#E69F00", "#0072B2", "#009E73")) +
+  scale_y_continuous(labels = scales::percent)
+# Note: percentages here are shares of ALL patients, not within each gender.
+# Compute within-group percentages first if that is what you want.
+
+# 3
+p1 <- ggplot(clinical, aes(Age)) + geom_histogram(binwidth = 5)
+p2 <- ggplot(clinical, aes(Vital_Status, Age)) + geom_boxplot()
+p_final <- p1 + p2 + patchwork::plot_annotation(title = "Age overview")
+ggsave("figures/quiz_panel.png", p_final, width = 10, height = 5, dpi = 300)
+```
+
+</details>
+
+---
+
+### 🎯 Scoring guide
+
+| Score (of 20 graded items, Q27-Q46) | Level |
+|---|---|
+| 18-20 | Excellent, ready for publication-quality figures |
+| 14-17 | Good, review the topics you missed |
+| 9-13 | Fair, re-read sections 1-6 |
+| 0-8 | Re-run the tutorial from the start |
 Before you finish, choose one figure that communicates a useful clinical pattern and one that could be misread. For each, identify the data variables, the visual encodings, the denominator or model being used, and the uncertainty or limitation that should accompany it. Good visualization is not decoration: it is a transparent argument about what the data support.
