@@ -880,7 +880,7 @@ ggsave("figures/quiz_panel.png", p_final, width = 10, height = 5, dpi = 300)
 
 ---
 
-### 🎯 Scoring guide
+#### 🎯 Scoring guide
 
 | Score (of 20 graded items, Q27-Q46) | Level |
 |---|---|
@@ -888,4 +888,6 @@ ggsave("figures/quiz_panel.png", p_final, width = 10, height = 5, dpi = 300)
 | 14-17 | Good, review the topics you missed |
 | 9-13 | Fair, re-read sections 1-6 |
 | 0-8 | Re-run the tutorial from the start |
+
+
 Before you finish, choose one figure that communicates a useful clinical pattern and one that could be misread. For each, identify the data variables, the visual encodings, the denominator or model being used, and the uncertainty or limitation that should accompany it. Good visualization is not decoration: it is a transparent argument about what the data support.
