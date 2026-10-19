@@ -1,8 +1,5 @@
 # R Packages: Install from CRAN, Offline, and Bioconductor
 
-**Instructors:** Dr. Manoj Kumar Gupta and Dr. Joachim Wolff
-**Affiliation:** Hannover Medical School (MHH), Germany
-
 ---
 
 ## Contents
