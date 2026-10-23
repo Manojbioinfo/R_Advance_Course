@@ -38,7 +38,7 @@ library(patchwork)
 library(RColorBrewer)
 library(scales)
 
-clinical <- read_csv("data/clinical_data.csv", show_col_types = FALSE) |>
+clinical <- read_csv("data/BRCA_clean_data_all_patients.csv", show_col_types = FALSE) |>
   mutate(
     Gender = factor(Gender),
     Race = factor(Race),
