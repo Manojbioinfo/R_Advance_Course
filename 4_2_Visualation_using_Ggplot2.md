@@ -588,3 +588,340 @@ save_fig(p_pub, "Fig6_3_publication.jpeg")
 2. Group sizes are highly unequal. Check counts before comparing percentages.
 3. Follow-up time is censored. Use survival analysis (Kaplan-Meier, Cox) for real survival questions.
 4. Use colour-blind-safe palettes (Okabe-Ito) and consistent factor ordering.
+
+
+---
+
+## Common mistakes
+
+1. **Confusing counts and percentages.** `geom_bar()` without a y aesthetic counts rows; `position = "fill"` shows within-bar proportions. State which denominator you are using.
+2. **Using a histogram for a categorical variable.** Use `geom_bar()` for categories and `geom_histogram()` for continuous numeric measurements.
+3. **Choosing an arbitrary binwidth.** Try a defensible binwidth and explain how it affects the apparent shape.
+4. **Overplotting every observation.** Use transparency, jitter, faceting, or a summary layer when points overlap.
+5. **Treating a smooth as proof.** `geom_smooth(method = "lm")` describes a fitted model; it does not establish causation or guarantee that a linear model is appropriate.
+6. **Ignoring missingness.** `drop_na()` is appropriate for a complete-pair calculation, but do not silently reinterpret missing values as zeros.
+7. **Letting factor order happen by accident.** Use `factor()` levels or `reorder()` when order communicates meaning.
+8. **Using colour without a legend or accessible contrast.** Use labels, a named palette, and colour-blind-friendly choices.
+9. **Comparing facets with inconsistent scales without saying so.** Free scales can be useful but can also mislead visual comparisons.
+10. **Saving only what is displayed.** Pass the intended object explicitly to `ggsave()` and specify width, height, units, and resolution.
+11. **Pooling all cancer types.** Pan-cancer plots mix very different diseases. A pattern in the pooled data can disappear, or reverse, within each cancer type.
+12. **Treating follow-up time as survival time.** `OS_months` is censored for patients who are still alive. Use Kaplan-Meier or Cox models for real survival questions.
+
+## Quiz: test your understanding
+
+Try each question before opening the answer. Questions are grouped by difficulty, and every answer is hidden until you click it.
+
+---
+
+### Part A: Multiple choice
+
+**Q27. In the grammar of graphics, which component maps a variable to a visual property such as x, y, colour, or fill?**
+
+- A. Geometry
+- B. Aesthetic mapping
+- C. Theme
+- D. Facet
+
+<details><summary>Show answer</summary>
+
+**B.** Aesthetic mappings, written inside `aes()`, connect data variables to visual properties.
+
+</details>
+
+**Q28. Which geom is the most appropriate for showing the distribution of a single continuous variable such as `Age`?**
+
+- A. `geom_bar()`
+- B. `geom_histogram()`
+- C. `geom_col()`
+- D. `geom_tile()`
+
+<details><summary>Show answer</summary>
+
+**B.** `geom_histogram()` bins a continuous variable, while `geom_bar()` counts the rows in each category of a discrete variable.
+
+</details>
+
+**Q29. What does `geom_bar(position = "fill")` display?**
+
+- A. The raw count in each group
+- B. The proportion of each fill category within each bar
+- C. The mean of the y variable
+- D. A smoothed density
+
+<details><summary>Show answer</summary>
+
+**B.** Every bar is scaled to the same height, so you compare composition rather than group size.
+
+</details>
+
+**Q30. What is the difference between `geom_bar()` and `geom_col()`?**
+
+- A. None, they are aliases
+- B. `geom_bar()` counts rows by default, while `geom_col()` plots a y value you already computed
+- C. `geom_col()` is only for histograms
+- D. `geom_bar()` cannot be used with factors
+
+<details><summary>Show answer</summary>
+
+**B.** `geom_bar()` uses `stat = "count"`, and `geom_col()` uses `stat = "identity"`.
+
+</details>
+
+**Q31. A boxplot's central line represents which statistic?**
+
+- A. Mean
+- B. Mode
+- C. Median
+- D. Maximum
+
+<details><summary>Show answer</summary>
+
+**C.** The line is the median. The box spans the first to third quartile (the interquartile range).
+
+</details>
+
+**Q32. What does the shaded band around `geom_smooth(method = "lm")` represent?**
+
+- A. The range of all observed data points
+- B. A confidence interval for the fitted mean trend
+- C. The standard deviation of y
+- D. The prediction interval for new patients
+
+<details><summary>Show answer</summary>
+
+**B.** It reflects uncertainty in the fitted *mean*, not the spread of individual observations, so it is much narrower than the data.
+
+</details>
+
+**Q33. Which function adds a separate panel for each level of a variable?**
+
+- A. `facet_wrap()`
+- B. `coord_flip()`
+- C. `scale_fill_manual()`
+- D. `theme_minimal()`
+
+<details><summary>Show answer</summary>
+
+**A.** `facet_wrap(~ variable)` creates small multiples.
+
+</details>
+
+**Q34. Which statement about the Okabe-Ito palette is correct?**
+
+- A. It is designed to be distinguishable by people with common forms of colour-vision deficiency
+- B. It contains only shades of red and green
+- C. It works only in grayscale
+- D. It cannot be used with `scale_fill_manual()`
+
+<details><summary>Show answer</summary>
+
+**A.** It was designed for colour-blind accessibility. Pass it to `scale_fill_manual()` or `scale_colour_manual()`.
+
+</details>
+
+**Q35. What does `coord_flip()` do?**
+
+- A. Swaps the x and y axes
+- B. Reverses the data order
+- C. Transposes the dataset
+- D. Rotates the legend
+
+<details><summary>Show answer</summary>
+
+**A.** It swaps the axes visually. The underlying data and statistics are unchanged.
+
+</details>
+
+---
+
+### Part B: True or False
+
+**Q36. A density curve's y-axis shows the number of patients at each age.**
+
+<details><summary>Show answer</summary>
+
+**False.** The y-axis is density, and the area under the curve equals 1.
+
+</details>
+
+**Q37. `stat_compare_means()` provides a formal analysis that replaces a prespecified statistical plan.**
+
+<details><summary>Show answer</summary>
+
+**False.** It is a visual aid only. Formal inference needs a prespecified analysis, with multiple comparisons and study design considered.
+
+</details>
+
+**Q38. A correlation coefficient close to zero proves there is no relationship between two variables.**
+
+<details><summary>Show answer</summary>
+
+**False.** Pearson correlation measures only *linear* association. A strong nonlinear relationship can still give r near 0.
+
+</details>
+
+**Q39. Changing the histogram binwidth can change the apparent shape of the distribution.**
+
+<details><summary>Show answer</summary>
+
+**True.** That is why you should try several binwidths and not over-interpret fine detail.
+
+</details>
+
+**Q40. Missing stage values (`NA`) should be treated as Stage I.**
+
+<details><summary>Show answer</summary>
+
+**False.** Missing means unknown, not the lowest stage. Treating `NA` as a real category would bias every stage comparison. Drop missing values explicitly with `drop_na(Stage)` and report how many were removed.
+
+</details>
+
+**Q41. `ggsave()` can save a patchwork object, not just a single plot.**
+
+<details><summary>Show answer</summary>
+
+**True.** Pass the patchwork object explicitly via `plot =`.
+
+</details>
+
+---
+
+### Part C: Short answer
+
+**Q42. When would you choose a violin plot over a boxplot?**
+
+<details><summary>Show answer</summary>
+
+When distribution *shape* matters, for example bimodality or skew, that a box summary would hide. Overlaying a narrow boxplot (as in Q6) gives both the shape and the quartiles.
+
+</details>
+
+**Q43. Why add jitter and transparency (`alpha`) to a scatter or strip plot?**
+
+<details><summary>Show answer</summary>
+
+Many patients share the same values (such as whole-number ages), so points stack on top of each other. Jitter spreads them apart and transparency shows density, which reduces overplotting.
+
+</details>
+
+**Q44. Write code to make a bar chart of `Gender` counts, filled by `Vital_Status`, with side-by-side bars.**
+
+<details><summary>Show answer</summary>
+
+```r
+clinical |>
+  drop_na(Gender, Vital_Status) |>
+  ggplot(aes(x = Gender, fill = Vital_Status)) +
+  geom_bar(position = "dodge")
+```
+
+</details>
+
+**Q45. Write code to draw a scatterplot of `Age` vs `OS_months` coloured by `Gender`, with a title and axis labels.**
+
+<details><summary>Show answer</summary>
+
+```r
+clinical |>
+  drop_na(Age, OS_months, Gender) |>
+  ggplot(aes(x = Age, y = OS_months, colour = Gender)) +
+  geom_point(alpha = 0.2) +
+  labs(
+    title = "Age and follow-up time by gender",
+    x = "Age (years)",
+    y = "Follow-up (months)",
+    colour = "Gender"
+  ) +
+  theme_minimal()
+```
+
+</details>
+
+**Q46. Write code to facet an `Age` histogram by `Stage` using 2 columns.**
+
+<details><summary>Show answer</summary>
+
+```r
+clinical |>
+  drop_na(Stage, Age) |>
+  ggplot(aes(x = Age)) +
+  geom_histogram(binwidth = 5, fill = "#0072B2", colour = "white") +
+  facet_wrap(~ Stage, ncol = 2)
+```
+
+</details>
+
+**Q47 (discussion). Your colleague says: "The lines for Alive and Dead patients have different slopes, so age affects survival differently in the two groups." What is wrong with this conclusion?**
+
+<details><summary>Show answer</summary>
+
+Slope differences in a descriptive plot do not establish an interaction, let alone causation. Here the problem is even stronger: `OS_months` is censored follow-up time, so alive patients' times only reflect how long they were observed. Cancer-type mix, group sizes, and uncertainty also matter. You would need a formal survival model (for example, a Cox model with an age-by-status or age-by-stratum term) and confidence intervals before drawing a conclusion.
+
+</details>
+
+---
+
+### Part D: Try it yourself
+
+1. Draw a boxplot of `OS_months` by `Cancer_Type`, flip the coordinates, and order the cancer types by median follow-up.
+2. Make a filled bar chart of `Age_Group` by `Gender` with **within-gender** percentage labels, using a colour-blind-friendly palette.
+3. Build a two-panel `patchwork` figure (one distribution plot and one comparison plot), give it a title, and save it as a 300 dpi PNG in `figures/`.
+4. Pick one plot from this tutorial and write a two-sentence caption stating what it shows and one limitation.
+
+<details><summary>Show hints</summary>
+
+```r
+# 1
+clinical |>
+  drop_na(OS_months) |>
+  ggplot(aes(x = reorder(Cancer_Type, OS_months, FUN = median, na.rm = TRUE),
+             y = OS_months)) +
+  geom_boxplot(outlier.alpha = 0.3) +
+  coord_flip() +
+  labs(x = "Cancer type", y = "Follow-up (months)")
+
+# 2  (compute percentages within each gender first)
+age_gender_pct <- clinical |>
+  drop_na(Gender, Age_Group) |>
+  count(Gender, Age_Group) |>
+  group_by(Gender) |>
+  mutate(pct = n / sum(n)) |>
+  ungroup()
+
+ggplot(age_gender_pct, aes(x = Gender, y = pct, fill = Age_Group)) +
+  geom_col() +
+  geom_text(aes(label = scales::percent(pct, accuracy = 1)),
+            position = position_stack(vjust = 0.5), size = 3) +
+  scale_fill_manual(values = okabe_ito[c(2, 6, 3, 1)]) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(x = "Gender", y = "Percent within gender", fill = "Age group")
+
+# 3
+library(patchwork)
+p1 <- ggplot(clinical, aes(Age)) + geom_histogram(binwidth = 5, na.rm = TRUE)
+p2 <- clinical |> drop_na(Vital_Status, Age) |>
+  ggplot(aes(Vital_Status, Age)) + geom_boxplot()
+p_final <- p1 + p2 + plot_annotation(title = "Age overview")
+ggsave("figures/quiz_panel.png", p_final, width = 10, height = 5, dpi = 300)
+```
+
+</details>
+
+---
+
+#### Scoring guide
+
+| Score (of 20 graded items, Q27-Q46) | Level |
+|---|---|
+| 18-20 | Excellent, ready for publication-quality figures |
+| 14-17 | Good, review the topics you missed |
+| 9-13 | Fair, re-read sections 1-6 |
+| 0-8 | Re-run the tutorial from the start |
+
+Q47 and Part D are open-ended and are not scored.
+
+---
+
+## Final reflection
+
+Before you finish, choose one figure that communicates a useful clinical pattern and one that could be misread. For each, identify the data variables, the visual encodings, the denominator or model being used, and the uncertainty or limitation that should accompany it. Good visualization is not decoration: it is a transparent argument about what the data support.
