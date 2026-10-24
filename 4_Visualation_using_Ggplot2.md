@@ -137,13 +137,25 @@ p_age_hist_binned
 **What to look for:** Look for the centre, spread, skew, gaps, and unusually high or low ages. Do not interpret a tall bin as a rate; it is a count. With fixed five-year bins, the shape is stable and comparable across datasets — note how the choice of bin width changes the visual impression compared with the image above.
 
 
-### 🎨 Color Inspiration & Palettes
+### 🎨 Design & Palette Toolkit
 
-| Resource | Description | Link |
-| :--- | :--- | :--- |
-| **2Colors (Colorion)** | Curated two-color combinations, duotone palettes, and contrast-ready pairs for UI/UX design. | [Explore 2Colors →](https://2colors.colorion.co/) |
+Discover curated color combinations and generate custom harmonies for your design:
 
+- 🎭 **Two-Color Combinations**  
+  [![Coolors 2 Colors](https://img.shields.io/badge/Coolors-Trending%202%20Colors-0066FF?style=flat-square&logo=safari&logoColor=white)](https://coolors.co/palettes/trending/2%20colors)  
+  *Curated dual-color palettes for clean, high-contrast UI designs.*
 
+- 📐 **Three-Color Harmonies**  
+  [![Coolors 3 Colors](https://img.shields.io/badge/Coolors-Trending%203%20Colors-7928CA?style=flat-square&logo=safari&logoColor=white)](https://coolors.co/palettes/trending/3%20colors)  
+  *Perfect trios for base, text, and accent color schemes.*
+
+- 🎃 **Seasonal & Themed (Halloween)**  
+  [![Coolors Halloween](https://img.shields.io/badge/Coolors-Halloween%20Theme-FF7A00?style=flat-square&logo=safari&logoColor=white)](https://coolors.co/palettes/popular/halloween)  
+  *Vibrant oranges, deep purples, and dark contrast palettes.*
+
+- 🎡 **Color Wheel & Harmony Generator**  
+  [![Adobe Color](https://img.shields.io/badge/Adobe-Color%20Wheel-FF0000?style=flat-square&logo=adobe&logoColor=white)](https://color.adobe.com/create/color-wheel)  
+  *Create complementary, analogous, and triad palettes with Adobe's color engine.*
 
 ### **Q2. How can you display Age as a smoothed density curve?**
 
