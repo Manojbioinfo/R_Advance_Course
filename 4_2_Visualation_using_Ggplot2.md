@@ -5,23 +5,11 @@ patients across 33 cancer types) to practise core ggplot2 skills:
 histograms, boxplots, scatterplots, bar charts, facets, and statistical
 annotation.
 
-**Data source:** UCSC Xena TCGA Pan-Cancer clinical data, merged with sample
-type, immune subtype, and molecular subtype tables.
+**Data source:** TCGA Pan-Cancer (PANCAN) clinical data, downloaded from [UCSC Xena](https://xenabrowser.net/datapages/?cohort=TCGA%20Pan-Cancer%20(PANCAN)&removeHub=https%3A%2F%2Fxena.treehouse.gi.ucsc.edu%3A443).
 
 **Script:** [`TCGA_pancancer_plots.R`](TCGA_pancancer_plots.R) runs every
 code block below and saves all figures to `figures/`.
 
-**Repository layout**
-
-```
-.
-├── TCGA_pancancer_ggplot_tutorial.md
-├── TCGA_pancancer_plots.R
-├── data/
-│   └── TCGA_pancancer_clinical.rds
-└── figures/
-    └── Fig*.jpeg
-```
 
 ---
 
