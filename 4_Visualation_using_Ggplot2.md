@@ -137,6 +137,13 @@ p_age_hist_binned
 **What to look for:** Look for the centre, spread, skew, gaps, and unusually high or low ages. Do not interpret a tall bin as a rate; it is a count. With fixed five-year bins, the shape is stable and comparable across datasets — note how the choice of bin width changes the visual impression compared with the image above.
 
 
+### 🎨 Color Inspiration & Palettes
+
+| Resource | Description | Link |
+| :--- | :--- | :--- |
+| **2Colors (Colorion)** | Curated two-color combinations, duotone palettes, and contrast-ready pairs for UI/UX design. | [Explore 2Colors →](https://2colors.colorion.co/) |
+
+
 
 ### **Q2. How can you display Age as a smoothed density curve?**
 
