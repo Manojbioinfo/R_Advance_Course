@@ -7,7 +7,7 @@ annotation.
 
 **Data source:** TCGA Pan-Cancer (PANCAN) clinical data, downloaded from [UCSC Xena](https://xenabrowser.net/datapages/?cohort=TCGA%20Pan-Cancer%20(PANCAN)&removeHub=https%3A%2F%2Fxena.treehouse.gi.ucsc.edu%3A443).
 
-**Script:** [`TCGA_pancancer_plots.R`](TCGA_pancancer_plots.R) runs every
+**Script:** Now we run every
 code block below and saves all figures to `figures/`.
 
 
