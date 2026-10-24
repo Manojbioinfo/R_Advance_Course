@@ -1,6 +1,6 @@
 # Data Visualization with ggplot2
 
-This tutorial uses **only** `data/clinical_data.csv` (579 rows) to introduce the grammar of graphics and build clear, reproducible clinical data visualizations. Every example is designed to be copied into an R script or an R Markdown/Quarto document.
+This tutorial uses **only** `data/BRCA_clean_data_all_patients.csv` (579 rows) to introduce the grammar of graphics and build clear, reproducible clinical data visualizations. Every example is designed to be copied into an R script or an R Markdown/Quarto document.
 
 ## Table of contents
 
