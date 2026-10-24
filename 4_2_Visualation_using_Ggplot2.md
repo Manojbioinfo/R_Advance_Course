@@ -255,7 +255,9 @@ p_age_cancer <- clinical |>
 save_fig(p_age_cancer, "Fig2_3_age_cancer_type.jpeg", 7, 8)
 ```
 
-![Age by cancer type](figures/Fig2_3_age_cancer_type.jpeg)
+<p align="center">
+<img src="figures/Fig2_3_age_cancer_type.jpeg" alt="Age by cancer type" width="60%">
+</p>
 
 **What to look for:** Cancer types are ordered by observed median age, not
 alphabetically. Small groups have unstable medians.
@@ -275,7 +277,9 @@ p_os_stage <- clinical |>
 save_fig(p_os_stage, "Fig2_4_os_by_stage.jpeg")
 ```
 
-![Follow-up by stage](figures/Fig2_4_os_by_stage.jpeg)
+<p align="center">
+  <img src="figures/Fig2_4_os_by_stage.jpeg" alt="Follow-up by stage" width="60%">
+</p>
 
 **What to look for:** Higher stages often show shorter follow-up, but
 censoring affects this comparison.
@@ -298,7 +302,9 @@ p_scatter <- clinical |>
 save_fig(p_scatter, "Fig3_1_scatter.jpeg")
 ```
 
-![Scatter](figures/Fig3_1_scatter.jpeg)
+<p align="center">
+  <img src="figures/Fig3_1_scatter.jpeg" alt="Scatter" width="60%">
+</p>
 
 ### Q10. How do you add a linear smooth?
 
@@ -312,7 +318,9 @@ p_lm <- p_scatter +
 save_fig(p_lm, "Fig3_2_scatter_lm.jpeg")
 ```
 
-![Scatter with linear smooth](figures/Fig3_2_scatter_lm.jpeg)
+<p align="center">
+  <img src="figures/Fig3_2_scatter_lm.jpeg" alt="Scatter with linear smooth" width="60%">
+</p>
 
 ### Q11. Does the trend differ by Vital_Status?
 
@@ -332,7 +340,9 @@ p_status_lm <- clinical |>
 save_fig(p_status_lm, "Fig3_3_status_lm.jpeg")
 ```
 
-![Trend by vital status](figures/Fig3_3_status_lm.jpeg)
+<p align="center">
+  <img src="figures/Fig3_3_status_lm.jpeg" alt="Trend by vital status" width="60%">
+</p>
 
 **What to look for:** Do not claim a group difference from line separation
 alone. Censoring and cancer-type mix are strong confounders.
@@ -375,7 +385,9 @@ p_gender_cancer <- clinical |>
 save_fig(p_gender_cancer, "Fig4_1_gender_cancer.jpeg", 7, 8)
 ```
 
-![Gender by cancer type](figures/Fig4_1_gender_cancer.jpeg)
+<p align="center">
+  <img src="figures/Fig4_1_gender_cancer.jpeg" alt="Gender by cancer type" width="60%">
+</p>
 
 ### Q14. What is the race composition within each cancer type?
 
@@ -393,7 +405,9 @@ p_race_cancer <- clinical |>
 save_fig(p_race_cancer, "Fig4_2_race_cancer.jpeg", 8, 8)
 ```
 
-![Race by cancer type](figures/Fig4_2_race_cancer.jpeg)
+<p align="center">
+  <img src="figures/Fig4_2_race_cancer.jpeg" alt="Race by cancer type" width="80%">
+</p>
 
 **What to look for:** TCGA is dominated by patients recorded as White.
 Percentages for small groups rest on few patients.
@@ -411,7 +425,9 @@ p_stage_counts <- clinical |>
 save_fig(p_stage_counts, "Fig4_3_stage_counts.jpeg")
 ```
 
-![Stage counts](figures/Fig4_3_stage_counts.jpeg)
+<p align="center">
+  <img src="figures/Fig4_3_stage_counts.jpeg" alt="Stage counts" width="60%">
+</p>
 
 ### Q16. How does vital status vary by cancer type?
 
@@ -429,7 +445,9 @@ p_vital_cancer <- clinical |>
 save_fig(p_vital_cancer, "Fig4_4_vital_cancer.jpeg", 7, 8)
 ```
 
-![Vital status by cancer type](figures/Fig4_4_vital_cancer.jpeg)
+<p align="center">
+  <img src="figures/Fig4_4_vital_cancer.jpeg" alt="Vital status by cancer type" width="80%">
+</p>
 
 **What to look for:** Aggressive cancers such as GBM show high mortality in
 the follow-up window, while THCA and PRAD show very low mortality. Follow-up
@@ -453,7 +471,9 @@ p_immune <- clinical |>
 save_fig(p_immune, "Fig5_1_immune_subtypes.jpeg")
 ```
 
-![Immune subtypes](figures/Fig5_1_immune_subtypes.jpeg)
+<p align="center">
+  <img src="figures/Fig5_1_immune_subtypes.jpeg" alt="Immune subtypes" width="70%">
+</p>
 
 ### Q18. How do immune subtypes differ across selected cancers?
 
@@ -477,7 +497,9 @@ p_immune_facet <- clinical |>
 save_fig(p_immune_facet, "Fig5_2_immune_facet.jpeg", 9, 6)
 ```
 
-![Immune subtypes by cancer](figures/Fig5_2_immune_facet.jpeg)
+<p align="center">
+  <img src="figures/Fig5_2_immune_facet.jpeg" alt="Immune subtypes by cancer" width="90%">
+</p>
 
 **What to look for:** Free y-scales make the shapes easy to compare but hide
 the differences in panel size.
@@ -496,8 +518,9 @@ p_brca_sub <- ggplot(brca, aes(x = fct_infreq(Molecular_Subtype))) +
   theme_minimal()
 save_fig(p_brca_sub, "Fig5_3_brca_subtypes.jpeg")
 ```
-
-![BRCA subtypes](figures/Fig5_3_brca_subtypes.jpeg)
+<p align="center">
+  <img src="figures/Fig5_3_brca_subtypes.jpeg" alt="BRCA subtypes" width="60%">
+</p>
 
 ### Q20. Does Age differ across BRCA subtypes?
 
@@ -513,7 +536,9 @@ p_brca_age <- brca |>
 save_fig(p_brca_age, "Fig5_4_brca_age_subtype.jpeg")
 ```
 
-![BRCA age by subtype](figures/Fig5_4_brca_age_subtype.jpeg)
+<p align="center">
+  <img src="figures/Fig5_4_brca_age_subtype.jpeg" alt="BRCA age by subtype" width="60%">
+</p>
 
 ---
 
@@ -532,7 +557,9 @@ p_age_facet <- clinical |>
 save_fig(p_age_facet, "Fig6_1_age_gender_facet.jpeg", 8, 4)
 ```
 
-![Age by gender facets](figures/Fig6_1_age_gender_facet.jpeg)
+<p align="center">
+  <img src="figures/Fig6_1_age_gender_facet.jpeg" alt="Age by gender facets" width="70%">
+</p>
 
 **What to look for:** Compare shape and sample size across panels. Facets
 reduce overplotting but do not make groups comparable on their own.
@@ -555,7 +582,9 @@ p_wilcox <- clinical |>
 save_fig(p_wilcox, "Fig6_2_wilcox.jpeg")
 ```
 
-![Wilcoxon](figures/Fig6_2_wilcox.jpeg)
+<p align="center">
+  <img src="figures/Fig6_2_wilcox.jpeg" alt="Wilcoxon comparison of age by vital status" width="60%">
+</p>
 
 **What to look for:** The annotation reports a p-value for the displayed
 groups. It does not measure effect size, prove causation, or replace
@@ -580,7 +609,9 @@ p_pub <- clinical |>
 save_fig(p_pub, "Fig6_3_publication.jpeg")
 ```
 
-![Publication figure](figures/Fig6_3_publication.jpeg)
+<p align="center">
+  <img src="figures/Fig6_3_publication.jpeg" alt="Publication-ready figure: age by age group and vital status" width="70%">
+</p>
 
 ---
 
