@@ -88,20 +88,44 @@ dir.create("figures", showWarnings = FALSE)
 
 ## 1. Grammar of graphics & one variable
 
-### **Q1. How do you show the distribution of Age with histogram bins five years wide?**
 
-**Hint:** Put `Age` on the x-axis and set `binwidth = 5`. A histogram counts observations in intervals; the bin boundaries can affect the visual impression.
+
+### **Q1. How do you show the distribution of Age with a histogram (default bins)?** 
+
+**Hint:** Put `Age` on the x-axis and use `geom_histogram()` with default binning. A histogram counts observations in intervals; the bin boundaries can affect the visual impression.
 
 ```r
 p_age_hist <- ggplot(clinical, aes(x = Age)) +
-  geom_histogram(binwidth = 5, boundary = 0, colour = "white", fill = "#0072B2") +
+  geom_histogram(colour = "white", fill = "#0072B2") +
   labs(title = "Age distribution", x = "Age (years)", y = "Number of patients") +
   theme_minimal()
+
+ggsave("Fig4_1_p_age_hist.jpeg", p_age_hist, width = 7, height = 5, units = "in", dpi = 300)
 
 p_age_hist
 ```
 
-**What to look for:** Look for the centre, spread, skew, gaps, and unusually high or low ages. Do not interpret a tall bin as a rate; it is a count.
+**What to look for:** Look for the centre, spread, skew, gaps, and unusually high or low ages. Do not interpret a tall bin as a rate; it is a count. With default bins, compare the general shape but be careful — default bin width depends on the data range.
+
+
+### **Q2. How do you show the distribution of Age with histogram bins five years wide?**
+
+**Hint:** Add `binwidth = 5` to `geom_histogram()` and set `boundary = 0` so bins start at 0, 5, 10, … making the intervals align to meaningful five-year age groups.
+
+```r
+p_age_hist_binned <- ggplot(clinical, aes(x = Age)) +
+  geom_histogram(binwidth = 5, boundary = 0, colour = "white", fill = "#0072B2") +
+  labs(title = "Age distribution", x = "Age (years)", y = "Number of patients") +
+  theme_minimal()
+
+ggsave("Fig4_2_p_age_hist_binned.jpeg", p_age_hist, width = 7, height = 5, units = "in", dpi = 300)
+
+p_age_hist_binned
+```
+
+**What to look for:** Look for the centre, spread, skew, gaps, and unusually high or low ages. Do not interpret a tall bin as a rate; it is a count. With fixed five-year bins, the shape is stable and comparable across datasets — note how the choice of bin width changes the visual impression compared with the image above.
+
+
 
 ### **Q2. How can you display Age as a smoothed density curve?**
 
