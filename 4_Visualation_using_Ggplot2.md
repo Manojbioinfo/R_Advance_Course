@@ -47,11 +47,22 @@ clinical <- read_csv("data/BRCA_clean_data_all_patients.csv", show_col_types = F
     Age_Group = factor(Age_Group)
   )
 
-glimpse(clinical)
+str(clinical)
+
+```
+
+The numeric variables in this tutorial are `Age` and `Cigarettes_per_day`; 
+
+the categorical variables are `Gender`, `Race`, `Vital_Status`, `Pathologic_stage`, and `Age_Group`. 
+
+Missing values are handled explicitly where a calculation requires complete pairs.
+
+Next, we create folder named figures to save all our images from this analysis
+
+```r
 dir.create("figures", showWarnings = FALSE)
 ```
 
-The numeric variables in this tutorial are `Age` and `Cigarettes_per_day`; the categorical variables are `Gender`, `Race`, `Vital_Status`, `Pathologic_stage`, and `Age_Group`. Missing values are handled explicitly where a calculation requires complete pairs.
 
 ## Cheat sheet
 
