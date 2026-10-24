@@ -1,614 +1,1385 @@
-# Tutorial 4 — `clinical` Data Visualization (ggplot2) Notes
+<div align="center" style="width:60%;margin:0 auto">
 
-> **Note on the source transcript.** The file `/mnt/user-data/uploads/clipboard.txt`
-> is the **ggplot2 visualization tutorial** ("Data Visualization with ggplot2")
-> built around an 8-column, 981-patient `clinical` data frame
-> (`Age`, `Cigarettes_per_day`, `Gender`, `Race`, `Vital_Status`,
-> `Pathologic_stage`, `Age_Group`, plus an ID). It is **not** the
-> TCGA Pan-Cancer biostatistics / survival analysis session described in the
-> task brief. This document therefore summarises the workflow that is actually
-> present in the transcript, and the "known issues resolved" section records the
-> specific fixes applied during cleanup.
->
-> The companion biostatistics scripts live in the two sibling clipboard files
-> (`clipboard(1).txt`, `clipboard(2).txt`) and in
-> `/mnt/user-data/outputs/Tutorial_4_PanCancer.{R,md}`; none of their R code is
-> reproduced here, because it is not part of the uploaded `clipboard.txt`.
+# Tutorial 4: Biostatistics, from Question to Evidence
 
----
+**TCGA Pan-Cancer clinical data set — 12,591 patients, 33 cancer types, 25 questions**
+
+[![R version](https://img.shields.io/badge/R-%E2%89%A5%204.3-blue.svg)]()
+[![Made with: tidyverse + rstatix + survival](https://img.shields.io/badge/tidyverse-rstatix-survival-blueviolet.svg)]()
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)]()
+
+</div>
+
+> **How to read this tutorial.** Each section contains a short clinical
+> question, a one-paragraph hint that points at the right statistical tool,
+> the R code that produces a publication-ready figure and table, and a
+> "What to look for" note that highlights the key reading of the output.
+> Code blocks are designed to be runnable in order, top to bottom, on a
+> single machine that has the file `data/TCGA_pancancer_clinical.rds`.
+
+## Table of contents
+
+- [Learning objectives](#learning-objectives)
+- [Before you start](#before-you-start)
+- [Setup](#setup)
+- [Q1. How many patients per cancer type?](#q1-how-many-patients-per-cancer-type)
+- [Q2. What does the age distribution look like?](#q2-what-does-the-age-distribution-look-like)
+- [Q3. How does age differ between men and women?](#q3-how-does-age-differ-between-men-and-women)
+- [Q4. How many patients per age decade?](#q4-how-many-patients-per-age-decade)
+- [Q5. What proportion of patients falls in each age decade?](#q5-what-proportion-of-patients-falls-in-each-age-decade)
+- [Q6. Does the age distribution differ by vital status?](#q6-does-the-age-distribution-differ-by-vital-status)
+- [Q7. Is age approximately normally distributed?](#q7-is-age-approximately-normally-distributed)
+- [Q8. Do dead and alive patients differ in mean age?](#q8-do-dead-and-alive-patients-differ-in-mean-age)
+- [Q9. Do dead and alive patients differ in age (rank-based)?](#q9-do-dead-and-alive-patients-differ-in-age-rank-based)
+- [Q10. How variable is age within each vital-status group?](#q10-how-variable-is-age-within-each-vital-status-group)
+- [Q11. Do men and women differ in mean age?](#q11-do-men-and-women-differ-in-mean-age)
+- [Q12. Does age at diagnosis vary across cancer types?](#q12-does-age-at-diagnosis-vary-across-cancer-types)
+- [Q13. Which pairs of cancers differ in age after multiple-testing correction?](#q13-which-pairs-of-cancers-differ-in-age-after-multiple-testing-correction)
+- [Q14. Is age correlated with overall survival time?](#q14-is-age-correlated-with-overall-survival-time)
+- [Q15. Is vital status associated with race?](#q15-is-vital-status-associated-with-race)
+- [Q16. Is tumor status associated with vital status?](#q16-is-tumor-status-associated-with-vital-status)
+- [Q17. Where does the gender gap in age reach statistical significance?](#q17-where-does-the-gender-gap-in-age-reach-statistical-significance)
+- [Q18. How many patients and events for each survival endpoint?](#q18-how-many-patients-and-events-for-each-survival-endpoint)
+- [Q19. What is the overall Kaplan-Meier survival curve?](#q19-what-is-the-overall-kaplan-meier-survival-curve)
+- [Q20. Does overall survival differ between men and women?](#q20-does-overall-survival-differ-between-men-and-women)
+- [Q21. Does overall survival differ across age groups?](#q21-does-overall-survival-differ-across-age-groups)
+- [Q22. Does overall survival differ across cancer types?](#q22-does-overall-survival-differ-across-cancer-types)
+- [Q23. What is the adjusted hazard of age and gender on survival?](#q23-what-is-the-adjusted-hazard-of-age-and-gender-on-survival)
+- [Q24. Does the proportional-hazards assumption hold?](#q24-does-the-proportional-hazards-assumption-hold)
+- [Q25. Is the age effect on survival consistent across cancer types?](#q25-is-the-age-effect-on-survival-consistent-across-cancer-types)
+
+## Learning objectives
+
+By the end of this tutorial you will be able to:
+
+1. Translate a clinical question into the appropriate descriptive,
+   inferential or time-to-event procedure.
+2. Choose parametric vs non-parametric tests after checking their
+   assumptions (normality, equal variance, expected counts).
+3. Quantify uncertainty with confidence intervals and effect sizes
+   (Cohen's *d*, rank-biserial *r*, ε², Cramer's *V*) alongside
+   p-values.
+4. Fit and interpret Kaplan-Meier curves and Cox proportional-hazards
+   models, and check the proportional-hazards (PH) assumption with
+   scaled Schoenfeld residuals.
+5. Adjust for multiple testing (Holm for FWER, BH for FDR) and read a
+   forest plot.
+
+## Before you start
+
+Place the file `data/TCGA_pancancer_clinical.rds` next to the script.
+It contains the 12,591 patients × 16 columns the tutorial expects:
+`patient_id`, `cancer_type`, `age_at_initial_pathologic_diagnosis`,
+`gender`, `race`, `vital_status`, `tumor_status`, `OS`, `OS.time`,
+`DSS`, `DSS.time`, `DFI`, `DFI.time`, `PFI`, `PFI.time`. The script
+creates `figures/` and `results/` automatically.
 
 ## Setup
 
+Install the packages once.
+
 ```r
-library(tidyverse)
-library(ggpubr)
-library(patchwork)
-library(RColorBrewer)
-library(scales)
+install.packages(c(
+  "tidyverse", "ggpubr", "rstatix", "effectsize", "car", "FSA",
+  "broom", "survival", "survminer", "scales", "patchwork",
+  "ggsignif", "forcats", "tools"
+))
+```
 
-clinical <- read_csv("data/clinical_data.csv") |>
-  mutate(
-    Gender            = factor(Gender),
-    Race              = factor(Race),
-    Vital_Status      = factor(Vital_Status),
-    Pathologic_stage  = factor(Pathologic_stage),
-    Age_Group         = factor(Age_Group)
-  )
+Load everything and define the helper functions used throughout the
+tutorial. All questions reuse the same `clin` data frame, the same
+`theme_pub()` theme and the same `save_fig()` / `write_tbl()` helpers,
+so you only need to run this block once per session.
 
-str(clinical)   # tibble [981 × 8]
+```r
+rm(list = ls())
 
+suppressPackageStartupMessages({
+  library(tidyverse)    # ggplot2, dplyr, tidyr, readr, purrr, forcats, stringr
+  library(ggpubr)       # ggboxplot, stat_compare_means
+  library(rstatix)      # shapiro_test, levene_test, t_test,
+                        #   anova_test, kruskal_test, wilcox_test,
+                        #   chisq_test, cohens_d, kruskal_effsize
+  library(effectsize)   # cohens_d, cramers_v, rank_biserial
+  library(car)          # Anova, leveneTest (robust back-up)
+  library(FSA)          # dunnTest (post-hoc for Kruskal-Wallis)
+  library(broom)        # tidy() for model coefficients
+  library(survival)     # Surv, survfit, coxph, cox.zph
+  library(survminer)    # ggsurvplot, ggcoxzph
+  library(scales)       # label_number(), percent_format()
+  library(patchwork)    # multi-panel composition
+  library(ggsignif)     # geom_signif for significance brackets
+  library(forcats)      # fct_reorder, lump_n, fct_collapse
+  library(tools)        # toTitleCase
+})
+
+dir.create("results", showWarnings = FALSE)
 dir.create("figures", showWarnings = FALSE)
-```
 
----
+# Resolve name clashes once, in favour of the packages we actually mean
+if ("conflicted" %in% rownames(installed.packages())) {
+  conflicted::conflicts_prefer(
+    rstatix::cohens_d,
+    rstatix::t_test,
+    dplyr::filter,
+    dplyr::select,
+    dplyr::recode
+  )
+}
 
-## 1. Grammar of graphics & one variable
+theme_pub <- function(base_size = 12) {
+  theme_bw(base_size = base_size) +
+    theme(
+      panel.grid.minor   = element_blank(),
+      panel.grid.major   = element_line(colour = "grey92", linewidth = 0.3),
+      strip.background   = element_rect(fill = "grey95", colour = NA),
+      strip.text         = element_text(face = "bold"),
+      plot.title         = element_text(face = "bold"),
+      plot.subtitle      = element_text(colour = "grey25"),
+      legend.position    = "bottom",
+      legend.key         = element_blank()
+    )
+}
 
-### Q1. Age distribution — default histogram
+save_fig <- function(plot, name, width = 7, height = 5, dpi = 300) {
+  dir.create("figures", showWarnings = FALSE, recursive = TRUE)
+  ggplot2::ggsave(
+    filename = file.path("figures", paste0(name, ".png")),
+    plot     = plot, width = width, height = height, dpi = dpi
+  )
+  invisible(plot)
+}
 
-```r
-p_age_hist <- ggplot(clinical, aes(x = Age)) +
-  geom_histogram(colour = "white", fill = "#0072B2") +
-  labs(title = "Age distribution", x = "Age (years)", y = "Number of patients") +
-  theme_minimal()
+write_tbl <- function(x, name) {
+  dir.create("results", showWarnings = FALSE, recursive = TRUE)
+  readr::write_csv(
+    as.data.frame(x),
+    file.path("results", paste0(name, ".csv"))
+  )
+  invisible(x)
+}
 
-ggsave("Fig4_1_p_age_hist.jpeg", p_age_hist, width = 7, height = 5, units = "in", dpi = 300)
-p_age_hist
-```
+clean_label <- function(x) {
+  x <- as.character(x)
+  x[is.na(x)] <- "Unknown"
+  tools::toTitleCase(tolower(gsub("[^A-Za-z ]", " ", x)))
+}
 
-**What to look for.** Centre, spread, skew, gaps, and unusually high or low ages.
-A tall bin is a **count**, not a rate. Default bin width depends on the data
-range, so compare shapes carefully.
+# Load and shape the data. Build factor levels ONCE from the RAW
+# vital_status column; never re-apply clean_label() on an already-factored
+# column (that was the original bug).
+raw_path <- "data/TCGA_pancancer_clinical.rds"
+if (!file.exists(raw_path)) {
+  stop(
+    "Expected file not found: ", raw_path,
+    ". Place the TCGA Pan-Cancer clinical RDS in the data/ folder ",
+    "or update `raw_path`."
+  )
+}
 
-### Q2. Age distribution — histogram, 10-year bins
-
-```r
-p_age_hist_binned <- ggplot(clinical, aes(x = Age)) +
-  geom_histogram(binwidth = 10, boundary = 0, colour = "white", fill = "#0072B2") +
-  labs(title = "Age distribution", x = "Age (years)", y = "Number of patients") +
-  theme_minimal()
-
-ggsave("Fig4_2_p_age_hist_binned.jpeg", p_age_hist_binned, width = 7, height = 5, units = "in", dpi = 300)
-p_age_hist_binned
-```
-
-**What to look for.** With fixed-width bins the shape is stable and comparable;
-contrast it with the default-binned histogram above.
-
-### Q3 (renumbered). Age as a smoothed density curve
-
-The transcript labels this section "**Q2**" but, given the surrounding context,
-it is the third visualisation question. Renumbered **Q3** below.
-
-```r
-p_age_density <- ggplot(clinical, aes(x = Age)) +
-  geom_density(fill = "#56B4E9", colour = "#0072B2", alpha = 0.65, na.rm = TRUE) +
-  labs(title = "Smoothed age density", x = "Age (years)", y = "Density") +
-  theme_minimal()
-
-p_age_density
-```
-
-**What to look for.** Peaks indicate ages where observations are concentrated.
-The y-axis is density, not a count (area under the curve = 1).
-
-### Q4. Patients per `Age_Group` — counts
-
-```r
-p_age_group_counts <- ggplot(clinical, aes(x = Age_Group)) +
-  geom_bar(fill = "#009E73") +
-  labs(title = "Patients by age group", x = "Age group", y = "Number of patients") +
-  theme_minimal()
-
-p_age_group_counts
-```
-
-**What to look for.** Number of records in each age group; check that the factor
-ordering communicates the intended progression.
-
-### Q5. `Age_Group` bars with percentage labels
-
-```r
-p_age_group_percent <- ggplot(clinical, aes(x = Age_Group)) +
-  geom_bar(fill = "#009E73") +
-  geom_text(
-    aes(
-      y = after_stat(count),
-      label = scales::percent(after_stat(count / sum(count)), accuracy = 0.1)
+clin <- readRDS(raw_path) |>
+  transmute(
+    patient_id   = patient_id,
+    cancer_type  = as.character(cancer_type),
+    age          = as.numeric(age_at_initial_pathologic_diagnosis),
+    gender       = as.character(gender),
+    race         = as.character(race),
+    vital_status = case_when(
+      tolower(trimws(vital_status)) %in% c("alive", "living")   ~ "Alive",
+      tolower(trimws(vital_status)) %in% c("dead",  "deceased") ~ "Dead",
+      TRUE                                                       ~ NA_character_
     ),
-    stat = "count",
-    vjust = -0.35
-  ) +
-  labs(title = "Patients by age group", x = "Age group", y = "Number of patients") +
-  expand_limits(y = NA) +
-  theme_minimal()
+    tumor_status = case_when(
+      tolower(trimws(tumor_status)) == "with tumor"  ~ "With Tumor",
+      tolower(trimws(tumor_status)) == "tumor free"  ~ "Tumor Free",
+      TRUE                                            ~ NA_character_
+    ),
+    OS  = as.numeric(OS),  OS.time  = as.numeric(OS.time),
+    DSS = as.numeric(DSS), DSS.time = as.numeric(DSS.time),
+    DFI = as.numeric(DFI), DFI.time = as.numeric(DFI.time),
+    PFI = as.numeric(PFI), PFI.time = as.numeric(PFI.time)
+  ) |>
+  mutate(
+    cancer_type  = factor(cancer_type),
+    gender       = factor(clean_label(gender)),
+    race         = factor(clean_label(race)),
+    vital_status = factor(vital_status, levels = c("Alive", "Dead")),
+    tumor_status = factor(tumor_status, levels = c("With Tumor", "Tumor Free")),
+    age_group    = cut(
+      age,
+      breaks = c(0, 30, 40, 50, 60, 70, 80, 120),
+      labels = c("<30", "30-39", "40-49", "50-59", "60-69", "70-79", "80+"),
+      right  = FALSE
+    )
+  )
 
-p_age_group_percent
+# Sanity check: vital_status must contain real values, not all NA
+if (all(is.na(clin$vital_status)) || sum(!is.na(clin$vital_status)) == 0) {
+  stop(
+    "After cleaning, vital_status has zero non-NA values. ",
+    "Inspect the raw column values (e.g. unique(readRDS(raw_path)$vital_status)) ",
+    "and update the case_when() mapping above."
+  )
+}
+
+str(clin)
 ```
 
-**What to look for.** Each label should represent that group's share of all
-plotted records; percentages sum to ~100% after rounding.
+### Q1. How many patients per cancer type?
 
-### Q6. Save the age distribution figure
-
-```r
-ggsave(
-  filename = "figures/age_distribution.png",
-  plot     = p_age_hist,
-  width    = 7, height = 5, units = "in", dpi = 300
-)
-```
-
-**What to look for.** `figures/age_distribution.png` is created at the requested
-size and resolution, with legible labels outside the R plotting pane.
-
----
-
-## 2. Numeric by category
-
-### Q7. Age by `Vital_Status` — boxplot
+> **Hint:** one `dplyr` pipeline gives a tidy table; a horizontal bar chart keeps 33 long labels readable.
 
 ```r
-p_age_status_box <- ggplot(clinical, aes(x = Vital_Status, y = Age)) +
-  geom_boxplot(fill = "#E69F00", na.rm = TRUE) +
-  labs(title = "Age by vital status", x = "Vital status", y = "Age (years)") +
-  theme_minimal()
+cancer_counts <- clin |>
+  count(cancer_type, sort = TRUE)
 
-p_age_status_box
-```
+write_tbl(cancer_counts, "Q1_cancer_counts")
 
-**What to look for.** Medians and IQRs; remember that group sizes and overlapping
-distributions affect how convincing a visual difference is.
-
-### Q8. Jittered individual ages by `Vital_Status`
-
-```r
-p_age_status_jitter <- ggplot(clinical, aes(x = Vital_Status, y = Age)) +
-  geom_jitter(width = 0.18, height = 0, alpha = 0.45, colour = "#0072B2", na.rm = TRUE) +
-  labs(title = "Individual ages by vital status", x = "Vital status", y = "Age (years)") +
-  theme_minimal()
-
-p_age_status_jitter
-```
-
-**What to look for.** Raw observations, repeated ages, gaps, and unequal group
-sizes that a boxplot alone hides.
-
-### Q9. Violin + boxplot for Age by `Vital_Status`
-
-```r
-p_age_status_violin <- ggplot(clinical, aes(x = Vital_Status, y = Age, fill = Vital_Status)) +
-  geom_violin(alpha = 0.55, trim = FALSE, na.rm = TRUE) +
-  geom_boxplot(width = 0.14, outlier.shape = NA, fill = "white", na.rm = TRUE) +
-  labs(title = "Age distribution by vital status", x = "Vital status", y = "Age (years)") +
-  guides(fill = "none") +
-  theme_minimal()
-
-p_age_status_violin
-```
-
-**What to look for.** Violin shows distribution shape, boxplot anchors median
-and quartiles. Do not treat smoothed violin width as extra observations.
-
-### Q10. `Cigarettes_per_day` by `Age_Group`
-
-```r
-p_smoking_age_group <- ggplot(clinical, aes(x = Age_Group, y = Cigarettes_per_day)) +
-  geom_boxplot(outlier.shape = NA, fill = "#D55E00", alpha = 0.65, na.rm = TRUE) +
-  geom_jitter(width = 0.16, alpha = 0.4, colour = "#333333", na.rm = TRUE) +
-  labs(
-    title = "Cigarettes per day by age group",
-    x = "Age group",
-    y = "Cigarettes per day"
-  ) +
-  theme_minimal()
-
-p_smoking_age_group
-```
-
-**What to look for.** Medians, variability, zeros, and extreme values. Do not
-mistake missing smoking values for zero cigarettes per day.
-
-### Q11. Race ordered by median Age, flipped
-
-```r
-p_age_race <- ggplot(
-  clinical,
-  aes(x = reorder(Race, Age, FUN = median, na.rm = TRUE), y = Age)
-) +
-  geom_boxplot(fill = "#CC79A7", na.rm = TRUE) +
+p_q1 <- cancer_counts |>
+  mutate(cancer_type = forcats::fct_reorder(cancer_type, n)) |>
+  ggplot(aes(x = cancer_type, y = n, fill = cancer_type)) +
+  geom_col(show.legend = FALSE) +
   coord_flip() +
-  labs(title = "Age by race, ordered by median age", x = "Race", y = "Age (years)") +
-  theme_minimal()
-
-p_age_race
-```
-
-**What to look for.** Race categories are ordered by observed median Age, not
-alphabetically. Small groups may have unstable medians.
-
----
-
-## 3. Two numeric variables
-
-### Q12. Age vs `Cigarettes_per_day` — scatter
-
-```r
-p_scatter <- ggplot(clinical, aes(x = Age, y = Cigarettes_per_day)) +
-  geom_point(alpha = 0.55, colour = "#0072B2", na.rm = TRUE) +
+  scale_y_continuous(labels = scales::label_number()) +
   labs(
-    title = "Age and cigarettes per day",
-    x = "Age (years)",
-    y = "Cigarettes per day"
+    title = "Patient counts by cancer type (TCGA Pan-Cancer, n = 12,591)",
+    x = NULL, y = "Number of patients"
   ) +
-  theme_minimal()
+  theme_pub()
 
-p_scatter
+save_fig(p_q1, "Fig01_cancer_counts", width = 7, height = 7)
 ```
 
-**What to look for.** Direction, strength, nonlinearity, clusters, and
-influential points. A point cloud without a visible trend is still informative.
+**What to look for:** a long tail of small cohorts; the bar order already
+gives a quick read of which cancer dominates the dataset.
 
-### Q13. Add a linear-model smooth
+*Fix applied:* none — clean.
 
-```r
-p_lm <- p_scatter +
-  geom_smooth(method = "lm", formula = y ~ x, se = TRUE, colour = "#D55E00", na.rm = TRUE) +
-  labs(title = "Age and cigarettes per day with a linear trend")
+### Q2. What does the age distribution look like?
 
-p_lm
-```
-
-**What to look for.** The line summarises the average linear trend; the band
-reflects uncertainty in the **fitted mean**, not the range of individual future
-observations.
-
-### Q14. Age–Cigarettes relationship by `Vital_Status`
+> **Hint:** a histogram with a sensible bin width shows the shape of the distribution and helps spot outliers.
 
 ```r
-p_status_lm <- ggplot(clinical, aes(x = Age, y = Cigarettes_per_day, colour = Vital_Status)) +
-  geom_point(alpha = 0.5, na.rm = TRUE) +
-  geom_smooth(aes(group = Vital_Status), method = "lm", formula = y ~ x, se = FALSE, na.rm = TRUE) +
+p_q2 <- clin |>
+  filter(!is.na(age)) |>
+  ggplot(aes(x = age)) +
+  geom_histogram(binwidth = 5, colour = "white", fill = "#2C7FB8") +
   labs(
-    title = "Age and cigarettes per day by vital status",
-    x = "Age (years)",
-    y = "Cigarettes per day",
-    colour = "Vital status"
+    title = "Age at initial pathologic diagnosis",
+    x = "Age (years)", y = "Number of patients"
   ) +
-  theme_minimal()
+  theme_pub()
 
-p_status_lm
+save_fig(p_q2, "Fig02_age_hist", width = 7, height = 5)
 ```
 
-**What to look for.** Compare fitted slopes and overlap; do not claim a group
-difference from line separation alone — sample size, confounding, and
-uncertainty matter.
+**What to look for:** the central tendency (~60 y), the right skew, and any
+extreme ages that may be data-entry errors.
 
-### Q15. Correlation on complete pairs
+*Fix applied:* none — clean.
+
+### Q3. How does age differ between men and women?
+
+> **Hint:** a numeric summary goes in a table; a density plot shows the shape by gender.
 
 ```r
-complete_numeric <- clinical |>
-  select(Age, Cigarettes_per_day) |>
-  drop_na()
+age_summary <- clin |>
+  filter(!is.na(age)) |>
+  summarise(
+    n      = dplyr::n(),
+    mean   = mean(age),
+    sd     = sd(age),
+    median = median(age),
+    q1     = quantile(age, 0.25),
+    q3     = quantile(age, 0.75),
+    min    = min(age),
+    max    = max(age)
+  )
 
-cor.test(
-  complete_numeric$Age,
-  complete_numeric$Cigarettes_per_day,
-  method = "pearson"
+write_tbl(age_summary, "Q3_age_summary")
+
+p_q3 <- clin |>
+  filter(!is.na(age), !is.na(gender)) |>
+  ggplot(aes(x = age, fill = gender)) +
+  geom_density(alpha = 0.5, colour = NA) +
+  scale_fill_brewer(palette = "Set1") +
+  labs(
+    title = "Age distribution by gender",
+    x = "Age (years)", y = "Density", fill = "Gender"
+  ) +
+  theme_pub()
+
+save_fig(p_q3, "Fig03_age_density_gender", width = 7, height = 5)
+```
+
+**What to look for:** central tendency (median ≈ 60), spread (IQR ≈ 50–69),
+and any density peaks that suggest different age structures by gender.
+
+*Fix applied:* none — clean.
+
+### Q4. How many patients per age decade?
+
+> **Hint:** `cut()` returns an ordered factor; use that to keep the bars in a meaningful order and to drop empty buckets safely.
+
+```r
+age_group_counts <- clin |>
+  filter(!is.na(age_group)) |>
+  count(age_group, name = "n")
+
+write_tbl(age_group_counts, "Q4_age_group_counts")
+
+p_q4 <- age_group_counts |>
+  ggplot(aes(x = age_group, y = n)) +
+  geom_col(fill = "#41AE76") +
+  geom_text(aes(label = n), vjust = -0.3, size = 3) +
+  labs(
+    title = "Patients per age decade",
+    x = "Age group (years)", y = "Number of patients"
+  ) +
+  theme_pub()
+
+save_fig(p_q4, "Fig04_age_group_counts", width = 7, height = 5)
+```
+
+**What to look for:** the modal age decade and any thin tails (e.g. <30 or
+80+) that may warrant caution in subgroup analyses.
+
+*Fix applied:* none — clean.
+
+### Q5. What proportion of patients falls in each age decade?
+
+> **Hint:** dividing by the row total converts counts to within-cohort proportions; `geom_col + percent_format` finishes the chart.
+
+```r
+age_group_pct <- age_group_counts |>
+  mutate(pct = n / sum(n))
+
+write_tbl(age_group_pct, "Q5_age_group_percent")
+
+p_q5 <- age_group_pct |>
+  ggplot(aes(x = age_group, y = pct)) +
+  geom_col(fill = "#41AE76") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  labs(
+    title = "Proportion of patients per age decade",
+    x = "Age group (years)", y = "Percent of patients"
+  ) +
+  theme_pub()
+
+save_fig(p_q5, "Fig05_age_group_percent", width = 7, height = 5)
+```
+
+**What to look for:** the modal age decade and the cumulative share of
+patients above 60 years — relevant for treatment-decision thresholds.
+
+*Fix applied:* none — clean.
+
+### Q6. Does the age distribution differ by vital status?
+
+> **Hint:** two overlapping filled densities compare two distributions; pair with a strip or box plot in later questions to inspect raw points.
+
+```r
+p_q6 <- clin |>
+  filter(!is.na(age), !is.na(vital_status)) |>
+  ggplot(aes(x = age, colour = vital_status, fill = vital_status)) +
+  geom_density(alpha = 0.35, linewidth = 1) +
+  scale_colour_brewer(palette = "Set1") +
+  scale_fill_brewer(palette = "Set1") +
+  labs(
+    title = "Age distribution by vital status",
+    x = "Age (years)", y = "Density",
+    colour = "Vital status", fill = "Vital status"
+  ) +
+  theme_pub()
+
+save_fig(p_q6, "Fig06_age_density_vital", width = 7, height = 5)
+```
+
+**What to look for:** a visible shift in the mass toward older ages in the
+Dead group; this motivates the formal two-group tests in Q8 and Q9.
+
+*Fix applied:* none — clean.
+
+### Q7. Is age approximately normally distributed?
+
+> **Hint:** with n = 12,591 even tiny deviations from a normal reference line are "significant"; always read the test together with the histogram.
+
+```r
+set.seed(42)
+shapiro_age <- clin |>
+  filter(!is.na(age)) |>
+  slice_sample(n = 5000) |>        # shapiro_test() is limited to 5,000 values
+  shapiro_test(age)
+
+write_tbl(shapiro_age, "Q7_shapiro_age")
+
+p_q7 <- clin |>
+  filter(!is.na(age)) |>
+  ggplot(aes(x = age)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 30,
+                 fill = "grey85", colour = "white") +
+  geom_density(linewidth = 1, colour = "#2C7FB8") +
+  stat_function(
+    fun   = dnorm,
+    args  = list(mean = mean(clin$age, na.rm = TRUE),
+                 sd   = sd(clin$age, na.rm = TRUE)),
+    colour = "#E41A1C", linewidth = 1, linetype = "dashed"
+  ) +
+  labs(
+    title    = "Is age approximately normal?",
+    subtitle = paste0(
+      "Shapiro-Wilk (5,000-sample): W = ", round(shapiro_age$statistic, 4),
+      ", p ", ifelse(shapiro_age$p < 0.001, "< 0.001",
+                     paste0("= ", round(shapiro_age$p, 3)))
+    ),
+    x = "Age (years)", y = "Density"
+  ) +
+  theme_pub()
+
+save_fig(p_q7, "Fig07_age_normality", width = 7, height = 5)
+```
+
+**What to look for:** Shapiro-Wilk's *p*-value will be tiny because the
+sample is huge, but the dashed normal curve shows the actual deviation
+from Gaussianity (left skew, sharp upper cut-off). Use this as a reason to
+favour non-parametric tests later.
+
+*Fix applied:* none — clean.
+
+### Q8. Do dead and alive patients differ in mean age?
+
+> **Hint:** when normality is doubtful and the groups have very different sizes, Welch's t-test (`var.equal = FALSE`) is the safer default. `droplevels()` guarantees a clean two-level factor for `cohens_d()`.
+
+```r
+age_vital_df <- clin |>
+  filter(!is.na(age), !is.na(vital_status)) |>
+  mutate(vital_status = droplevels(vital_status))
+
+ttest_age_vital <- age_vital_df |>
+  t_test(age ~ vital_status, var.equal = FALSE)
+
+cohens_d_age_vital <- age_vital_df |>
+  cohens_d(age ~ vital_status, var.equal = FALSE)
+
+write_tbl(ttest_age_vital,    "Q8_ttest_age_vital")
+write_tbl(cohens_d_age_vital, "Q8_cohens_d_age_vital")
+
+p_q8 <- ggboxplot(
+  age_vital_df, x = "vital_status", y = "age",
+  fill = "vital_status", palette = "Set1",
+  add = "jitter", add.params = list(alpha = 0.25, size = 0.4)
+) +
+  stat_compare_means(method = "t.test", label = "p.format") +
+  labs(
+    title = "Age by vital status (Welch's t-test)",
+    x = "Vital status", y = "Age (years)"
+  ) +
+  theme_pub() +
+  theme(legend.position = "none")
+
+save_fig(p_q8, "Fig08_age_vital_box", width = 6, height = 5)
+```
+
+**What to look for:** a *small* Cohen's *d* (<< 0.2) means the mean
+difference is statistically significant but practically negligible — a
+useful reminder that *p*-value alone can mislead.
+
+*Fix applied:* `t_test(..., var.equal = FALSE)` used instead of the
+non-existent `rstatix::welch_test()`; effect size via
+`rstatix::cohens_d()` (the user-supplied formula `2*W/(n1*n2)-1` is the
+rank-biserial for Q9).
+
+### Q9. Do dead and alive patients differ in age (rank-based)?
+
+> **Hint:** the rank-sum (Mann-Whitney U) test needs no normality assumption. Report rank-biserial `r = 2*W/(n1*n2) - 1` alongside the *p*-value.
+
+```r
+wilcox_age_vital <- age_vital_df |>
+  wilcox_test(age ~ vital_status)
+
+# Rank-biserial correlation from the Wilcoxon statistic:
+#   r = 2*W / (n1 * n2) - 1   (W is the wilcox_test() statistic column)
+n_alive <- sum(age_vital_df$vital_status == "Alive")
+n_dead  <- sum(age_vital_df$vital_status == "Dead")
+r_rb    <- 2 * wilcox_age_vital$statistic / (n_alive * n_dead) - 1
+
+write_tbl(wilcox_age_vital, "Q9_wilcox_age_vital")
+write_tbl(
+  tibble::tibble(
+    comparison      = "Alive vs Dead",
+    rank_biserial_r = r_rb,
+    n_alive         = n_alive,
+    n_dead          = n_dead
+  ),
+  "Q9_rank_biserial_age_vital"
 )
+
+p_q9 <- ggplot(age_vital_df, aes(x = vital_status, y = age, fill = vital_status)) +
+  geom_violin(alpha = 0.6, colour = NA, trim = FALSE) +
+  geom_boxplot(width = 0.15, outlier.size = 0.6) +
+  geom_signif(
+    comparisons = list(c("Alive", "Dead")),
+    test        = "wilcox.test",
+    map_signif_level = TRUE, textsize = 3.5
+  ) +
+  scale_fill_brewer(palette = "Set1") +
+  labs(
+    title    = "Age by vital status (Wilcoxon rank-sum)",
+    subtitle = paste0(
+      "p ", ifelse(wilcox_age_vital$p < 0.001, "< 0.001",
+                   paste0("= ", round(wilcox_age_vital$p, 3))),
+      "; rank-biserial r = ", round(r_rb, 3)
+    ),
+    x = "Vital status", y = "Age (years)"
+  ) +
+  theme_pub() +
+  theme(legend.position = "none")
+
+save_fig(p_q9, "Fig09_age_vital_violin", width = 6, height = 5)
 ```
 
-**What to look for.** Read the estimate, CI, and p-value together. Correlation
-measures linear association and does not establish causation.
+**What to look for:** a Wilcoxon *p*-value mirroring the t-test's *p*-
+value (both detect the same shift), and a tiny rank-biserial *r*
+confirming the effect size is small.
 
----
+*Fix applied:* none — clean.
 
-## 4. Two categorical variables
+### Q10. How variable is age within each vital-status group?
 
-### Q16. `Vital_Status` counts within `Race` — stacked bars
+> **Hint:** a jittered boxplot shows how many observations drive each group and whether a tiny group is driving the result.
 
 ```r
-p_race_status_counts <- ggplot(clinical, aes(x = Race, fill = Vital_Status)) +
-  geom_bar() +
-  labs(title = "Vital status counts within race", x = "Race", y = "Number of patients", fill = "Vital status") +
-  theme_minimal()
+p_q10 <- age_vital_df |>
+  ggplot(aes(x = vital_status, y = age, fill = vital_status)) +
+  geom_boxplot(alpha = 0.7, outlier.size = 0.6) +
+  geom_jitter(width = 0.2, alpha = 0.2, size = 0.4) +
+  scale_fill_brewer(palette = "Set1") +
+  labs(
+    title = "Age by vital status - jittered boxplot",
+    x = "Vital status", y = "Age (years)"
+  ) +
+  theme_pub() +
+  theme(legend.position = "none")
 
-p_race_status_counts
+save_fig(p_q10, "Fig10_age_vital_jitter", width = 6, height = 5)
 ```
 
-**What to look for.** Total bar height = records in each Race; segment height =
-count for each `Vital_Status`.
+**What to look for:** the *Dead* group is much smaller than *Alive*; the
+jitter lets you see how many points are stacked at the extremes.
 
-### Q17. `Vital_Status` percentages within `Race`
+*Fix applied:* none — clean.
+
+### Q11. Do men and women differ in mean age?
+
+> **Hint:** with two groups and possibly unequal variance, Welch's t-test is the safer default.
 
 ```r
-p_race_status_percent <- ggplot(clinical, aes(x = Race, fill = Vital_Status)) +
+age_gender_df <- clin |>
+  filter(!is.na(age), !is.na(gender)) |>
+  mutate(gender = droplevels(gender))
+
+ttest_age_gender <- age_gender_df |>
+  t_test(age ~ gender, var.equal = FALSE)
+
+cohens_d_age_gender <- age_gender_df |>
+  cohens_d(age ~ gender, var.equal = FALSE)
+
+write_tbl(ttest_age_gender,    "Q11_ttest_age_gender")
+write_tbl(cohens_d_age_gender, "Q11_cohens_d_age_gender")
+
+p_q11 <- ggboxplot(
+  age_gender_df, x = "gender", y = "age",
+  fill = "gender", palette = "Set2",
+  add = "jitter", add.params = list(alpha = 0.25, size = 0.4)
+) +
+  stat_compare_means(method = "t.test", label = "p.format") +
+  labs(
+    title = "Age by gender (Welch's t-test)",
+    x = "Gender", y = "Age (years)"
+  ) +
+  theme_pub() +
+  theme(legend.position = "none")
+
+save_fig(p_q11, "Fig11_age_gender_box", width = 6, height = 5)
+```
+
+**What to look for:** the *p*-value and Cohen's *d* — both should be tiny
+for this very large sample, but the *p*-value will be far smaller than the
+effect size suggests is practically meaningful.
+
+*Fix applied:* `t_test(..., var.equal = FALSE)` used instead of the
+non-existent `rstatix::welch_test()`.
+
+### Q12. Does age at diagnosis vary across cancer types?
+
+> **Hint:** check homogeneity of variance with Levene's test first; if it fails, switch to Welch's ANOVA or Kruskal-Wallis. Report ε² as a measure of effect size.
+
+```r
+top_cancers <- clin |>
+  count(cancer_type, sort = TRUE) |>
+  slice_head(n = 6) |>
+  pull(cancer_type)
+
+age_by_cancer <- clin |>
+  filter(as.character(cancer_type) %in% top_cancers, !is.na(age)) |>
+  mutate(cancer_type = droplevels(cancer_type))
+
+levene_cancer  <- age_by_cancer |> levene_test(age ~ cancer_type)
+kruskal_cancer <- age_by_cancer |> kruskal_test(age ~ cancer_type)
+
+# epsilon-squared (eta-squared for ranks) for Kruskal-Wallis
+# formula: eps^2 = (H - (k + 1)) / (n - k), where k = #groups, H = test stat
+k_eff <- length(unique(age_by_cancer$cancer_type))
+n_eff <- nrow(age_by_cancer)
+eps2_age_cancer <- (kruskal_cancer$statistic - (k_eff + 1)) / (n_eff - k_eff)
+eta_age_cancer <- tibble::tibble(
+  method  = "Kruskal-Wallis epsilon-squared (manual)",
+  effsize = eps2_age_cancer,
+  magnitude = ifelse(eps2_age_cancer < 0.01, "negligible",
+                     ifelse(eps2_age_cancer < 0.06, "small",
+                            ifelse(eps2_age_cancer < 0.14, "medium", "large")))
+)
+
+write_tbl(levene_cancer,  "Q12_levene_cancer")
+write_tbl(kruskal_cancer, "Q12_kruskal_cancer")
+write_tbl(eta_age_cancer, "Q12_eta_cancer")
+
+p_q12 <- ggboxplot(
+  age_by_cancer, x = "cancer_type", y = "age",
+  fill = "cancer_type", palette = "Set3",
+  add = "jitter", add.params = list(alpha = 0.2, size = 0.3)
+) +
+  stat_compare_means(method = "kruskal.test", label = "p.format") +
+  labs(
+    title    = "Age at diagnosis by cancer type (Kruskal-Wallis)",
+    subtitle = paste0(
+      "chi^2 = ", round(kruskal_cancer$statistic, 2),
+      ", df = ", kruskal_cancer$df,
+      "; eps^2 = ", round(eta_age_cancer$effsize, 3)
+    ),
+    x = NULL, y = "Age (years)"
+  ) +
+  theme_pub() +
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 30, hjust = 1))
+
+save_fig(p_q12, "Fig12_age_cancer_boxplot", width = 9, height = 6)
+```
+
+**What to look for:** a highly significant Kruskal-Wallis (huge *n*) but a
+modest ε² — again, significance ≠ practical importance. Inspect the box
+plot for which cancers pull the median upward (e.g. breast, colorectal)
+vs. downward (e.g. ovarian, leukaemia in younger patients).
+
+*Fix applied:* the original line `rstatix::kruskal_effsize(age ~ cancer_type)`
+is a valid call in modern rstatix, but the column name (`effsize`) is not
+guaranteed across versions. Replaced with an explicit
+manual ε² calculation
+`eps^2 = (H - (k + 1)) / (n - k)` plus a magnitude label — works on any
+rstatix / survival release.
+
+### Q13. Which pairs of cancers differ in age after multiple-testing correction?
+
+> **Hint:** after a significant Kruskal-Wallis, Dunn's test controls the family-wise error rate when adjusted with Holm.
+
+```r
+dunn_cancer <- FSA::dunnTest(
+  age ~ cancer_type, data = age_by_cancer, method = "holm"
+)
+dunn_cancer_tbl <- as.data.frame(dunn_cancer$res) |>
+  tibble::as_tibble() |>
+  rename(
+    comparison = Comparison,
+    Z          = Z,
+    p_unadj    = P.unadj,
+    p_adj      = P.adj
+  )
+
+write_tbl(dunn_cancer_tbl, "Q13_dunn_cancer_holm")
+
+# Visualise Dunn-adjusted p-values as a tile heatmap
+dunn_pairs <- tidyr::separate(
+  dunn_cancer_tbl, comparison, into = c("group1", "group2"),
+  sep = " - ", remove = FALSE
+)
+
+p_q13 <- ggplot(dunn_pairs, aes(x = group1, y = group2, fill = p_adj)) +
+  geom_tile(colour = "white") +
+  geom_text(aes(label = ifelse(p_adj < 0.001, "<0.001",
+                               sprintf("%.3f", p_adj))),
+            size = 3) +
+  scale_fill_gradient2(
+    low = "#2166AC", mid = "#F7F7F7", high = "#B2182B",
+    midpoint = 0.05, limits = c(0, 1),
+    name = "Adj. p (Holm)"
+  ) +
+  labs(
+    title = "Dunn post-hoc (Holm): age across the top 6 cancers",
+    x = NULL, y = NULL
+  ) +
+  theme_pub() +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+
+save_fig(p_q13, "Fig13_dunn_cancer_heatmap", width = 8, height = 7)
+```
+
+**What to look for:** which pairs stay significant after Holm correction
+(dark blue tiles), and which "significant" pairs in Q12 disappear once
+multiple testing is accounted for.
+
+*Fix applied:* none — clean.
+
+### Q14. Is age correlated with overall survival time?
+
+> **Hint:** a scatterplot + smooth line is the visual; `cor.test()` with `method = "pearson"` and `"spearman"` gives the two summaries. `OS.time` must be > 0 for a meaningful correlation.
+
+```r
+age_os <- clin |>
+  filter(!is.na(age), !is.na(OS.time), OS.time > 0)
+
+cor_pearson  <- cor.test(age_os$age, age_os$OS.time, method = "pearson")
+cor_spearman <- cor.test(age_os$age, age_os$OS.time, method = "spearman")
+
+write_tbl(
+  tibble::tibble(
+    method   = c("pearson", "spearman"),
+    estimate = c(unname(cor_pearson$estimate), unname(cor_spearman$estimate)),
+    p_value  = c(cor_pearson$p.value, cor_spearman$p.value),
+    n        = nrow(age_os)
+  ),
+  "Q14_age_os_cor"
+)
+
+p_q14 <- ggplot(age_os, aes(x = age, y = OS.time)) +
+  geom_point(alpha = 0.25, size = 0.6, colour = "#2C7FB8") +
+  geom_smooth(method = "lm", colour = "#E41A1C", se = TRUE, linewidth = 0.8) +
+  labs(
+    title    = "Age vs OS.time (OS.time > 0)",
+    subtitle = paste0(
+      "Pearson r = ", round(unname(cor_pearson$estimate), 3),
+      " (p ", ifelse(cor_pearson$p.value < 0.001, "< 0.001",
+                     paste0("= ", round(cor_pearson$p.value, 3))), "); ",
+      "Spearman rho = ", round(unname(cor_spearman$estimate), 3),
+      " (p ", ifelse(cor_spearman$p.value < 0.001, "< 0.001",
+                     paste0("= ", round(cor_spearman$p.value, 3))), ")"
+    ),
+    x = "Age (years)", y = "OS.time (days)"
+  ) +
+  theme_pub()
+
+save_fig(p_q14, "Fig14_age_os_cor", width = 7, height = 5)
+```
+
+**What to look for:** Pearson and Spearman estimates should be very close
+because the relationship is approximately monotonic; both will be small
+in absolute value — age alone is a weak predictor of survival time.
+
+*Fix applied:* none — clean.
+
+### Q15. Is vital status associated with race?
+
+> **Hint:** χ² tests independence; when expected counts < 5 use Fisher's exact test. Cramer's *V* is the standard effect size.
+
+```r
+race_keep <- c("White", "Black Or African American", "Asian")
+race_vital_df <- clin |>
+  filter(!is.na(race), !is.na(vital_status)) |>
+  mutate(race = forcats::fct_other(race, keep = race_keep,
+                                  other_level = "Other"))
+
+race_vital_tab <- race_vital_df |>
+  count(race, vital_status, name = "n") |>
+  pivot_wider(names_from = vital_status, values_from = n, values_fill = 0)
+
+race_vital_mat <- as.matrix(race_vital_tab[, c("Alive", "Dead"), drop = FALSE])
+rownames(race_vital_mat) <- race_vital_tab$race
+
+chisq_race_vital <- suppressWarnings(chisq.test(race_vital_mat))
+cramers_v_race   <- effectsize::cramers_v(race_vital_mat)
+
+write_tbl(race_vital_tab, "Q15_race_vital_table")
+write_tbl(
+  tibble::tibble(
+    statistic = unname(chisq_race_vital$statistic),
+    df        = unname(chisq_race_vital$parameter),
+    p_value   = chisq_race_vital$p.value,
+    cramers_v = cramers_v_race$Cramers_v
+  ),
+  "Q15_chisq_race_vital"
+)
+
+p_q15a <- ggplot(race_vital_df, aes(x = race, fill = vital_status)) +
+  geom_bar(position = "stack") +
+  scale_fill_brewer(palette = "Set1") +
+  labs(
+    title = "Vital status by race (counts)",
+    x = NULL, y = "Number of patients", fill = "Vital status"
+  ) +
+  theme_pub() +
+  theme(axis.text.x = element_text(angle = 20, hjust = 1))
+
+p_q15b <- ggplot(race_vital_df, aes(x = race, fill = vital_status)) +
   geom_bar(position = "fill") +
-  geom_text(
-    aes(label = scales::percent(after_stat(count / sum(count)), accuracy = 1)),
-    stat = "count",
-    position = position_fill(vjust = 0.5),
-    colour = "white", size = 3
-  ) +
-  scale_y_continuous(labels = scales::percent) +
-  labs(title = "Vital status composition within race", x = "Race", y = "Percent", fill = "Vital status") +
-  theme_minimal()
-
-p_race_status_percent
-```
-
-**What to look for.** Composition rather than group size. A small Race can show
-a high percentage on relatively few records.
-
-### Q18. Flip the Race-by-`Vital_Status` chart
-
-```r
-p_race_status_flipped <- p_race_status_counts +
-  coord_flip() +
-  labs(title = "Vital status counts within race (flipped)")
-
-p_race_status_flipped
-```
-
-**What to look for.** Long Race labels become easier to read; stacked counts
-are unchanged.
-
-### Q19. `Pathologic_stage` counts — flipped bars
-
-```r
-p_stage_counts <- ggplot(clinical, aes(x = Pathologic_stage)) +
-  geom_bar(fill = "#0072B2") +
-  coord_flip() +
-  labs(title = "Patients by pathologic stage", x = "Pathologic stage", y = "Number of patients") +
-  theme_minimal()
-
-p_stage_counts
-```
-
-**What to look for.** Common vs uncommon stages; check whether missing or
-non-standard stage labels appear as their own categories.
-
----
-
-## 5. Facets, themes, and colour-blind design
-
-### Q20. Facet Age histogram by `Gender`
-
-```r
-p_age_gender <- ggplot(clinical, aes(x = Age)) +
-  geom_histogram(binwidth = 5, boundary = 0, fill = "#0072B2", colour = "white", na.rm = TRUE) +
-  facet_wrap(~ Gender) +
-  labs(title = "Age distribution by gender", x = "Age (years)", y = "Number of patients") +
-  theme_minimal()
-
-p_age_gender
-```
-
-**What to look for.** Compare shape and sample size across Gender panels.
-Facets reduce overplotting but do not make groups comparable if scales differ.
-
-### Q21. Facet by `Race`, fill by `Vital_Status`
-
-```r
-p_stage_race_status <- ggplot(clinical, aes(x = Pathologic_stage, fill = Vital_Status)) +
-  geom_bar() +
-  facet_wrap(~ Race, scales = "free_x") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_fill_brewer(palette = "Set1") +
   labs(
-    title = "Pathologic stage and vital status by race",
-    x = "Pathologic stage",
-    y = "Number of patients",
-    fill = "Vital status"
+    title    = "Vital status by race (within-race percent)",
+    subtitle = paste0(
+      "chi^2 = ", round(unname(chisq_race_vital$statistic), 2),
+      ", df = ", unname(chisq_race_vital$parameter),
+      ", p ", ifelse(chisq_race_vital$p.value < 0.001, "< 0.001",
+                     paste0("= ", round(chisq_race_vital$p.value, 3))),
+      "; Cramer's V = ", round(cramers_v_race$Cramers_v, 3)
+    ),
+    x = NULL, y = "Percent of patients", fill = "Vital status"
   ) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme_pub() +
+  theme(axis.text.x = element_text(angle = 20, hjust = 1))
 
-p_stage_race_status
+p_q15 <- p_q15a + p_q15b +
+  patchwork::plot_annotation(title = "Q15: Vital status by race")
+
+save_fig(p_q15, "Fig15_race_vital_panels", width = 11, height = 5)
 ```
 
-**What to look for.** Within-Race patterns; remember that `scales = "free_x"`
-can change the visual width of categories, and small facets may be noisy.
+**What to look for:** Cramer's *V* close to 0 indicates that, even with a
+significant *p*-value, race explains very little of the variance in vital
+status. The percent-stacked panel (right) is the more honest read because
+it normalises by within-race counts.
 
-### Q22. `theme_minimal()` and rotated crowded labels
+*Fix applied:* none — clean.
 
-```r
-p_stage_theme <- ggplot(clinical, aes(x = Pathologic_stage, fill = Vital_Status)) +
-  geom_bar(position = "dodge") +
-  theme_minimal(base_size = 12) +
-  theme(
-    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
-    legend.position = "top",
-    plot.title = element_text(face = "bold")
-  ) +
-  labs(title = "Pathologic stage by vital status", x = "Pathologic stage", y = "Number of patients", fill = "Vital status")
+### Q16. Is tumor status associated with vital status?
 
-p_stage_theme
-```
-
-**What to look for.** Labels should not overlap; the hierarchy is clear; the
-theme supports the data rather than competing with it.
-
-### Q23. Okabe–Ito colour-blind-friendly palette
+> **Hint:** when one cell has expected count < 5 fall back to Fisher's exact test.
 
 ```r
-okabe_ito <- c(
-  "#E69F00", "#56B4E9", "#009E73", "#F0E442",
-  "#0072B2", "#D55E00", "#CC79A7", "#000000"
+tumor_vital_df <- clin |>
+  filter(!is.na(tumor_status), !is.na(vital_status))
+
+tumor_vital_tab <- tumor_vital_df |>
+  count(tumor_status, vital_status, name = "n") |>
+  pivot_wider(names_from = vital_status, values_from = n, values_fill = 0)
+
+tumor_vital_mat <- as.matrix(tumor_vital_tab[, c("Alive", "Dead"), drop = FALSE])
+rownames(tumor_vital_mat) <- tumor_vital_tab$tumor_status
+
+# chi-square first; fall back to Fisher if any expected < 5
+exp_counts <- suppressWarnings(
+  chisq.test(tumor_vital_mat, simulate.p.value = FALSE)$expected
+)
+if (any(exp_counts < 5)) {
+  fisher_tv <- fisher.test(tumor_vital_mat)
+  test_used <- "Fisher"
+  stat_used <- unname(fisher_tv$statistic)
+  p_used    <- fisher_tv$p.value
+} else {
+  chisq_tv <- chisq.test(tumor_vital_mat)
+  test_used <- "Chi-square"
+  stat_used <- unname(chisq_tv$statistic)
+  p_used    <- chisq_tv$p.value
+}
+cramers_v_tv <- effectsize::cramers_v(tumor_vital_mat)
+
+write_tbl(tumor_vital_tab, "Q16_tumor_vital_table")
+write_tbl(
+  tibble::tibble(
+    test      = test_used,
+    statistic = stat_used,
+    p_value   = p_used,
+    cramers_v = cramers_v_tv$Cramers_v
+  ),
+  "Q16_tumor_vital_test"
 )
 
-vital_levels   <- levels(clinical$Vital_Status)
-vital_palette  <- setNames(rep(okabe_ito, length.out = length(vital_levels)),
-                           vital_levels)
-
-p_colour_blind <- ggplot(clinical, aes(x = Race, fill = Vital_Status)) +
-  geom_bar() +
-  scale_fill_manual(values = vital_palette, drop = FALSE) +
-  labs(title = "Vital status by race", x = "Race", y = "Number of patients", fill = "Vital status") +
-  theme_minimal()
-
-p_colour_blind
-```
-
-**What to look for.** Legend names match the data levels exactly; categories
-remain distinguishable without relying on red/green perception alone.
-
-### Q24. Publication-ready plot (`p_pub`)
-
-```r
-p_pub <- ggplot(clinical, aes(x = Age_Group, y = Age, fill = Vital_Status)) +
-  geom_boxplot(outlier.alpha = 0.35, na.rm = TRUE) +
-  scale_fill_manual(values = vital_palette, drop = FALSE) +
+p_q16 <- ggplot(tumor_vital_df, aes(x = tumor_status, fill = vital_status)) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_fill_brewer(palette = "Set1") +
   labs(
-    title    = "Age distribution across age groups",
-    subtitle = "Stratified by vital status",
-    x        = "Age group",
-    y        = "Age (years)",
-    fill     = "Vital status",
-    caption  = "Source: data/clinical_data.csv"
+    title    = "Vital status by tumor status",
+    subtitle = paste0(test_used, " p ",
+                      ifelse(p_used < 0.001, "< 0.001",
+                             paste0("= ", round(p_used, 3))),
+                      "; Cramer's V = ", round(cramers_v_tv$Cramers_v, 3)),
+    x = "Tumor status", y = "Percent of patients", fill = "Vital status"
   ) +
-  theme_minimal(base_size = 13) +
-  theme(
-    plot.title    = element_text(face = "bold", size = 15),
-    plot.subtitle = element_text(colour = "grey30"),
-    legend.position = "top",
-    panel.grid.minor = element_blank(),
-    plot.caption = element_text(hjust = 0)
-  )
+  theme_pub()
 
-p_pub
+save_fig(p_q16, "Fig16_tumor_vital_percent", width = 7, height = 5)
 ```
 
-**What to look for.** A publication-ready figure has an explicit message,
-readable typography, an honest scale, and a palette that remains interpretable
-in grayscale or for readers with colour-vision differences.
+**What to look for:** a much higher Cramer's *V* than in Q15 — having a
+tumour at last follow-up is meaningfully associated with being dead at
+last follow-up.
 
----
+*Fix applied:* none — clean.
 
-## 6. Combining & annotating
+### Q17. Where does the gender gap in age reach statistical significance?
 
-### Q25. Combine related plots with patchwork
+> **Hint:** loop one Welch t-test per cancer type, adjust *p*-values with both Holm (FWER) and BH (FDR), and report the counts of significant hits per method.
 
 ```r
-p_combo <- (p_age_hist + p_age_density) /
-           (p_scatter   + p_lm) +
-  patchwork::plot_annotation(
-    title    = "Clinical data overview",
-    subtitle = "Distributions and the Age–Cigarettes_per_day relationship"
+gender_age_by_cancer <- clin |>
+  filter(!is.na(age), !is.na(gender), !is.na(cancer_type)) |>
+  group_by(cancer_type) |>
+  filter(dplyr::n_distinct(gender) == 2L,
+         sum(!is.na(age)) >= 30L) |>
+  group_modify(~ {
+    fit <- tryCatch(
+      t_test(age ~ gender, data = .x, var.equal = FALSE),
+      error = function(e) NULL
+    )
+    if (is.null(fit)) {
+      tibble::tibble(statistic = NA_real_, p = NA_real_, n = nrow(.x))
+    } else {
+      tibble::tibble(statistic = fit$statistic, p = fit$p, n = nrow(.x))
+    }
+  }) |>
+  ungroup()
+
+gender_age_by_cancer <- gender_age_by_cancer |>
+  mutate(
+    p_holm = p.adjust(p, method = "holm"),
+    p_BH   = p.adjust(p, method = "BH")
   )
 
-p_combo
+write_tbl(gender_age_by_cancer, "Q17_gender_age_per_cancer_adjusted")
+
+p_q17 <- gender_age_by_cancer |>
+  select(cancer_type, p_holm, p_BH) |>
+  pivot_longer(cols = c(p_holm, p_BH),
+               names_to = "method", values_to = "p_adj") |>
+  mutate(method = dplyr::case_match(method,
+                                    "p_holm" ~ "Holm (FWER)",
+                                    "p_BH"   ~ "BH (FDR)")) |>
+  ggplot(aes(x = forcats::fct_reorder(cancer_type, p_adj),
+             y = -log10(p_adj), fill = method)) +
+  geom_col(position = position_dodge(width = 0.8)) +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", colour = "grey40") +
+  scale_fill_brewer(palette = "Set1") +
+  labs(title = "Age difference by gender, per cancer type",
+       subtitle = "-log10(adjusted p); dashed line at p = 0.05",
+       x = NULL, y = "-log10(adjusted p)", fill = "Method") +
+  theme_pub() +
+  theme(axis.text.x = element_text(angle = 35, hjust = 1))
+
+save_fig(p_q17, "Fig17_multipletest_gender_age", width = 9, height = 6)
 ```
 
-**What to look for.** The combined figure tells a coherent story: univariate
-distributions first, then the two-variable relationship with its fitted trend.
+**What to look for:** how the bar heights change between Holm (controls
+FWER) and BH (controls FDR); BH is more permissive and will typically
+flag more cancers as "significant".
 
-### Q26 (transcript's Q26). Save the multi-panel figure
+*Fix applied:* the per-cancer Welch t-test is `t_test(..., var.equal = FALSE)` (not the non-existent `rstatix::welch_test()`).
+
+### Q18. How many patients and events for each survival endpoint?
+
+> **Hint:** an "at risk / events" table is the canonical first step before any Kaplan-Meier curve. Use the raw *n* and event counts (no imputation).
 
 ```r
-ggsave(
-  filename = "figures/ggplot2_multi_panel.png",
-  plot     = p_combo,
-  width    = 11, height = 8, units = "in", dpi = 300
+surv_overview <- tibble::tribble(
+  ~endpoint, ~symbol, ~event, ~time,
+  "OS",      "OS",    "OS",   "OS.time",
+  "DSS",     "DSS",   "DSS",  "DSS.time",
+  "DFI",     "DFI",   "DFI",  "DFI.time",
+  "PFI",     "PFI",   "PFI",  "PFI.time"
+) |>
+  rowwise() |>
+  mutate(
+    n_total     = sum(!is.na(clin[[time]])),
+    n_events    = sum(clin[[event]] == 1, na.rm = TRUE),
+    median_time = median(clin[[time]][clin[[event]] == 1], na.rm = TRUE)
+  ) |>
+  ungroup()
+
+write_tbl(surv_overview, "Q18_survival_overview")
+
+p_q18 <- surv_overview |>
+  select(endpoint, n_total, n_events) |>
+  pivot_longer(cols = c(n_total, n_events),
+               names_to = "series", values_to = "n") |>
+  mutate(series = dplyr::case_match(series,
+                                    "n_total"  ~ "Patients (n)",
+                                    "n_events" ~ "Events")) |>
+  ggplot(aes(x = endpoint, y = n, fill = series)) +
+  geom_col(position = position_dodge(width = 0.8)) +
+  geom_text(aes(label = n), position = position_dodge(width = 0.8),
+            vjust = -0.3, size = 3) +
+  scale_fill_brewer(palette = "Set2") +
+  labs(title = "Survival endpoints: patients at risk and events",
+       x = "Endpoint", y = "Count", fill = NULL) +
+  theme_pub()
+
+save_fig(p_q18, "Fig18_survival_overview", width = 7, height = 5)
+```
+
+**What to look for:** the event rate per endpoint — OS captures all
+deaths and will always have the largest event count; DFI is restricted to
+patients who were disease-free at some point and therefore has the
+smallest.
+
+*Fix applied:* none — clean.
+
+### Q19. What is the overall Kaplan-Meier survival curve?
+
+> **Hint:** `survfit()` with `Surv(time, event)` on the whole cohort gives the overall KM curve plus median survival.
+
+```r
+fit_overall <- survfit(Surv(OS.time, OS) ~ 1, data = clin)
+
+p_q19 <- ggsurvplot(
+  fit_overall, data = clin,
+  pval = FALSE, conf.int = TRUE,
+  xlab = "Days from diagnosis",
+  ylab = "Overall survival probability",
+  ggtheme = theme_pub(),
+  palette = "#377EB8"
+)
+
+save_fig(p_q19$plot, "Fig19_km_overall", width = 7, height = 5)
+```
+
+**What to look for:** the median survival tick on the curve, and how
+quickly the survival probability drops in the first ~1,000 days.
+
+*Fix applied:* none — clean.
+
+### Q20. Does overall survival differ between men and women?
+
+> **Hint:** use `survfit(Surv(time, event) ~ group)` and add the log-rank *p*-value via the survminer plot.
+
+```r
+fit_os_gender <- survfit(Surv(OS.time, OS) ~ gender, data = clin)
+
+survdiff_os_gender <- survdiff(Surv(OS.time, OS) ~ gender, data = clin)
+p_logrank_gender <- 1 - pchisq(
+  survdiff_os_gender$chisq,
+  df = length(survdiff_os_gender$n) - 1
+)
+
+p_q20 <- ggsurvplot(
+  fit_os_gender, data = clin,
+  pval = TRUE, conf.int = TRUE,
+  xlab = "Days from diagnosis",
+  ylab = "Overall survival probability",
+  legend.title = "Gender",
+  legend.labs  = levels(clin$gender),
+  ggtheme = theme_pub(),
+  palette = "Set1"
+)
+
+save_fig(p_q20$plot, "Fig20_km_os_gender", width = 7, height = 5)
+
+write_tbl(
+  tibble::tibble(
+    comparison    = paste(levels(clin$gender), collapse = " vs "),
+    log_rank_chi2 = unname(survdiff_os_gender$chisq),
+    df            = length(survdiff_os_gender$n) - 1,
+    p_value       = p_logrank_gender
+  ),
+  "Q20_logrank_gender"
 )
 ```
 
-**What to look for.** Check the exported PNG at final viewing size; a figure
-that looks fine interactively may need larger dimensions or text for a report.
+**What to look for:** the log-rank *p*-value (printed automatically by
+`ggsurvplot`) and how the two curves separate. Survival in TCGA tends to
+be modestly worse for men than women across many cancer types.
 
-### Q27 (transcript's Q26 follow-on). Wilcoxon annotation on a ggpubr boxplot
+*Fix applied:* none — clean.
+
+### Q21. Does overall survival differ across age groups?
+
+> **Hint:** `age_group` is an ordered factor; survminer keeps the natural order in the legend and in the risk table.
 
 ```r
-p_wilcox_visual <- ggpubr::ggboxplot(
-  clinical,
-  x         = "Vital_Status",
-  y         = "Age",
-  color     = "Vital_Status",
-  palette   = unname(vital_palette[levels(clinical$Vital_Status)]),
-  add       = "jitter",
-  add.params = list(alpha = 0.35, width = 0.15)
+age_group_surv_df <- clin |>
+  filter(!is.na(OS.time), !is.na(OS), !is.na(age_group)) |>
+  mutate(age_group = droplevels(age_group))
+
+fit_os_age <- survfit(Surv(OS.time, OS) ~ age_group, data = age_group_surv_df)
+
+p_q21 <- ggsurvplot(
+  fit_os_age, data = age_group_surv_df,
+  pval = TRUE, conf.int = TRUE,
+  xlab = "Days from diagnosis",
+  ylab = "Overall survival probability",
+  legend.title = "Age group",
+  legend.labs  = levels(age_group_surv_df$age_group),
+  ggtheme = theme_pub(),
+  palette = "Set1"
+)
+
+save_fig(p_q21$plot, "Fig21_km_os_age_group", width = 8, height = 5)
+```
+
+**What to look for:** the ordering of curves across age groups — older
+groups should sit lower. A highly significant *p*-value is expected but
+the visual spread quantifies the practical size of the effect.
+
+*Fix applied:* none — clean.
+
+### Q22. Does overall survival differ across cancer types?
+
+> **Hint:** keep only the top 6 cancers so the legend and the curves stay readable. Plot each cancer in its own panel.
+
+```r
+top6_cancers <- clin |>
+  filter(!is.na(OS.time), !is.na(OS)) |>
+  count(cancer_type, sort = TRUE) |>
+  slice_head(n = 6) |>
+  pull(cancer_type)
+
+cancer_surv_df <- clin |>
+  filter(!is.na(OS.time), !is.na(OS),
+         as.character(cancer_type) %in% top6_cancers) |>
+  mutate(cancer_type = droplevels(cancer_type))
+
+fit_os_cancer <- survfit(Surv(OS.time, OS) ~ cancer_type, data = cancer_surv_df)
+
+# Per-cancer KM plots, laid out with patchwork (survminer's
+# ggsurvplot_facet() expects a faceting variable and is brittle when
+# combined with patchwork; building each plot and arranging is more robust).
+fits <- cancer_surv_df |>
+  group_split(cancer_type) |>
+  purrr::map(function(d) {
+    fit <- survfit(Surv(OS.time, OS) ~ 1, data = d)
+    ggsurvplot(
+      fit, data = d,
+      conf.int = TRUE, pval = FALSE,
+      xlab = "Days from diagnosis",
+      ylab = "Overall survival probability",
+      title = as.character(unique(d$cancer_type)),
+      ggtheme = theme_pub(),
+      palette = "#377EB8"
+    )$plot
+  })
+
+p_q22 <- patchwork::wrap_plots(fits, nrow = 2, ncol = 3) +
+  patchwork::plot_annotation(title = "Overall survival, top 6 cancer types")
+
+save_fig(p_q22, "Fig22_km_os_top6_cancers", width = 11, height = 7)
+```
+
+**What to look for:** cancers with steep early drops (e.g. pancreatic,
+lung) vs. cancers with long plateaus (e.g. thyroid, prostate).
+
+*Fix applied:* the original `ggsurvplot_facet()` approach is brittle when
+combining with `patchwork` — replaced by building each panel as a
+`ggsurvplot()$plot` and arranging with `patchwork::wrap_plots()`. This
+keeps the figure self-contained and avoids the known issue where
+`ggsurvplot_facet()` returns a list incompatible with `+`.
+
+### Q23. What is the adjusted hazard of age and gender on survival?
+
+> **Hint:** `coxph()` returns a hazard ratio per unit of the covariate; `tidy()` (with `exponentiate = TRUE`) converts it to a publication-ready table.
+
+```r
+cox_age_gender <- coxph(Surv(OS.time, OS) ~ age + gender, data = clin)
+cox_age_gender_tbl <- broom::tidy(cox_age_gender, exponentiate = TRUE,
+                                  conf.int = TRUE)
+
+write_tbl(cox_age_gender_tbl, "Q23_cox_age_gender")
+
+forest_df <- cox_age_gender_tbl |>
+  mutate(term = recode(term,
+                       "age"       = "Age (per year)",
+                       "genderMALE" = "Male vs female"))
+
+p_q23 <- ggplot(forest_df,
+                aes(x = estimate, y = forcats::fct_rev(term),
+                    xmin = conf.low, xmax = conf.high)) +
+  geom_vline(xintercept = 1, linetype = "dashed", colour = "grey40") +
+  geom_pointrange(colour = "#2C7FB8") +
+  scale_x_log10() +
+  labs(title = "Cox PH: age + gender on overall survival",
+       x = "Hazard ratio (log scale, 95% CI)", y = NULL) +
+  theme_pub()
+
+save_fig(p_q23, "Fig23_cox_forest_age_gender", width = 7, height = 4)
+```
+
+**What to look for:** an HR for age > 1 (each additional year slightly
+raises the hazard) and the contrast between the two genders. The CI
+width tells you about estimation precision.
+
+*Fix applied:* the original script used `survminer::ggforest()` on a
+stratified model; here we keep a tidy-based forest plot built with
+`broom::tidy(..., exponentiate = TRUE)` + `ggplot` because it produces a
+cleaner, more customisable figure and avoids the `ggforest()` "no
+strata" / "data.frame" errors on stratified Cox models.
+
+### Q24. Does the proportional-hazards assumption hold?
+
+> **Hint:** `cox.zph()` tests the PH assumption per covariate via scaled Schoenfeld residuals; a significant *p*-value means the HR likely changes over follow-up.
+
+```r
+zph_age_gender <- cox.zph(cox_age_gender)
+
+# broom has no tidy.cox.zph(); use a single base-R extraction.
+# Per-covariate table:
+zph_per_cov <- as.data.frame(zph_age_gender$table, stringsAsFactors = FALSE)
+zph_age_gender_tbl <- tibble::rownames_to_column(zph_per_cov, "term") |>
+  dplyr::rename(statistic = chisq, df = df, p_value = p)
+
+# Global test (sum of per-covariate chi-squared):
+zph_global <- tibble::tibble(
+  term      = "GLOBAL",
+  statistic = zph_age_gender$global_chisq,
+  df        = zph_age_gender$global_df,
+  p_value   = zph_age_gender$global_p
+)
+
+zph_tbl <- dplyr::bind_rows(zph_age_gender_tbl, zph_global)
+write_tbl(zph_tbl, "Q24_cox_zph_age_gender")
+
+# Diagnostic plots via ggcoxzph(); save with patchwork because ggcoxzph
+# returns a list of ggplots rather than a single object.
+zph_plots <- ggcoxzph(zph_age_gender, ggtheme = theme_pub())
+
+p_q24 <- patchwork::wrap_plots(zph_plots, ncol = 2) +
+  patchwork::plot_annotation(title = "Scaled Schoenfeld residuals: PH assumption")
+
+save_fig(p_q24, "Fig24_cox_zph_diagnostics", width = 9, height = 5)
+```
+
+**What to look for:** rows in `zph_tbl` with `p_value < 0.05` flag
+covariates whose HR is unlikely to be constant over time. The diagnostic
+plots should show flat, horizontal residual traces; a clearly trending
+line indicates a violation.
+
+*Fix applied:*
+1. `cox.zph()` has no `tidy()` method in `broom`, so the original script
+   built three different per-covariate tables and the LAST one silently
+   overwrote the earlier ones; we now build **one** consistent table from
+   `zph_age_gender$table`.
+2. The global test row is added with `bind_rows()` instead of being
+   computed and then discarded.
+3. `ggcoxzph()` returns a *list* of plots, which `patchwork::wrap_plots`
+   accepts directly — saving the list element with `print()` is also
+   valid but produces a single panel only.
+
+### Q25. Is the age effect on survival consistent across cancer types?
+
+> **Hint:** fit one Cox model per cancer type and plot the per-cancer HR for age; complement with a single Cox model stratified by cancer type to obtain a pooled age HR adjusted for cancer.
+
+```r
+forest_age <- clin |>
+  filter(!is.na(OS.time), !is.na(OS), !is.na(age)) |>
+  group_by(cancer_type) |>
+  group_modify(~ {
+    fit <- tryCatch(
+      coxph(Surv(OS.time, OS) ~ age, data = .x),
+      error = function(e) NULL
+    )
+    if (is.null(fit) || nrow(.x) < 20) {
+      tibble::tibble(
+        HR = NA_real_, conf.low = NA_real_, conf.high = NA_real_,
+        p_value = NA_real_, n = nrow(.x)
+      )
+    } else {
+      broom::tidy(fit, exponentiate = TRUE, conf.int = TRUE) |>
+        filter(term == "age") |>
+        transmute(HR = estimate, conf.low, conf.high,
+                  p_value = p.value, n = nrow(.x))
+    }
+  }) |>
+  ungroup() |>
+  filter(n >= 100) |>
+  arrange(HR)
+
+write_tbl(forest_age, "Q25_forest_age_per_cancer")
+
+p_q25a <- ggplot(
+  forest_age,
+  aes(x = HR, y = forcats::fct_reorder(cancer_type, HR),
+      colour = p_value < 0.05)
 ) +
-  ggpubr::stat_compare_means(method = "wilcox.test", label = "p.format") +
-  labs(title = "Age by vital status with Wilcoxon annotation", x = "Vital status", y = "Age (years)") +
-  theme_minimal()
+  geom_vline(xintercept = 1, linetype = "dashed", colour = "grey40") +
+  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high),
+                 height = 0.3, linewidth = 0.7) +
+  geom_point(size = 2.5) +
+  scale_x_log10(breaks = c(0.9, 1.0, 1.1, 1.2, 1.3)) +
+  scale_colour_manual(
+    values = c("TRUE" = "#B2182B", "FALSE" = "grey40"),
+    labels = c("TRUE" = "p < 0.05", "FALSE" = "p >= 0.05"),
+    name   = "Significance"
+  ) +
+  labs(
+    title    = "Hazard ratio of age (per year) by cancer type",
+    subtitle = "One Cox model per cancer; cancers with n >= 100",
+    x = "Hazard ratio (log scale)", y = NULL
+  ) +
+  theme_pub()
 
-p_wilcox_visual
+# Stratified Cox: pooled age effect with cancer-specific baseline hazards
+cox_strat <- coxph(
+  Surv(OS.time, OS) ~ age + strata(cancer_type),
+  data = clin
+)
+cox_strat_tbl <- broom::tidy(cox_strat, exponentiate = TRUE, conf.int = TRUE)
+
+write_tbl(cox_strat_tbl, "Q25_cox_strat_age")
+
+strat_df <- cox_strat_tbl |>
+  mutate(term = recode(term, "age" = "Age (per year)"))
+
+p_q25b <- ggplot(strat_df,
+                 aes(x = estimate, y = forcats::fct_rev(term),
+                     xmin = conf.low, xmax = conf.high)) +
+  geom_vline(xintercept = 1, linetype = "dashed", colour = "grey40") +
+  geom_pointrange(colour = "#2C7FB8") +
+  scale_x_log10() +
+  labs(title = "Cox PH: age, stratified by cancer type",
+       x = "Hazard ratio (log scale, 95% CI)", y = NULL) +
+  theme_pub()
+
+p_q25 <- p_q25a + p_q25b +
+  patchwork::plot_annotation(title = "Q25: age effect across cancers")
+
+save_fig(p_q25, "Fig25_forest_age_per_cancer_and_stratified",
+         width = 11, height = 7)
 ```
 
-**What to look for.** The annotation is a **visual aid only** — it reports a
-test result for the displayed groups but does not measure effect size, prove
-causality, or replace inspection of distributions and sample sizes.
+**What to look for:** whether the per-cancer age HRs cluster around the
+stratified-Cox pooled estimate (single HR for age adjusted for cancer).
+Cancers whose CIs cross 1 are the ones where age does not show a
+significant effect within that cohort.
+
+*Fix applied:* the stratified Cox forest plot uses a tidy + ggplot
+pipeline rather than `survminer::ggforest()`, because `ggforest()` is
+known to error ("data.frame column names should not match any of the
+special Coxph variable names") when applied to stratified models. The
+tidy-based plot is reproducible and easier to style.
 
 ---
 
-## Common mistakes (transcript cheat list)
+## End of tutorial
 
-1. Confusing counts and percentages — state which denominator you are using.
-2. Using a histogram for a categorical variable — `geom_bar()` vs `geom_histogram()`.
-3. Choosing an arbitrary binwidth — try a defensible binwidth and explain it.
-4. Overplotting every observation — use transparency, jitter, faceting, or summaries.
-5. Treating a smooth as proof — `geom_smooth(method = "lm")` describes a fitted model only.
-6. Ignoring missingness — `drop_na()` is fine for complete-pair analysis, but do not silently reinterpret `NA` as `0`.
-7. Letting factor order happen by accident — use `factor()` levels or `reorder()` when order carries meaning.
-8. Using colour without a legend or accessible contrast — labels, named palette, colour-blind-friendly choices.
-9. Comparing facets with inconsistent scales without saying so.
-10. Saving only what is displayed — pass the intended object explicitly to `ggsave()` and specify `width`, `height`, `units`, and `dpi`.
+```r
+message("Tutorial 4 complete: figures in figures/, tables in results/.")
+```
 
----
+## Common mistakes to avoid
 
-## Quiz answer key (Q27–Q47)
+- Reporting a *p*-value without an effect size or CI on a sample of
+  > 10,000 patients — almost everything will be "significant".
+- Treating highly skewed clinical variables as Gaussian (Q7).
+- Forgetting to drop unused factor levels before computing Cramer's *V*
+  or Cohen's *d* on filtered data.
+- Reporting χ² when a 2 × 2 table has expected counts < 5 (Q16) — switch
+  to Fisher's exact.
+- Using `ggforest()` on a stratified Cox model — use a tidy-based plot.
+- Forgetting that `cox.zph()` returns an object that needs explicit
+  extraction (Q24) — `broom::tidy()` does not handle it.
 
-| # | Answer | Topic |
-|---|--------|-------|
-| Q27 | **B** Aesthetic mapping | grammar of graphics |
-| Q28 | **B** `geom_histogram()` | univariate continuous |
-| Q29 | **B** proportion within each bar | `position = "fill"` |
-| Q30 | **B** `geom_bar()` counts rows, `geom_col()` plots a y value | geoms |
-| Q31 | **C** Median | boxplot |
-| Q32 | **B** CI for the fitted mean | `geom_smooth(method = "lm")` band |
-| Q33 | **A** `facet_wrap()` | small multiples |
-| Q34 | **A** Designed for common colour-vision deficiency | Okabe–Ito |
-| Q35 | **A** Swaps the x and y axes | `coord_flip()` |
-| Q36 | **False** | density y-axis |
-| Q37 | **False** | `stat_compare_means()` is a visual aid |
-| Q38 | **False** | correlation only measures linear association |
-| Q39 | **True** | binwidth affects apparent shape |
-| Q40 | **False** | missing is not zero |
-| Q41 | **True** | `ggsave()` accepts patchwork objects |
-| Q42 | When distribution *shape* matters | violin vs box |
-| Q43 | To reduce overplotting | jitter + alpha |
-| Q44 | `geom_bar(position = "dodge")` | side-by-side bars |
-| Q45 | `geom_point` + `colour = Gender` + `labs()` | coloured scatter |
-| Q46 | `facet_wrap(~ Pathologic_stage, ncol = 4)` | histogram facets |
-| Q47 | Slope differences do not establish an interaction | descriptive vs formal |
+## Practice exercises
 
----
-
-## Known issues resolved
-
-The task brief listed six classes of problem to fix. Because the source
-transcript is a *ggplot2* tutorial (not the survival/Cox session implied by the
-brief), the six named errors (`clin` vs `clinical`, `ggforest` with `strata`,
-`recode` misuse, `select(HR)` before `rename`, `cox.zph` via `$table`,
-`ggcoxzph` list via `wrap_plots`, `t_test`/`cohens_d` on a non-numeric
-`vital_status`) **are not present in `clipboard.txt`**. They appear only in the
-sibling files (`clipboard(1).txt`, `clipboard(2).txt`,
-`/mnt/user-data/outputs/Tutorial_4_PanCancer.{R,md}`). The issues that were
-present in `clipboard.txt` and that I cleaned up while writing this summary:
-
-1. **Duplicate "Q2" heading.** The transcript has two consecutive `### **Q2.** …`
-   headings — one for "10-year histogram bins" and one for "smoothed density
-   curve". I renumbered them **Q2 → Q3 (smoothed density)** so the numbering is
-   sequential and matches the existing PNG outputs in `/mnt/user-data/outputs/`.
-2. **Truncated `ggboxplot()` call.** The transcript's Q26 left `palette =`
-   missing a value (just `palette =`) and ended with no trailing comma. I
-   supplied `palette = unname(vital_palette[levels(clinical$Vital_Status)])`,
-   which is what the surrounding "Color-blind palette" section defines, and
-   restored the missing comma before `add = "jitter"`.
-3. **Empty body of `mutate()` snippet.** In the setup block, the
-   `mutate(... = factor(...), ...)` call had blank lines inside it. I rewrote
-   it as a single tidy block so it is paste-ready.
-4. **Stray closing markers.** The transcript has several `</details>` and
-   `**Output:**` markers with no preceding question. I kept them in the quiz
-   answer key (Q27–Q47) where they belong and dropped the empty ones.
-
-No patient-level data is reproduced; the summary contains only plot code,
-test code, and small named factor lookups (e.g. `levels(clinical$Vital_Status)`).
+1. Repeat Q11 (age by gender) but restrict to one cancer type and report
+   the Cohen's *d* with a 95 % bootstrap CI.
+2. Replace the χ² test in Q15 with Fisher's exact test and confirm the
+   conclusion does not change.
+3. Fit a Cox model with `age * cancer_type` interaction and inspect
+   whether the age effect is significantly different across cancers.
+4. Add a competing-risks analysis for DSS versus OS in Q18-Q19 using
+   the `cmprsk` package or `survival::finegray()`.
