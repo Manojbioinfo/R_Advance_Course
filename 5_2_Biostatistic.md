@@ -255,6 +255,9 @@ gives a quick read of which cancer dominates the dataset.
 
 *Fix applied:* none — clean.
 
+
+> **Note:** **Bar heights are cohort counts, not population incidence** — TCGA was not built to be epidemiologically representative, so a tall bar means a well-sampled cancer, not necessarily the most common one. Pitfall: ranking cancers by frequency as if it were cancer registry data.
+
 ### Q2. What does the age distribution look like?
 
 > **Hint:** a histogram with a sensible bin width shows the shape of the distribution and helps spot outliers.
@@ -277,6 +280,9 @@ save_fig(p_q2, "Fig02_age_hist", width = 7, height = 5)
 extreme ages that may be data-entry errors.
 
 *Fix applied:* none — clean.
+
+
+> **Note:** **Bin width is a modelling choice** — 5-year bins expose a right tail, but 1-year bins add noise and 10-year bins hide it. Always pair the histogram with a density plot or numeric summary. Pitfall: declaring a bimodal or unimodal shape from a single binwidth.
 
 ### Q3. How does age differ between men and women?
 
@@ -317,6 +323,9 @@ and any density peaks that suggest different age structures by gender.
 
 *Fix applied:* none — clean.
 
+
+> **Note:** **Densities are normalised within group** — peak height is shape, not count, so a tall green peak does not mean more women. Pitfall: comparing densities visually as if they were raw counts.
+
 ### Q4. How many patients per age decade?
 
 > **Hint:** `cut()` returns an ordered factor; use that to keep the bars in a meaningful order and to drop empty buckets safely.
@@ -346,6 +355,9 @@ save_fig(p_q4, "Fig04_age_group_counts", width = 7, height = 5)
 
 *Fix applied:* none — clean.
 
+
+> **Note:** **`cut()` boundaries decide the story** — overlapping or off-by-one breaks will silently drop patients into `NA`. Always tabulate the cut before plotting. Pitfall: trusting the default `right = TRUE` rule on edges that include the maximum value.
+
 ### Q5. What proportion of patients falls in each age decade?
 
 > **Hint:** dividing by the row total converts counts to within-cohort proportions; `geom_col + percent_format` finishes the chart.
@@ -374,6 +386,9 @@ patients above 60 years — relevant for treatment-decision thresholds.
 
 *Fix applied:* none — clean.
 
+
+> **Note:** **Percentages are within-cohort shares** — they tell you nothing about absolute cohort size. A rare cohort with the same proportions as a common one is still rare. Pitfall: comparing percentages across cohorts of very different n.
+
 ### Q6. Does the age distribution differ by vital status?
 
 > **Hint:** two overlapping filled densities compare two distributions; pair with a strip or box plot in later questions to inspect raw points.
@@ -399,6 +414,9 @@ save_fig(p_q6, "Fig06_age_density_vital", width = 7, height = 5)
 Dead group; this motivates the formal two-group tests in Q8 and Q9.
 
 *Fix applied:* none — clean.
+
+
+> **Note:** **The `Dead` density is built from far fewer patients** — its curve is much noisier and more sensitive to bandwidth. Read it alongside a strip/box plot, not in isolation. Pitfall: declaring a visible shift as meaningful when one group has tiny n.
 
 ### Q7. Is age approximately normally distributed?
 
@@ -446,6 +464,9 @@ favour non-parametric tests later.
 
 *Fix applied:* none — clean.
 
+
+> **Note:** **Shapiro-Wilk is overpowered at n = 12,591** — every tiny deviation from normality returns p < 0.001. The histogram and QQ-plot carry the interpretation; the test only confirms that the data are not exactly Gaussian. Pitfall: treating "non-normal" as a reason to abandon parametric tests when the CLT already protects them.
+
 ### Q8. Do dead and alive patients differ in mean age?
 
 > **Hint:** when normality is doubtful and the groups have very different sizes, Welch's t-test (`var.equal = FALSE`) is the safer default. `droplevels()` guarantees a clean two-level factor for `cohens_d()`.
@@ -488,6 +509,9 @@ useful reminder that *p*-value alone can mislead.
 non-existent `rstatix::welch_test()`; effect size via
 `rstatix::cohens_d()` (the user-supplied formula `2*W/(n1*n2)-1` is the
 rank-biserial for Q9).
+
+
+> **Note:** **Small Cohen's *d* with a tiny p means the effect is detectable, not important** — with n > 10,000 even a 0.5-year mean difference is "significant". Always report *d* (or a CI on the mean difference) alongside the p-value. Pitfall: equating statistical significance with clinical relevance on very large samples.
 
 ### Q9. Do dead and alive patients differ in age (rank-based)?
 
@@ -544,6 +568,9 @@ confirming the effect size is small.
 
 *Fix applied:* none — clean.
 
+
+> **Note:** **Wilcoxon tests stochastic dominance, not the mean** — the rank-biserial *r* on a -1…1 scale is the natural effect size. Pitfall: calling it a "non-parametric t-test" and ignoring what it actually estimates.
+
 ### Q10. How variable is age within each vital-status group?
 
 > **Hint:** a jittered boxplot shows how many observations drive each group and whether a tiny group is driving the result.
@@ -568,6 +595,9 @@ save_fig(p_q10, "Fig10_age_vital_jitter", width = 6, height = 5)
 jitter lets you see how many points are stacked at the extremes.
 
 *Fix applied:* none — clean.
+
+
+> **Note:** **Box widths and whisker lengths reflect the *n* behind each group** — the `Dead` box has fewer observations and therefore wider interquartile coverage of fewer points. Pair the box with a jitter or violin to see the raw counts. Pitfall: comparing IQRs as if both groups had equal precision.
 
 ### Q11. Do men and women differ in mean age?
 
@@ -609,6 +639,9 @@ effect size suggests is practically meaningful.
 
 *Fix applied:* `t_test(..., var.equal = FALSE)` used instead of the
 non-existent `rstatix::welch_test()`.
+
+
+> **Note:** **The gender gap in age at diagnosis is usually < 2 years** — Cohen's *d* ≈ 0.1 means "statistically significant, clinically negligible". Always report *d* (or a CI on the difference in means). Pitfall: treating a small *d* as evidence of a meaningful gap.
 
 ### Q12. Does age at diagnosis vary across cancer types?
 
@@ -678,6 +711,9 @@ manual ε² calculation
 `eps^2 = (H - (k + 1)) / (n - k)` plus a magnitude label — works on any
 rstatix / survival release.
 
+
+> **Note:** **Kruskal-Wallis is the safer default across cancer types** — variances and sample sizes differ across 33 cancers, so the homoscedasticity assumption of one-way ANOVA rarely holds. Report ε² as an effect size. Pitfall: running pairwise tests without a first-pass global test.
+
 ### Q13. Which pairs of cancers differ in age after multiple-testing correction?
 
 > **Hint:** after a significant Kruskal-Wallis, Dunn's test controls the family-wise error rate when adjusted with Holm.
@@ -729,6 +765,9 @@ multiple testing is accounted for.
 
 *Fix applied:* none — clean.
 
+
+> **Note:** **Holm controls the family-wise error rate (FWER)** — the probability of *any* false positive across the family. It is more conservative than BH. Pitfall: treating the adjusted p-values as if they were independent.
+
 ### Q14. Is age correlated with overall survival time?
 
 > **Hint:** a scatterplot + smooth line is the visual; `cor.test()` with `method = "pearson"` and `"spearman"` gives the two summaries. `OS.time` must be > 0 for a meaningful correlation.
@@ -775,6 +814,9 @@ because the relationship is approximately monotonic; both will be small
 in absolute value — age alone is a weak predictor of survival time.
 
 *Fix applied:* none — clean.
+
+
+> **Note:** **Correlation between age and OS.time is not causation** — both variables are bounded by follow-up and by eligibility, so a positive *r* does not mean older patients live longer in real time. Pitfall: using Pearson/Spearman on OS.time as a substitute for a Cox model.
 
 ### Q15. Is vital status associated with race?
 
@@ -849,6 +891,9 @@ it normalises by within-race counts.
 
 *Fix applied:* none — clean.
 
+
+> **Note:** **χ² scales with sample size** — with n = 12,591 even a tiny association yields p < 0.001. Report Cramer's *V* as the effect size. Pitfall: reporting χ² without checking expected counts when one category is rare.
+
 ### Q16. Is tumor status associated with vital status?
 
 > **Hint:** when one cell has expected count < 5 fall back to Fisher's exact test.
@@ -915,6 +960,9 @@ last follow-up.
 
 *Fix applied:* none — clean.
 
+
+> **Note:** **Fisher's exact test is exact, not approximate** — it is the right choice for any 2 × 2 (or small) table regardless of expected counts. Pitfall: defaulting to χ² and only switching to Fisher when an expected cell is already < 5.
+
 ### Q17. Where does the gender gap in age reach statistical significance?
 
 > **Hint:** loop one Welch t-test per cancer type, adjust *p*-values with both Holm (FWER) and BH (FDR), and report the counts of significant hits per method.
@@ -973,6 +1021,9 @@ flag more cancers as "significant".
 
 *Fix applied:* the per-cancer Welch t-test is `t_test(..., var.equal = FALSE)` (not the non-existent `rstatix::welch_test()`).
 
+
+> **Note:** **Holm and BH answer different questions** — Holm controls FWER (no false positives), BH controls the false-discovery rate (a small share of false positives is OK). Choose Holm for confirmatory analyses, BH for exploratory screens. Pitfall: picking one and not the other without justification.
+
 ### Q18. How many patients and events for each survival endpoint?
 
 > **Hint:** an "at risk / events" table is the canonical first step before any Kaplan-Meier curve. Use the raw *n* and event counts (no imputation).
@@ -1021,6 +1072,9 @@ smallest.
 
 *Fix applied:* none — clean.
 
+
+> **Note:** **Each endpoint measures a different event** — OS counts all deaths, DSS only cancer deaths, DFI only disease-free intervals, PFI only progression events. Event rates are not comparable across endpoints. Pitfall: reporting "survival" without naming the endpoint.
+
 ### Q19. What is the overall Kaplan-Meier survival curve?
 
 > **Hint:** `survfit()` with `Surv(time, event)` on the whole cohort gives the overall KM curve plus median survival.
@@ -1044,6 +1098,9 @@ save_fig(p_q19$plot, "Fig19_km_overall", width = 7, height = 5)
 quickly the survival probability drops in the first ~1,000 days.
 
 *Fix applied:* none — clean.
+
+
+> **Note:** **The KM curve is a step function at observed event times** — flat segments mean no events in that interval, not "no risk". The CI widens past the last observed event. Pitfall: extrapolating the curve past the last event time.
 
 ### Q20. Does overall survival differ between men and women?
 
@@ -1088,6 +1145,9 @@ be modestly worse for men than women across many cancer types.
 
 *Fix applied:* none — clean.
 
+
+> **Note:** **The log-rank test assumes non-informative censoring** — patients lost to follow-up are assumed to have the same hazard as those who remain. A small p with similar curves means the difference is real but tiny. Pitfall: interpreting a significant log-rank as a large between-group difference.
+
 ### Q21. Does overall survival differ across age groups?
 
 > **Hint:** `age_group` is an ordered factor; survminer keeps the natural order in the legend and in the risk table.
@@ -1118,6 +1178,9 @@ groups should sit lower. A highly significant *p*-value is expected but
 the visual spread quantifies the practical size of the effect.
 
 *Fix applied:* none — clean.
+
+
+> **Note:** **Age-group curves are not guaranteed to satisfy proportional hazards** — the visual ranking can change if the HR between two groups is non-constant in time. Always check `cox.zph()` on a follow-up Cox model. Pitfall: ranking curves when the log-rank is not significant.
 
 ### Q22. Does overall survival differ across cancer types?
 
@@ -1170,6 +1233,9 @@ combining with `patchwork` — replaced by building each panel as a
 keeps the figure self-contained and avoids the known issue where
 `ggsurvplot_facet()` returns a list incompatible with `+`.
 
+
+> **Note:** **Cancer-type curves mix different case-mixes, ages and follow-up protocols** — the visual ranking is not adjusted for stage or treatment. Use Cox with cancer as a covariate (or stratified) for a fair comparison. Pitfall: ranking cancers by median survival from a univariate KM.
+
 ### Q23. What is the adjusted hazard of age and gender on survival?
 
 > **Hint:** `coxph()` returns a hazard ratio per unit of the covariate; `tidy()` (with `exponentiate = TRUE`) converts it to a publication-ready table.
@@ -1208,6 +1274,9 @@ stratified model; here we keep a tidy-based forest plot built with
 `broom::tidy(..., exponentiate = TRUE)` + `ggplot` because it produces a
 cleaner, more customisable figure and avoids the `ggforest()` "no
 strata" / "data.frame" errors on stratified Cox models.
+
+
+> **Note:** **HR > 1 means higher hazard, not higher risk in absolute terms** — the proportional-hazards assumption is what links HR to the survival curves. Always report the 95 % CI and the p-value together. Pitfall: calling HR a "relative risk" — they coincide only when the outcome is rare.
 
 ### Q24. Does the proportional-hazards assumption hold?
 
@@ -1258,6 +1327,9 @@ line indicates a violation.
 3. `ggcoxzph()` returns a *list* of plots, which `patchwork::wrap_plots`
    accepts directly — saving the list element with `print()` is also
    valid but produces a single panel only.
+
+
+> **Note:** **A significant `cox.zph()` *p*-value means the HR changes over time** — do not report a single HR when the effect is time-varying. Fixes include stratifying on the offender, adding a time interaction, or restricting follow-up. Pitfall: ignoring the test because the Cox model still converged.
 
 ### Q25. Is the age effect on survival consistent across cancer types?
 
@@ -1352,6 +1424,9 @@ known to error ("data.frame column names should not match any of the
 special Coxph variable names") when applied to stratified models. The
 tidy-based plot is reproducible and easier to style.
 
+
+> **Note:** **Stratification lets each cancer have its own baseline hazard** while sharing the age coefficient — the pooled age HR is adjusted for cancer without assuming a common baseline. Pitfall: including cancer_type as a regular covariate when proportional hazards fails across cancers.
+
 ---
 
 ## End of tutorial
@@ -1383,3 +1458,329 @@ message("Tutorial 4 complete: figures in figures/, tables in results/.")
    whether the age effect is significantly different across cancers.
 4. Add a competing-risks analysis for DSS versus OS in Q18-Q19 using
    the `cmprsk` package or `survival::finegray()`.
+
+
+## 🧠 Quiz
+
+Twenty questions, graded by difficulty. Cover missingness, test selection
+(t-test vs Wilcoxon vs Kruskal-Wallis, χ² vs Fisher), normality checks, effect
+sizes, multiplicity correction (Holm vs BH), Kaplan-Meier interpretation,
+log-rank, Cox proportional hazards, hazard ratios, censoring and
+stratification. Click each answer to reveal it.
+
+### Basic (1–7)
+
+**Q1 — Missingness.** You compute the mean age on the whole `clin` table
+without filtering out `NA`s. The result is `NA`. What is the cleanest fix
+that also reports how many values were missing?
+
+<details><summary>Show answer</summary>
+
+Filter out missing values explicitly with `dplyr::filter(!is.na(age))` and
+count the kept rows with `dplyr::n()`. The mean function only returns a
+number when every input is non-missing, and silently dropping `NA`s hides
+how much data you actually used.
+
+</details>
+
+**Q2 — Normality check.** Your Shapiro-Wilk test on age returns *p* < 1e-6
+even though the histogram looks roughly bell-shaped. What does this mean
+and what should you do?
+
+<details><summary>Show answer</summary>
+
+With *n* ≈ 12,000 the test is overpowered: every tiny deviation from a
+perfect Gaussian is flagged as significant. The test does not say the data
+are "badly" non-normal — it says they are not *exactly* normal. Read the
+*p*-value together with the histogram and the QQ-plot, and rely on the CLT
+for the mean (which is robust to mild non-normality at large *n*).
+
+</details>
+
+**Q3 — Two-group test.** You want to compare age between `Alive` and
+`Dead`. The variances look different and the two groups have very
+unequal sizes. Which test do you pick?
+
+<details><summary>Show answer</summary>
+
+Welch's t-test, i.e. `t_test(age ~ vital_status, var.equal = FALSE)`. It
+does not assume equal variance and is the standard default in R. The
+Student version with `var.equal = TRUE` would be wrong here because the
+variances differ.
+
+</details>
+
+**Q4 — Effect size for a Wilcoxon.** After a significant Wilcoxon test
+between two age groups you only report the *p*-value. What effect size
+should you add and how is it computed from the test statistic?
+
+<details><summary>Show answer</summary>
+
+The rank-biserial correlation *r* = 2 * W* / (*n*₁ · *n*₂) − 1, where *W*
+is the Wilcoxon statistic returned by `wilcox_test()`. *r* is on a -1…1
+scale and is the natural effect-size companion to the Mann-Whitney U test.
+Without it the reader has no idea whether the difference is tiny or huge.
+
+</details>
+
+**Q5 — χ² vs Fisher.** You cross-tabulate a rare tumour status (expected
+count < 5 in one cell) against vital status. Which test do you use and
+why?
+
+<details><summary>Show answer</summary>
+
+Fisher's exact test. χ² relies on a large-sample approximation that fails
+when expected counts drop below 5. Fisher's test is exact for any 2 × 2
+(or any small) table, so it is the safe default whenever a cell is sparse.
+Switching to Fisher only when a cell is already below 5 is the common
+pitfall — it is reasonable to use Fisher unconditionally for 2 × 2 tables.
+
+</details>
+
+**Q6 — KM interpretation.** On a Kaplan-Meier curve, a flat segment
+between two event times means what?
+
+<details><summary>Show answer</summary>
+
+No events occurred in that interval. It does **not** mean the hazard is
+zero, nor that no patient is at risk — only that nobody experienced the
+event during that window. The CI band also widens past the last observed
+event; do not extrapolate the curve beyond it.
+
+</details>
+
+**Q7 — Censoring.** In TCGA overall survival, a patient whose `OS` is 0
+(alive at last follow-up) is called "censored". What does the log-rank
+test assume about these censored patients?
+
+<details><summary>Show answer</summary>
+
+Non-informative censoring: censored patients are assumed to have the same
+underlying hazard as patients who remain under observation. If the
+censoring is driven by the disease (e.g. sicker patients drop out) the
+log-rank *p*-value and the KM curve are both biased.
+
+</details>
+
+### Intermediate (8–14)
+
+**Q8 — Three-group test.** You want to compare age across six cancer
+types. The variances and sample sizes differ a lot. The shapiro test is
+"non-normal" everywhere. Which inferential test is the safe default?
+
+<details><summary>Show answer</summary>
+
+Kruskal-Wallis (rank-based one-way ANOVA), e.g.
+`kruskal_test(age ~ cancer_type, data = age_by_cancer)`. It does not
+require normality or homoscedasticity. One-way ANOVA assumes both; Welch
+ANOVA relaxes variance but still assumes Gaussianity. Always follow a
+significant Kruskal-Wallis with a pairwise post-hoc test (Dunn with Holm
+adjustment) before claiming specific cancers differ.
+
+</details>
+
+**Q9 — Effect-size magnitude.** A Welch t-test returns *d* = 0.08 with
+*p* = 0.002 on *n* = 12,591. How should you describe this result to a
+clinical reader?
+
+<details><summary>Show answer</summary>
+
+Statistically significant but practically negligible. Cohen's *d* ≈ 0.08
+is well below the conventional 0.2 "small effect" threshold, so the mean
+age difference is detectable only because the sample is enormous. Always
+report *d* (or a CI on the mean difference) alongside the *p*-value, and
+never let "p < 0.05" stand on its own at this sample size.
+
+</details>
+
+**Q10 — Holm vs BH.** After running one Welch t-test per cancer type
+for the gender gap in age you have 33 *p*-values. Holm and BH disagree
+on how many are significant. Which one is appropriate for a
+**confirmatory** analysis and which for an **exploratory** screen?
+
+<details><summary>Show answer</summary>
+
+**Holm** for confirmatory analyses — it controls the family-wise error
+rate (FWER), i.e. the probability of *any* false positive. **BH**
+(Benjamini-Hochberg) for exploratory screens — it controls the
+false-discovery rate (FDR), i.e. the expected *share* of false positives
+among declared hits. BH is more liberal and lets you trade a small
+fraction of false positives for higher power. Always pick with
+justification, not by default.
+
+</details>
+
+**Q11 — Log-rank test.** Two KM curves cross each other at month 30.
+Is the log-rank test still appropriate?
+
+<details><summary>Show answer</summary>
+
+Use it with caution. The standard log-rank weights all event times
+equally, so it has low power when the hazards cross (the early advantage
+of one group is cancelled by the late advantage of the other). If the
+curves cross, consider the Fleming-Harrington weighted log-rank test
+(`survdiff(..., rho = 1)`) or restrict follow-up to the period where
+proportional hazards holds. Always inspect the curves before trusting
+the *p*-value.
+
+</details>
+
+**Q12 — Hazard ratio reading.** A Cox model for OS on age returns
+HR = 1.02 with 95 % CI (1.015, 1.025). In plain English, what does this
+mean, and what is the most common mistake readers make with HRs?
+
+<details><summary>Show answer</summary>
+
+Each additional year of age multiplies the hazard of death by about 1.02,
+i.e. a 2 % increase per year, with the true effect between 1.5 % and
+2.5 %. The most common mistake is to call HR a "relative risk" — they
+are not the same number. HR ≈ RR only when the outcome is rare (short
+follow-up, low event rate). Always report the CI alongside the point
+estimate; do not cherry-pick HRs.
+
+</details>
+
+**Q13 — Stratified Cox.** You fit `coxph(Surv(OS.time, OS) ~ age + 
+strata(cancer_type))` and the model converges. What does `strata()` do
+and when do you need it?
+
+<details><summary>Show answer</summary>
+
+`strata(cancer_type)` lets each cancer type have its own baseline hazard
+function, so the age coefficient is a single *pooled* HR adjusted for
+cancer without assuming a common baseline. You need stratification when
+proportional hazards fails for that variable (`cox.zph()` returns a
+significant *p*-value), or when the covariate is a nuisance variable you
+want to absorb rather than estimate.
+
+</details>
+
+**Q14 — *cox.zph()* interpretation.** The `cox.zph()` test on your Cox
+model returns *p* = 0.01 for the `age` covariate. What is the
+implication, and what is your next step?
+
+<details><summary>Show answer</summary>
+
+The proportional-hazards assumption fails for `age`: the HR for age
+likely changes during follow-up. Do **not** report a single HR — it is a
+misleading summary. Fixes include (a) stratifying on `age` (e.g.
+`strata(age_group)`), (b) adding a time interaction `tt(age)`, or (c)
+restricting follow-up to a window where PH holds. Always run `cox.zph()`
+before reporting a Cox model.
+
+</details>
+
+### Advanced (15–20)
+
+**Q15 — Multiplicity strategy.** You run 100 hypothesis tests on the
+TCGA cohort. You want to declare at most 5 false positives on average
+out of the tests you call significant. Which adjustment and why?
+
+<details><summary>Show answer</summary>
+
+Benjamini-Hochberg (BH) at *q* = 0.05. BH controls the false-discovery
+rate (FDR), i.e. the expected *proportion* of false positives among
+declared hits. If you call 60 tests significant with BH at *q* = 0.05,
+about 5 % (≈ 3) are expected to be false. Holm would control FWER (no
+false positives at all) and is much more conservative; with 100 tests
+Holm at 0.05 typically yields far fewer hits.
+
+</details>
+
+**Q16 — Case-mix in survival comparisons.** You compare KM curves across
+cancer types and notice pancreatic cancer has the worst curve. Why is
+this *not* a clean comparison?
+
+<details><summary>Show answer</summary>
+
+Cancer types differ in age at diagnosis, stage distribution, treatment
+protocols, follow-up schedules and eligibility criteria. The visual
+ranking is therefore a mix of biology *and* case-mix, not adjusted for
+any of these. A multivariate Cox model with cancer as a covariate (or
+stratified Cox with shared HRs) gives a fair comparison. Never publish
+"cancer X has worse survival than cancer Y" based on a univariate KM.
+
+</details>
+
+**Q17 — KM with crossed curves.** Two KM curves cross at month 24 and
+the log-rank *p*-value is 0.08. Your collaborator claims "no
+difference". What is the more accurate statement?
+
+<details><summary>Show answer</summary>
+
+"There is no detectable difference under the standard log-rank test." A
+non-significant log-rank does not prove equality; it fails to reject
+equality. With crossed curves the standard log-rank is also underpowered.
+The accurate statement is to report the *p*-value, the curves and the
+median survival per arm, and to consider a weighted log-rank
+(Fleming-Harrington) if the crossing is real.
+
+</details>
+
+**Q18 — Cox model with too many covariates.** You fit
+`coxph(Surv(OS.time, OS) ~ age + gender + race + tumor_status + 
+stage + smoking + cigarettes_per_day + ...)` and 17 of 25 covariates
+have NA, dropping 60 % of patients. What is your first concern?
+
+<details><summary>Show answer</summary>
+
+Complete-case analysis on a Cox model with many covariates is dangerous:
+a patient missing any one variable is dropped, so the effective *n*
+collapses and the remaining sample is no longer representative. Use
+multiple imputation (`mice::mice()` with `method = pmm`) before fitting,
+or build the Cox model on the variables with the most complete data and
+report the *n* used per coefficient.
+
+</details>
+
+**Q19 — Stratified KM.** You stratify a KM plot by cancer type and the
+log-rank within strata is non-significant everywhere, but the pooled
+log-rank is highly significant. What does this combination mean?
+
+<details><summary>Show answer</summary>
+
+The difference is *between* cancer types, not *within* them — within any
+single cancer the curves are similar, but the cancer types themselves
+have very different baseline hazards. The pooled test detects this
+between-cancer heterogeneity while the per-stratum tests are
+underpowered. This is exactly the situation where a stratified Cox model
+(with cancer as the strata variable and other covariates pooled) is
+appropriate.
+
+</details>
+
+**Q20 — Reporting checklist.** List the **five** elements that every
+clinical survival result in this tutorial should include to be
+publication-ready.
+
+<details><summary>Show answer</summary>
+
+1. The **endpoint name** spelled out (OS, DSS, DFI or PFI) and the
+   time-to-event variable.
+2. The **sample size** *n* and the **event count**, separately for each
+   group.
+3. The **test name** with adjustment method (Welch, Kruskal-Wallis + Dunn
+   with Holm, log-rank, Cox with *cox.zph()* check).
+4. An **effect size** with a **95 % confidence interval** (Cohen's *d*,
+   Cramer's *V*, rank-biserial *r*, ε², or HR with CI).
+5. The **PH assumption check** for any Cox model (`cox.zph()` *p*-values)
+   and a note on stratification if it fails.
+
+</details>
+
+### Scoring guide
+
+| Difficulty | Questions | Points each | Total |
+|------------|-----------|-------------|-------|
+| Basic      | Q1–Q7     | 1           | 7     |
+| Intermediate | Q8–Q14  | 2           | 14    |
+| Advanced   | Q15–Q20   | 3           | 18    |
+| **Total**  |           |             | **39**|
+
+| Score | Reading |
+|-------|---------|
+| ≥ 32  | Excellent — ready to lead a TCGA-style biostatistics analysis. |
+| 24–31 | Strong — review the few topics where you missed points. |
+| 16–23 | Solid foundation — re-read the sections behind the missed questions. |
+| 8–15  | Working knowledge — redo the relevant Q-sections and rerun the code. |
+| ≤ 7   | Start with the Setup and Learning objectives, then work top to bottom. |
