@@ -104,17 +104,23 @@ ggsave("Fig4_1_p_age_hist.jpeg", p_age_hist, width = 7, height = 5, units = "in"
 
 p_age_hist
 ```
+**Output:**
+
+<img src="images/Fig4_1_p_age_hist.jpeg" alt="Plot" width="60%">
 
 **What to look for:** Look for the centre, spread, skew, gaps, and unusually high or low ages. Do not interpret a tall bin as a rate; it is a count. With default bins, compare the general shape but be careful — default bin width depends on the data range.
 
 
-### **Q2. How do you show the distribution of Age with histogram bins five years wide?**
 
-**Hint:** Add `binwidth = 5` to `geom_histogram()` and set `boundary = 0` so bins start at 0, 5, 10, … making the intervals align to meaningful five-year age groups.
+
+
+### **Q2. How do you show the distribution of Age with histogram bins 10 years wide?**
+
+**Hint:** Add `binwidth = 10` to `geom_histogram()` and set `boundary = 0` so bins start at 0, 10,20,  … making the intervals align to meaningful five-year age groups.
 
 ```r
 p_age_hist_binned <- ggplot(clinical, aes(x = Age)) +
-  geom_histogram(binwidth = 5, boundary = 0, colour = "white", fill = "#0072B2") +
+  geom_histogram(binwidth = 10, boundary = 0, colour = "white", fill = "#0072B2") +
   labs(title = "Age distribution", x = "Age (years)", y = "Number of patients") +
   theme_minimal()
 
@@ -122,6 +128,11 @@ ggsave("Fig4_2_p_age_hist_binned.jpeg", p_age_hist, width = 7, height = 5, units
 
 p_age_hist_binned
 ```
+
+**Output:**
+
+<img src="images/Fig4_2_p_age_hist_binned.jpeg" alt="Plot" width="60%">
+
 
 **What to look for:** Look for the centre, spread, skew, gaps, and unusually high or low ages. Do not interpret a tall bin as a rate; it is a count. With fixed five-year bins, the shape is stable and comparable across datasets — note how the choice of bin width changes the visual impression compared with the image above.
 
