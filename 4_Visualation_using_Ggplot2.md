@@ -124,7 +124,7 @@ p_age_hist_binned <- ggplot(clinical, aes(x = Age)) +
   labs(title = "Age distribution", x = "Age (years)", y = "Number of patients") +
   theme_minimal()
 
-ggsave("Fig4_2_p_age_hist_binned.jpeg", p_age_hist, width = 7, height = 5, units = "in", dpi = 300)
+ggsave("Fig4_2_p_age_hist_binned.jpeg", p_age_hist_binned, width = 7, height = 5, units = "in", dpi = 300)
 
 p_age_hist_binned
 ```
