@@ -116,7 +116,12 @@ p_cancer_counts <- clinical |>
 save_fig(p_cancer_counts, "Fig1_1_cancer_counts.jpeg", 7, 8)
 ```
 
-![Patients per cancer type](figures/Fig1_1_cancer_counts.jpeg)
+
+
+<p align="center">
+  <img src="figures/Fig1_1_cancer_counts.jpeg" alt="Patients per cancer type" width="60%">
+</p>
+
 
 **What to look for:** The dataset is very unbalanced. BRCA is among the
 largest cohorts while CHOL and DLBC are small, so comparisons involving
@@ -136,7 +141,10 @@ p_age_hist <- ggplot(clinical, aes(x = Age)) +
 save_fig(p_age_hist, "Fig1_2_age_hist.jpeg")
 ```
 
-![Age histogram](figures/Fig1_2_age_hist.jpeg)
+<p align="center">
+  <img src="figures/Fig1_2_age_hist.jpeg" alt="Age histogram" width="48%">
+</p>
+
 
 **What to look for:** Peak location, skew, and unusual spikes (for example a
 pile-up at age 90, where TCGA caps age for privacy).
@@ -154,7 +162,9 @@ p_age_density <- ggplot(clinical, aes(x = Age)) +
 save_fig(p_age_density, "Fig1_3_age_density.jpeg")
 ```
 
-![Age density](figures/Fig1_3_age_density.jpeg)
+<p align="center">
+  <img src="figures/Fig1_3_age_density.jpeg" alt="Age density" width="60%">
+</p>
 
 ### Q4. How do you label age-group bars with percentages?
 
@@ -174,8 +184,9 @@ p_age_group <- clinical |>
   theme_minimal()
 save_fig(p_age_group, "Fig1_4_age_group_percent.jpeg")
 ```
-
-![Age group percentages](figures/Fig1_4_age_group_percent.jpeg)
+<p align="center">
+  <img src="figures/Fig1_4_age_group_percent.jpeg" alt="Age group percentages" width="60%">
+</p>
 
 **What to look for:** The percentages should add up to 100% across the bars,
 and the factor order should match the intended age progression.
@@ -198,7 +209,9 @@ p_age_gender_box <- clinical |>
 save_fig(p_age_gender_box, "Fig2_1_age_gender_box.jpeg")
 ```
 
-![Age by gender](figures/Fig2_1_age_gender_box.jpeg)
+<p align="center">
+  <img src="figures/Fig2_1_age_gender_box.jpeg" alt="Age by gender" width="60%">
+</p>
 
 **What to look for:** Medians, spread, and outliers. Gender is partly driven
 by cancer type (BRCA is mostly female, PRAD is all male), so this plot mixes
@@ -221,8 +234,9 @@ p_age_status_violin <- clinical |>
   theme_minimal()
 save_fig(p_age_status_violin, "Fig2_2_age_status_violin.jpeg")
 ```
-
-![Violin and box](figures/Fig2_2_age_status_violin.jpeg)
+<p align="center">
+  <img src="figures/Fig2_2_age_status_violin.jpeg" alt="Violin and box" width="60%">
+</p>
 
 ### Q7. How does Age vary by cancer type?
 
