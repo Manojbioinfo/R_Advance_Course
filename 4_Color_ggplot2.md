@@ -303,34 +303,6 @@ show_col(pal_npg()(5), labels = TRUE)
 
 ### 5.4 Save a Gallery of All Journal Palettes
 
-```r
-dir.create("color", showWarnings = FALSE)
-
-journals <- list(
-  NPG    = pal_npg()(10),
-  AAAS   = pal_aaas()(10),
-  NEJM   = pal_nejm()(8),
-  Lancet = pal_lancet()(9),
-  JAMA   = pal_jama()(7),
-  BMJ    = pal_bmj()(9),
-  JCO    = pal_jco()(10)
-)
-
-jpeg("color/Fig_col_13.jpeg", width = 10, height = 8,
-     units = "in", res = 300, quality = 100)
-
-par(mfrow = c(4, 2), mar = c(1, 1, 3, 1))
-for (j in names(journals)) {
-  cols <- journals[[j]]
-  n    <- length(cols)
-  plot(NA, xlim = c(0, n), ylim = c(0, 1), axes = FALSE,
-       xlab = "", ylab = "", main = j, cex.main = 1.4, font.main = 2)
-  rect(0:(n - 1), 0.3, 1:n, 1, col = cols, border = "white", lwd = 2)
-  text((1:n) - 0.5, 0.15, labels = cols, cex = 0.6)
-}
-
-dev.off()
-```
 
 <img src="color/Fig_col_13.jpeg" alt="ggsci journal palettes" width="80%">
 
