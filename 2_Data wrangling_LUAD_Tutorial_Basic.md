@@ -305,6 +305,21 @@ Data$Age_Group        <- factor(Data$Age_Group)
 summary(Data)
 ```
 
+```r
+summary(Data)
+      ID                 Age           Gender          Race     Vital_Status   Pathologic_stage Cigarettes_per_day Age_Group  
+ Length:445         Min.   :33.00   Female:247   African : 51   Alive:284    Stage IA  :130     Min.   :0.000      Old  :217  
+ Class :character   1st Qu.:59.00   Male  :198   Asian   :  8   Dead :161    Stage IB  :113     1st Qu.:0.000      Young:228  
+ Mode  :character   Median :66.00                European:386                Stage IIIA: 62     Median :1.260                 
+                    Mean   :65.23                                            Stage IIB : 58     Mean   :1.555                 
+                    3rd Qu.:73.00                                            Stage IIA : 48     3rd Qu.:2.466                 
+                    Max.   :88.00                                            Stage IV  : 21     Max.   :8.438                 
+                                                                             (Other)   : 13                                   
+``` 
+
+
+
+
 **📖 Interpretation:**
 After conversion, `summary()` shows the **count per category** instead of just the text length, so group sizes are visible immediately.
 
