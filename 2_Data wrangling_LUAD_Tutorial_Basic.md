@@ -165,7 +165,7 @@ R prints the message below automatically when tidyverse loads:
 
 ```r
 # Load dataset
-Data <- read.csv("LUAD_clean_data_all_patients.csv")
+Data <- read.csv("Data/LUAD_clean_data_all_patients.csv")
 ```
 
 > ⚠️ **If you get "cannot open file":** the file is not in your working directory. Check with `getwd()` and move the file, or set the correct directory.
