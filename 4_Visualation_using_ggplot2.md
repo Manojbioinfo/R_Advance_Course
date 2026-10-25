@@ -425,6 +425,21 @@ complete_numeric <- clinical |>
 cor.test(complete_numeric $ Age, complete_numeric $ OS_months, method = "pearson")
 ```
 
+```r
+#	Pearson's product-moment correlation
+
+# data:  complete_numeric$Age and complete_numeric$OS_months
+# t = -16.761, df = 10990, p-value < 2.2e-16
+# alternative hypothesis: true correlation is not equal to 0
+# 95 percent confidence interval:
+# -0.1760493 -0.1395915
+# sample estimates:
+#       cor 
+# -0.1578742 
+```
+
+
+
 **What to look for:** Read the estimate, confidence interval, and p-value
 together. With thousands of patients, a tiny correlation can be significant
 yet unimportant.
