@@ -163,10 +163,22 @@ library(RColorBrewer)
 # Top = sequential, middle = qualitative, bottom = diverging
 display.brewer.all()
 
+```
+
+<img src="color/Fig_col_9.jpeg" alt="Bar plot of pathologic stage" width="80%">
+
+
+
+```r
 # Show only colorblind-friendly palettes
 display.brewer.all(colorblindFriendly = TRUE)
 
 ```
+
+
+<img src="color/Fig_col_10.jpeg" alt="Bar plot of pathologic stage" width="80%">
+
+
 
 ### In ggplot2
 
