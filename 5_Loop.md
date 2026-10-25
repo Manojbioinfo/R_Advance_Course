@@ -51,12 +51,12 @@ for (i in 1:5) {
 
 **Output:**
 
-```
-[1] 1
-[1] 2
-[1] 3
-[1] 4
-[1] 5
+```r
+#[1] 1
+#[1] 2
+#[1] 3
+#[1] 4
+#[1] 5
 ```
 
 **Interpretation:**
@@ -118,7 +118,7 @@ for (x in fruits) {
 
 
 **Output:**
-```
+```r
 #[1] "apple"
 #[1] "banana"
 #[1] "cherry"
@@ -134,7 +134,7 @@ for (i in seq_along(fruits)) {
 
 **Output:**
 
-```
+```r
 #[1] "1 = apple"
 #[1] "2 = banana"
 #[1] "3 = cherry"
