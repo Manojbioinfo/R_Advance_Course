@@ -1334,11 +1334,91 @@ Data %>%
 
 ---
 
+
 ### 🎯 Scoring guide
 
-Score yourself on the **23 graded items (Q1 to Q23)**. Part D (short answer) and Part E (try it yourself) are for practice and are not scored.
+Score yourself on the **23 graded items (Q1 to Q23)**: the multiple-choice questions in Parts A and B (Q1 to Q17) and the true/false questions in Part C (Q18 to Q23). Part D (short answer, Q24 to Q29) and Part E (try it yourself) are for practice and are **not scored**.
 
-| Score (out of 23) | Level |
+| Score (out of 23) | Level | What to do next |
+|---|---|---|
+| 21-23 | 🏆 **Excellent** | You are ready for ggplot2 and statistical testing (`t.test()`, `chisq.test()`). |
+| 17-20 | 🥇 **Good** | Solid understanding. Review the sections for the questions you missed, then move on. |
+| 12-16 | 🥈 **Fair** | Re-read Sections 6 to 11 (cleaning, descriptive statistics, plots) and Sections 14 to 19 (dplyr verbs), then retry the quiz. |
+| 6-11 | 🥉 **Needs practice** | Re-run the code in Sections 5 to 12 yourself in RStudio, then retake the quiz. |
+| 0-5 | 🔄 **Start again** | Work through the tutorial from Section 1, typing every code block rather than copying it. |
+
+**💡 Tips for improving your score**
+
+- If you missed questions on **loading and inspecting data** (Q1 to Q5), revisit Sections 3 to 6.
+- If you missed questions on **statistics and plots** (Q6 to Q10, Q18 to Q20), revisit Sections 7 to 11.
+- If you missed questions on **dplyr** (Q11 to Q17, Q21 to Q23), revisit Sections 13 to 20.
+
+---
+
+## 📌 24. Quick Reference Cheat Sheet
+
+This section was listed in the contents but cut off, so here it is in full.
+
+### Base R essentials
+
+| Task | Code |
 |---|---|
-| 21-23 | 🏆 Excellent, ready for ggplot2 and statistical testing |
-| 17-
+| Load a CSV | `Data <- read.csv("file.csv")` |
+| First rows | `head(Data)` |
+| Structure | `str(Data)` |
+| Summary | `summary(Data)` |
+| Missing values per column | `colSums(is.na(Data))` |
+| Convert to factor | `Data$Gender <- factor(Data$Gender)` |
+| Mean / median | `mean(Data$Age)` / `median(Data$Age)` |
+| Frequency table | `table(Data$Gender)` |
+| Correlation | `cor(Data$Age, Data$Cigarettes_per_day)` |
+
+### Plots
+
+| Plot | Code |
+|---|---|
+| Histogram | `hist(Data$Age)` |
+| Bar plot | `barplot(table(Data$Gender))` |
+| Scatter plot | `plot(Data$Age, Data$Cigarettes_per_day)` |
+| Regression line | `abline(lm(y ~ x, data = Data))` |
+| Boxplot | `boxplot(Age ~ Race, data = Data)` |
+| Save a plot | `jpeg("plot.jpg")` ... `dev.off()` |
+
+### dplyr verbs
+
+| Verb | Purpose | Example |
+|---|---|---|
+| `filter()` | Keep rows | `Data %>% filter(Gender == "Female")` |
+| `arrange()` | Sort rows | `Data %>% arrange(desc(Age))` |
+| `select()` | Keep columns | `Data %>% select(Age, Gender)` |
+| `mutate()` | New column | `Data %>% mutate(New = Age * 2)` |
+| `summarise()` | Summary values | `Data %>% summarise(m = mean(Age))` |
+| `group_by()` | Split into groups | `Data %>% group_by(Gender) %>% summarise(m = mean(Age))` |
+| `count()` | Count per category | `Data %>% count(Race)` |
+
+### Common mistakes to avoid
+
+| ❌ Mistake | ✅ Fix |
+|---|---|
+| `filter(Gender = "Female")` | Use `==` for comparison |
+| Forgetting `dev.off()` after `jpeg()` | Always close the file |
+| Running `install.packages()` every session | Install once, then only `library()` |
+| Reading a file that is not in the working directory | Check with `getwd()` |
+| Assuming correlation means causation | Correlation shows association only |
+
+---
+
+## 🙏 Final Words
+
+Congratulations on completing the tutorial! You can now load, clean, describe, visualize, and manipulate a real clinical dataset in R. The best way to build on this is to **practise on new data**, so try repeating the workflow on a different TCGA cancer cohort.
+
+**📚 Where to go next**
+
+1. **ggplot2:** publication-quality graphics
+2. **Statistical tests:** `t.test()`, `chisq.test()`, `wilcox.test()`
+3. **Survival analysis:** the `survival` and `survminer` packages
+4. **R Markdown / Quarto:** turn your analysis into a shareable report
+
+Happy analysing! 🫁📊
+
+---
