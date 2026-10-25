@@ -72,6 +72,7 @@ In this tutorial you will work with a real LUAD dataset containing **age, gender
 | Manipulate data | `filter()`, `arrange()`, `select()`, `mutate()`, `summarise()`, `group_by()` |
 
 **⏱️ Time needed:** about 60 to 90 minutes.
+
 **📚 Prerequisites:** R and RStudio installed. No prior coding experience is required.
 
 ---
