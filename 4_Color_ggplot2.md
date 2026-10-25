@@ -87,15 +87,23 @@ In its simplest form, a palette in R is a **vector of colors**, as named colors 
 # The default palette
 palette()
 #[1] "black"   "#DF536B" "#61D04F" "#2297E6" "#28E2E5" "#CD0BBC" "#F5C710" "gray62" 
+```
 
+
+
+```r
 # Reset to default if you changed it earlier
 palette("default")
+```
 
+```r
 # All 657 built-in color names
 head(colors(), 10)
 # [1] "white"         "aliceblue"     "antiquewhite"  "antiquewhite1" "antiquewhite2" "antiquewhite3" "antiquewhite4" "aquamarine"    "aquamarine1"   "aquamarine2"  
+```
 
 
+```r
 # Convert a name to RGB
 col2rgb("steelblue")
 #     [,1]
