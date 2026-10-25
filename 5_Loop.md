@@ -157,7 +157,14 @@ for (x in fruits) {
   }
   print(x)
 }
+```
 
+```r
+#[1] "apple"
+#[1] "banana"
+```
+
+```
 # next: skip this iteration, continue with the next
 for (x in fruits) {
   if (x == "banana") {
@@ -169,11 +176,9 @@ for (x in fruits) {
 
 **Output:**
 
-```
-[1] "apple"
-[1] "banana"
-[1] "apple"
-[1] "cherry"
+```r
+#[1] "apple"
+#[1] "cherry"
 ```
 
 | Keyword | Effect |
@@ -195,6 +200,16 @@ for (x in dice) {
     print(paste("The dice number is", x, "- Not Yahtzee"))
   }
 }
+```
+
+**Output:**
+```r
+# [1] "The dice number is 1 - Not Yahtzee"
+# [1] "The dice number is 2 - Not Yahtzee"
+# [1] "The dice number is 3 - Not Yahtzee"
+# [1] "The dice number is 4 - Not Yahtzee"
+# [1] "The dice number is 5 - Not Yahtzee"
+# [1] "The dice number is 6 - Yahtzee!"
 ```
 
 **Interpretation:**
