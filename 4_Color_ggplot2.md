@@ -142,56 +142,8 @@ rainbow(6, s = 0.5)
 
 ---
 
-## 3. Defining Your Own Palette
 
-Store each palette as a standard vector. You can mix hex codes and R color names freely. If you give fewer colors than shapes, R **recycles** the palette.
-
-```r
-colors <- c("#A7A7A7", "dodgerblue", "firebrick", "forestgreen", "gold")
-
-# 6 bars, 5 colors: R cycles through the palette
-hist(discoveries, col = colors)
-```
-
-A more sensible use, one color per summary statistic:
-
-```r
-hist(discoveries, col = colors[1])
-abline(v = mean(discoveries),   col = colors[2], lwd = 5)
-abline(v = median(discoveries), col = colors[3], lwd = 5)
-abline(v = min(discoveries),    col = colors[4], lwd = 5)
-abline(v = max(discoveries),    col = colors[5], lwd = 5)
-
-legend(x = "topright",
-       col = colors[2:5],
-       legend = c("Mean", "Median", "Minimum", "Maximum"),
-       lwd = 5)
-```
-
-### Using custom colors in ggplot2
-
-| Data type | Function |
-| :--- | :--- |
-| Qualitative | `scale_fill_manual()` / `scale_color_manual()` |
-| Continuous | `scale_fill_gradient()` / `scale_color_gradient()` |
-| Multi-color continuous | `scale_fill_gradientn()` / `scale_color_gradientn()` |
-
-```r
-library(ggplot2)
-
-# Hex colors (copied from clrs.cc)
-plot_qualitative +
-  scale_fill_manual(values = c("#0074D9", "#B10DC9", "#85144b", "#FF4136", "#FF851B"))
-
-# Named colors in a gradient
-ggplot(mtcars, aes(wt, mpg, color = hp)) +
-  geom_point(size = 3) +
-  scale_color_gradient(low = "goldenrod3", high = "midnightblue")
-```
-
----
-
-## 4. RColorBrewer
+## 3. RColorBrewer
 
 Cynthia Brewer designed these palettes for maps, but they work great for any chart.
 
@@ -236,7 +188,7 @@ Interactive helper: [colorbrewer2.org](https://colorbrewer2.org/) (filter by col
 
 ---
 
-## 5. viridis
+## 4. viridis
 
 Perceptually uniform, colorblind-friendly, and prints well in grayscale. Included with `ggplot2`.
 
@@ -266,7 +218,7 @@ scale_color_viridis_c(option = "mako", direction = -1)
 
 ---
 
-## 6. scico (Scientific Colour Maps)
+## 5. scico (Scientific Colour Maps)
 
 The `scico` package provides palettes from the Scientific Colour Maps project, with sequential, diverging, multi-sequential, and cyclic options.
 
@@ -298,7 +250,7 @@ scico_palette_names()
 
 ---
 
-## 7. Okabe-Ito (Colorblind Safe)
+## 6. Okabe-Ito (Colorblind Safe)
 
 Masataka Okabe and Kei Ito designed this qualitative palette to be readable under all common color-vision deficiencies.
 
@@ -328,7 +280,7 @@ scale_color_manual(values = okabe_ito)
 
 ---
 
-## 8. paletteer: One Interface for Everything
+## 7. paletteer: One Interface for Everything
 
 `paletteer` collects palettes from hundreds of packages into a single, unified interface.
 
@@ -364,7 +316,7 @@ ggplot(penguins, aes(bill_length_mm, bill_depth_mm, color = body_mass_g)) +
 
 ---
 
-## 9. Custom and Corporate Palettes
+## 8. Custom and Corporate Palettes
 
 Organizations often require specific colors. For example, Georgia State uses a special blue (`#0039A6`) and red accent (`#CC0000`). Store them in a named object so you never have to remember hex codes:
 
@@ -399,7 +351,7 @@ Other examples of brand rules: the Urban Institute defines `#1696d2` for Democra
 
 ---
 
-## 10. Fun and Artsy Palettes
+## 9. Fun and Artsy Palettes
 
 Not all of these are perceptually uniform or colorblind safe, but they are great for creating a specific vibe.
 
@@ -440,11 +392,11 @@ plot_qualitative + scale_fill_carto_d(palette = "Prism")
 
 ---
 
-## 11. ggsci: Complete Guide
+## 10. ggsci: Complete Guide
 
 `ggsci` offers high-quality palettes inspired by scientific journals, data visualization libraries, science fiction movies, and TV shows.
 
-### 11.1 Installation
+### 10.1 Installation
 
 ```r
 install.packages("ggsci")
@@ -457,7 +409,7 @@ p1 <- example_scatterplot()
 p2 <- example_barplot()
 ```
 
-### 11.2 Naming Convention
+### 10.2 Naming Convention
 
 ```r
 scale_color_palname()   # points, lines
@@ -465,7 +417,7 @@ scale_fill_palname()    # bars, areas, tiles
 scale_colour_palname()  # alias of scale_color_*
 ```
 
-### 11.3 Palette Reference Table
+### 13.3 Palette Reference Table
 
 | Name | Scales | Palette Types | Generator |
 | :--- | :--- | :--- | :--- |
@@ -499,7 +451,7 @@ scale_colour_palname()  # alias of scale_color_*
 | Material Design *(continuous)* | `scale_color_material()` / `scale_fill_material()` | 19 hues | `pal_material()` |
 | Tailwind CSS *(continuous)* | `scale_color_tw3()` / `scale_fill_tw3()` | 22 hues | `pal_tw3()` |
 
-### 11.4 Journal Palettes (Discrete)
+### 10.4 Journal Palettes (Discrete)
 
 | Palette | Inspired by |
 | :--- | :--- |
@@ -525,7 +477,7 @@ p1 + scale_color_bmj()
 p1 + scale_color_jco()
 ```
 
-### 11.5 Genomics and Bioinformatics Palettes
+### 10.5 Genomics and Bioinformatics Palettes
 
 | Palette | Origin |
 | :--- | :--- |
@@ -549,7 +501,7 @@ p1 + scale_color_cosmic("hallmarks_dark")
 p1 + scale_color_cosmic("signature_substitutions")
 ```
 
-### 11.6 Software and Design-System Palettes
+### 16.6 Software and Design-System Palettes
 
 | Palette | Origin |
 | :--- | :--- |
@@ -580,7 +532,7 @@ p2 + scale_fill_flatui("flattastic")
 p2 + scale_fill_uchicago("dark")
 ```
 
-### 11.7 Sci-Fi and TV Palettes
+### 10.7 Sci-Fi and TV Palettes
 
 | Palette | Show or movie |
 | :--- | :--- |
@@ -614,7 +566,7 @@ p2_tron <- p2 + theme_dark() +
 grid.arrange(p1_tron, p2_tron, ncol = 2)
 ```
 
-### 11.8 Gephi: Generative Palettes
+### 10.8 Gephi: Generative Palettes
 
 Unlike fixed palettes, Gephi **generates** visually distinct colors for however many categories your plot has. Because it uses randomness, set a seed for reproducible output.
 
@@ -632,7 +584,7 @@ grid.arrange(p1_gephi, p2_gephi, ncol = 2)
 # withr::with_seed(42, print(p1_gephi))
 ```
 
-### 11.9 iTerm: 400+ Terminal Color Schemes
+### 10.9 iTerm: 400+ Terminal Color Schemes
 
 Sourced from the `iterm2-color-schemes` project. Each scheme gives six categorical colors with two variants: `"normal"` and `"bright"`.
 
@@ -646,7 +598,7 @@ p2 + scale_fill_iterm("Rose Pine")
 
 👉 Preview all of them on one page: [nanx.me/ggsci-iterm](https://nanx.me/ggsci-iterm/)
 
-### 11.10 Continuous Palettes
+### 10.10 Continuous Palettes
 
 `ggsci` offers two kinds of continuous palettes:
 
@@ -706,7 +658,7 @@ p4 + scale_fill_tw3("emerald")           # Tailwind CSS
 
 > 💡 Even when the same matrix is plotted, some palettes are easier to read than others because our eyes are more sensitive to saturation changes in certain hues. Always test a few.
 
-### 11.11 Transparency (`alpha`)
+### 10.11 Transparency (`alpha`)
 
 Every generator and scale function accepts `alpha`:
 
@@ -715,7 +667,7 @@ p1 + scale_color_npg(alpha = 0.7)
 p2 + scale_fill_jco(alpha = 0.5)
 ```
 
-### 11.12 Using ggsci Outside ggplot2 (Base R, lattice)
+### 10.12 Using ggsci Outside ggplot2 (Base R, lattice)
 
 Use the `pal_*()` generator functions to extract hex codes:
 
@@ -732,7 +684,7 @@ scales::show_col(mypal)
 barplot(1:9, col = mypal)
 ```
 
-### 11.13 ggsci Caveats
+### 10.13 ggsci Caveats
 
 * Some palettes may **not** be colorblind safe, photocopy safe, or print friendly.
 * For accessibility and print, prefer `viridis`, `RColorBrewer`, or Okabe-Ito.
@@ -740,14 +692,14 @@ barplot(1:9, col = mypal)
 
 ---
 
-## 12. Accessibility Testing
+## 11. Accessibility Testing
 
 Two things can silently ruin a good-looking palette:
 
 1. **Black-and-white printing**: different colors can collapse to the same gray.
 2. **Color blindness**: some hues become indistinguishable.
 
-### 12.1 Grayscale / desaturation test
+### 11.1 Grayscale / desaturation test
 
 ```r
 library(colorspace)
@@ -775,7 +727,7 @@ barplot(rep(1, 8), col = test_palette, main = "Original")
 barplot(rep(1, 8), col = gray_version, main = "Grayscale simulation")
 ```
 
-### 12.2 Color blindness simulation (`dichromat`)
+### 11.2 Color blindness simulation (`dichromat`)
 
 ```r
 library(dichromat)
@@ -790,7 +742,7 @@ pal_data <- list(
 
 You can also simulate color blindness on an entire ggplot with the `colorblindr` package.
 
-### 12.3 Safe choices
+### 11.3 Safe choices
 
 | Need | Recommended |
 | :--- | :--- |
@@ -803,7 +755,7 @@ Reference: Okabe and Ito, *Color Universal Design (CUD): How to make figures and
 
 ---
 
-## 13. Quick Decision Guide
+## 12. Quick Decision Guide
 
 | If you need... | Use |
 | :--- | :--- |
