@@ -72,14 +72,14 @@ You need an internet connection for this method.
 1. Click **Tools** in the top menu.
 2. Click **Install Packages...**
 
-<p align="center"><a href="images2/Slide38.png"><img src="images2/Slide38.png" alt="Tools > Install Packages" width="500"></a></p>
+<p align="center"><a href="images2/Slide38.PNG"><img src="images2/Slide38.PNG" alt="Tools > Install Packages" width="500"></a></p>
 
 3. Set **Install from** to **Repository (CRAN)**.
 4. Type the package name, for example `readr`. RStudio suggests matches as you type.
 5. Keep **Install dependencies** ticked.
 6. Click **Install**.
 
-<p align="center"><a href="images2/Slide39.png"><img src="images2/Slide39.png" alt="Install from repository" width="500"></a></p>
+<p align="center"><a href="images2/Slide39.PNG"><img src="images2/Slide39.PNG" alt="Install from repository" width="500"></a></p>
 
 ### Option B: One line of code
 
@@ -99,23 +99,23 @@ Use this when your computer has no direct internet access. You download the pack
 
 Go to https://cran.r-project.org/ and click **Packages** in the left menu under *Software*.
 
-<p align="center"><a href="images2/Slide40.png"><img src="images2/Slide41.png" alt="CRAN home page, Packages link" width="500"></a></p>
+<p align="center"><a href="images2/Slide40.PNG"><img src="images2/Slide41.PNG" alt="CRAN home page, Packages link" width="500"></a></p>
 
 ### Step 2: Open the package list
 
 On the *Contributed Packages* page, click **Table of available packages, sorted by name**.
 
-<p align="center"><a href="images2/Slide41.png"><img src="images2/Slide42.png" alt="Contributed Packages page" width="500"></a></p>
+<p align="center"><a href="images2/Slide41.PNG"><img src="images2/Slide42.PNG" alt="Contributed Packages page" width="500"></a></p>
 
 ### Step 3: Find your package
 
 Click the first letter of the package name (for example **R** for `readr`).
 
-<p align="center"><a href="images2/Slide42.png"><img src="images2/Slide43.png" alt="Available CRAN packages by name" width="500"></a></p>
+<p align="center"><a href="images2/Slide42.PNG"><img src="images2/Slide43.PNG" alt="Available CRAN packages by name" width="500"></a></p>
 
 Then click the package name in the list.
 
-<p align="center"><a href="images2/Slide43.png"><img src="images2/Slide44.png" alt="Finding readr in the list" width="500"></a></p>
+<p align="center"><a href="images2/Slide43.PNG"><img src="images2/Slide44.PNG" alt="Finding readr in the list" width="500"></a></p>
 
 ### Step 4: Download the right file
 
@@ -129,7 +129,7 @@ On the package page, scroll to **Downloads** and pick the file for your system:
 
 For `readr`, the Windows file is `readr_2.2.0.zip`.
 
-<p align="center"><a href="images2/Slide44.png"><img src="images2/Slide45.png" alt="readr download page" width="500"></a></p>
+<p align="center"><a href="images2/Slide44.PNG"><img src="images2/Slide45.PNG" alt="readr download page" width="500"></a></p>
 
 > Pick the binary that matches your R version. `r-release` suits most users.
 
@@ -137,11 +137,11 @@ For `readr`, the Windows file is `readr_2.2.0.zip`.
 
 1. In RStudio, click **Tools > Install Packages...**
 
-<p align="center"><a href="images2/Slide45.png"><img src="images2/Slide46.png" alt="Tools > Install Packages" width="500"></a></p>
+<p align="center"><a href="images2/Slide45.PNG"><img src="images2/Slide46.PNG" alt="Tools > Install Packages" width="500"></a></p>
 
 2. Change **Install from** to **Package Archive File (.tar.gz)**.
 
-<p align="center"><a href="images2/Slide46.png"><img src="images2/Slide47.png" alt="Choose Package Archive File" width="500"></a></p>
+<p align="center"><a href="images2/Slide46.PNG"><img src="images2/Slide47.PNG" alt="Choose Package Archive File" width="500"></a></p>
 
 3. Browse to the downloaded file (for example `readr_2.2.0.zip` in *Downloads*) and click **Open**.
 
@@ -175,19 +175,19 @@ Bioconductor hosts packages for biological data analysis, such as `DESeq2` for d
 
 Go to https://bioconductor.org/
 
-<p align="center"><a href="images2/Slide48.png"><img src="images2/Slide50.png" alt="Bioconductor home page" width="500"></a></p>
+<p align="center"><a href="images2/Slide48.PNG"><img src="images2/Slide50.PNG" alt="Bioconductor home page" width="500"></a></p>
 
 ### Step 2: Search for the package
 
 Type the package name in the search box, for example `deseq2`, and click the matching package.
 
-<p align="center"><a href="images2/Slide49.png"><img src="images2/Slide51.png" alt="Searching for DESeq2" width="500"></a></p>
+<p align="center"><a href="images2/Slide49.PNG"><img src="images2/Slide51.PNG" alt="Searching for DESeq2" width="500"></a></p>
 
 ### Step 3: Copy the install code
 
 The package page shows the installation code:
 
-<p align="center"><a href="images2/Slide50.png"><img src="images2/Slide52.png" alt="DESeq2 installation code" width="500"></a></p>
+<p align="center"><a href="images2/Slide50.PNG"><img src="images2/Slide52.PNG" alt="DESeq2 installation code" width="500"></a></p>
 
 ```r
 if (!require("BiocManager", quietly = TRUE))
@@ -217,7 +217,7 @@ Each Bioconductor package page has a **Package Archives** table:
 | Windows Binary (`.zip`) | Windows |
 | macOS Binary (`.tgz`) | macOS (choose Intel or Apple silicon) |
 
-<p align="center"><a href="images2/Slide51.png"><img src="images2/Slide53.png" alt="DESeq2 Package Archives" width="500"></a></p>
+<p align="center"><a href="images2/Slide51.PNG"><img src="images2/Slide53.PNG" alt="DESeq2 Package Archives" width="500"></a></p>
 
 Install it with **Tools > Install Packages... > Package Archive File**, or in code:
 
@@ -234,7 +234,7 @@ install.packages("~/Downloads/DESeq2_1.52.0.tar.gz",
 
 Installing a package is a one-time step. Loading it is needed in every new R session.
 
-<p align="center"><a href="images2/Slide52.png"><img src="images2/Slide54.png" alt="Install, load, get help, use it" width="500"></a></p>
+<p align="center"><a href="images2/Slide52.PNG"><img src="images2/Slide54.PNG" alt="Install, load, get help, use it" width="500"></a></p>
 
 ### The four steps
 
@@ -290,7 +290,7 @@ More about `readr`: https://readr.tidyverse.org/
 - The hash tag `#` is important for commenting
 - R packages have predefined functions and can be reused
 
-<p align="center"><a href="images2/Slide55.png"><img src="images2/Slide56.png" alt="Recap" width="500"></a></p>
+<p align="center"><a href="images2/Slide55.PNG"><img src="images2/Slide56.PNG" alt="Recap" width="500"></a></p>
 
 ---
 
