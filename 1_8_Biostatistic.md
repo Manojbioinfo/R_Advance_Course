@@ -144,7 +144,7 @@ if ("conflicted" %in% rownames(installed.packages())) {
 }
 ```
 
-
+### Define a reusable publication-style ggplot2 theme for all figures
 ```r
 theme_pub <- function(base_size = 12) {
   theme_bw(base_size = base_size) +
