@@ -358,8 +358,27 @@ save_fig(p_age_cancer, "Fig2_3_age_cancer_type.jpeg", 7, 8)
 <img src="figures/Fig2_3_age_cancer_type.jpeg" alt="Age by cancer type" width="60%">
 </p>
 
-**What to look for:** Cancer types are ordered by observed median age, not
-alphabetically. Small groups have unstable medians.
+### 🔍 What to look for
+
+**Compare the median (thick line), spread (box width), and outliers (dots) across cancer types.** Because the types are ordered by median age, look for a clear gradient from older to younger cancers, and for types with unusually wide or narrow boxes.
+
+**📖 Interpretation:**
+
+| Group | Cancer types | Median age (approx.) |
+|---|---|---|
+| **Oldest** | BLCA, UCS, LUSC, COAD, STAD | about 66 to 69 |
+| **Middle** | LUAD, PAAD, UCEC, KIRC, HNSC, OV, BRCA | about 57 to 66 |
+| **Youngest** | KICH, ACC, THCA, PCPG, CESC, LGG, TGCT | about 31 to 50 |
+
+- **Gradient:** median age at diagnosis spans roughly **30 to nearly 70 years**, so age is strongly tied to cancer type. Carcinomas of the bladder, lung, and colon appear mostly in older adults.
+- **Youngest cancers:** **TGCT** (testicular germ cell tumors) is the clear outlier, with a median near 31 and a very narrow box. **LGG**, **CESC**, **PCPG**, and **THCA** also skew young.
+- **Spread:** wide boxes (for example **UVM**, **COAD**, **ACC**) mean ages vary a lot within that cancer. Narrow boxes (for example **PRAD**, **TGCT**) mean patients are diagnosed in a tight age range.
+- **Outliers:** dots on the left (for example in **GBM**, **LIHC**, **LUSC**) are unusually young patients. Few cancers show old-age outliers, partly because TCGA caps age at about 90 for privacy.
+- **Where LUAD sits:** our cohort of interest falls in the older-middle group, with a median near 66, which matches the 65.2 mean age seen earlier.
+
+> ⚠️ **Caution:** boxplots show age at diagnosis, not cancer incidence. Cancers with fewer samples (for example **CHOL**, **UCS**, **KICH**) have less reliable boxes. TCGA samples also do not perfectly represent the general population.
+
+> 💡 **Reading the plot:** the box covers the middle 50% of patients (Q1 to Q3), the thick line is the median, the whiskers extend to about 1.5 x IQR, and the dots are outliers beyond that.
 
 ### Q8. Does follow-up time differ by stage?
 
@@ -380,8 +399,28 @@ save_fig(p_os_stage, "Fig2_4_os_by_stage.jpeg")
   <img src="figures/Fig2_4_os_by_stage.jpeg" alt="Follow-up by stage" width="60%">
 </p>
 
-**What to look for:** Higher stages often show shorter follow-up, but
-censoring affects this comparison.
+### 🔍 What to look for
+
+**Compare the median follow-up (thick line) and the spread (box height) across stages, and notice how the points (individual patients) are distributed.** Look for a downward trend with advancing stage, a long upper tail of long-term follow-up, and a heavy pile-up near zero.
+
+**📖 Interpretation:**
+
+| Stage | Median follow-up (approx.) | Middle 50% (box) | Longest follow-up |
+|---|---|---|---|
+| **Stage I** | about 28 months | about 15 to 53 | about 280+ |
+| **Stage II** | about 22 months | about 12 to 43 | about 340 |
+| **Stage III** | about 21 months | about 11 to 39 | about 235 |
+| **Stage IV** | about 18 months | about 9 to 33 | about 195 |
+
+- **Trend:** median follow-up time **decreases with stage**, from about 28 months (Stage I) to about 18 months (Stage IV). The boxes also get shorter, so late-stage patients have both shorter and less variable follow-up.
+- **Why this happens:** follow-up time is the time until death or last contact. Patients with advanced disease are more likely to die early, which ends their follow-up sooner. This is a **survival signal**, not just a record-keeping detail.
+- **Right skew:** the median sits low in each box, and a long tail of points extends upward. Most patients are followed for **under 5 years (60 months)**, while a few are followed for more than 10 or 20 years.
+- **Pile-up near zero:** many patients have very short follow-up (close to 0). These are often people who died soon after diagnosis or were lost to follow-up.
+- **Sample sizes:** the Stage I to III clouds are dense, while Stage IV has visibly fewer points, so its distribution rests on fewer patients.
+
+> ⚠️ **Caution:** follow-up time is **not the same as survival time**. A short follow-up can mean death, but it can also mean the patient was simply enrolled recently or dropped out (censoring). To analyze outcomes correctly you need **Kaplan-Meier curves** and a **log-rank test**, which account for censoring. A plain boxplot of follow-up can therefore mislead.
+
+> 💡 **Reading the plot:** the **jittered points** show every patient, so you can see sample size and density that a boxplot alone hides. Overlapping points are semi-transparent, so darker areas mean more patients.
 
 ---
 
