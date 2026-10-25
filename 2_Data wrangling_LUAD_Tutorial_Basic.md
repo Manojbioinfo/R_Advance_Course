@@ -306,7 +306,6 @@ summary(Data)
 ```
 
 ```r
-summary(Data)
       ID                 Age           Gender          Race     Vital_Status   Pathologic_stage Cigarettes_per_day Age_Group  
  Length:445         Min.   :33.00   Female:247   African : 51   Alive:284    Stage IA  :130     Min.   :0.000      Old  :217  
  Class :character   1st Qu.:59.00   Male  :198   Asian   :  8   Dead :161    Stage IB  :113     1st Qu.:0.000      Young:228  
