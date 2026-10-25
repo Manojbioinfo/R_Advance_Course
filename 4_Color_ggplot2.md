@@ -208,9 +208,9 @@ n_age   <- nlevels(data$Age_Group)
 
 ```r
 n_stage
-[1] 9
+#[1] 9
 n_age
-[1] 2
+#[1] 2
 ```
 ```r
 stage_cols <- brewer.pal(max(3, n_stage), "Set2")[1:n_stage]
