@@ -138,12 +138,6 @@ rainbow(6, s = 0.5)
 ```
 
 
-
-```r
-rainbowcols <- rainbow(6)
-hist(discoveries, col = rainbowcols)
-```
-
 > ⚠️ `rainbow()` is rarely a good choice: it prints poorly in black and white and is hard to read for colorblind viewers (see [Accessibility Testing](#12-accessibility-testing)).
 
 ---
