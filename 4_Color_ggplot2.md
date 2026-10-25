@@ -221,7 +221,7 @@ barplot(table(data$Pathologic_stage),
         ylab = "Number of patients",
         las  = 2)
 ```
-<img src="color/Fig_col_10.jpeg" alt="Bar plot of pathologic stage" width="80%">
+<img src="color/Fig_col_11.jpeg" alt="Bar plot of pathologic stage" width="80%">
 
 
 ```r
@@ -233,7 +233,7 @@ barplot(table(data$Age_Group),
         ylab = "Number of patients")
 
 ```
-<img src="color/Fig_col_11.jpeg" alt="Bar plot of pathologic stage" width="80%">
+<img src="color/Fig_col_12.jpeg" alt="Bar plot of pathologic stage" width="80%">
 
 
 ## 🔗 Further Reading
