@@ -13,7 +13,7 @@ code block below and saves all figures to `figures/`.
 
 ---
 
-## 0. Setup
+## 1. Setup
 
 ```r
 library(tidyverse)
@@ -148,7 +148,7 @@ save_fig <- function(plot, name, w = 7, h = 5) {
 
 ---
 
-## 1. One variable
+## 2. One variable
 
 ### Q1. How many patients are in each cancer type?
 
