@@ -590,6 +590,33 @@ save_fig(p_gender_cancer, "Fig4_1_gender_cancer.jpeg", 7, 8)
   <img src="figures/Fig4_1_gender_cancer.jpeg" alt="Gender by cancer type" width="60%">
 </p>
 
+
+### 🔍 What to look for
+
+**Check how far each bar's orange (Male) / blue (Female) split deviates from a 50/50 balance, and look for bars that are a single solid color.** Each bar is one cancer type scaled to 100%, so you are comparing proportions, not patient counts.
+
+**📖 Interpretation:**
+
+| Pattern | Cancer types | What it means |
+|---|---|---|
+| **100% Female** | UCS, UCEC, OV, CESC | Gynecologic cancers, which occur only in women |
+| **~99% Female** | BRCA | Breast cancer, with very rare male cases |
+| **100% Male** | PRAD, TGCT | Prostate and testicular cancers, which occur only in men |
+| **Strong male majority (over 70%)** | ESCA (~85%), MESO (~81%), LUSC (~74%), BLCA (~74%), KIRP (~73%), HNSC (~73%) | Male-predominant cancers |
+| **Moderate male majority (60 to 70%)** | LIHC, KIRC, STAD, SKCM, GBM | Mildly male-skewed |
+| **Female majority** | THCA (~73% F), ACC (~65% F) | Female-predominant cancers |
+| **Near balanced (about 45 to 55%)** | THYM, READ, PAAD, LGG, LAML, COAD, LUAD, SARC, DLBC, PCPG, CHOL | Roughly equal sex distribution |
+
+- **Anatomically determined cancers:** the solid bars (UCS, UCEC, OV, CESC, PRAD, TGCT) have a single sex by biology. They are expected, not a data quirk.
+- **Hormone- and exposure-related skews:** the male excess in ESCA, MESO, LUSC, HNSC, and BLCA is consistent with known risk factors such as smoking, alcohol, and occupational exposure. The female excess in THCA is also well documented.
+- **Sex as a confounder:** because composition differs so much between cancer types, a pooled analysis may confuse **cancer type effects with sex effects**.
+- **Mixed cohorts:** a pooled dataset is therefore "mostly balanced" overall only because of the mix of cancer types, not because each type is balanced.
+
+> ⚠️ **Caution:** this chart shows **percentages only**, so a bar at 100% could represent 30 patients or 3,000. Small cohorts (such as CHOL, DLBC, or UCS) can look dramatic from few patients. Always check the **counts per cancer type** before interpreting an imbalance.
+
+> 💡 **Reading the plot:** bars are ordered alphabetically, not by effect size. The **legend** maps blue to Female and orange to Male. Gridlines at 25%, 50%, and 75% help judge deviation from balance, and the **50% line** is the reference point for equal representation.
+
+
 ### Q14. What is the race composition within each cancer type?
 
 ```r
@@ -610,8 +637,29 @@ save_fig(p_race_cancer, "Fig4_2_race_cancer.jpeg", 8, 8)
   <img src="figures/Fig4_2_race_cancer.jpeg" alt="Race by cancer type" width="80%">
 </p>
 
-**What to look for:** TCGA is dominated by patients recorded as White.
-Percentages for small groups rest on few patients.
+### 🔍 What to look for
+
+**Check how much of each bar is yellow (White), and look for cancer types where the blue (Asian) or green (Black or African American) segments are unusually large.** Each bar is one cancer type scaled to 100%, so you are comparing proportions, not patient counts.
+
+**📖 Interpretation:**
+
+| Pattern | Cancer types | What it means |
+|---|---|---|
+| **Almost entirely White (over 90%)** | UVM (~100%), MESO (~98%), SKCM (~97%), PRAD (~94%), ACC (~94%), LGG (~93%) | Little racial diversity in these cohorts |
+| **Typical White majority (75 to 90%)** | most remaining types (READ, SARC, KIRC, GBM, LUSC, LAML, etc.) | The usual pattern in the dataset |
+| **Large Asian share** | LIHC (~43%), DLBC (~37%), ESCA (~25%), STAD (~23%) | Over-represented relative to other cancers |
+| **Large Black or African American share** | UCEC (~21%), COAD (~21%), KIRP (~22%), UCS (~16%), BRCA (~18%) | Over-represented relative to other cancers |
+| **Large [Unknown] share** | ESCA (~9%), CESC (~8%), THCA (~6%) | Missing race information |
+
+- **White majority overall:** in nearly every cancer type, White patients make up **60 to 100%** of the cohort. The dataset is **not demographically representative** of the general population.
+- **Asian over-representation:** LIHC, DLBC, ESCA, and STAD show much larger Asian segments. This is consistent with higher incidence of liver, gastric, and esophageal cancers in parts of Asia, and likely reflects **which hospitals contributed samples**.
+- **Black or African American representation:** this group is substantial in endometrial (UCEC), colon (COAD), and kidney (KIRP) cancers, but nearly absent in UVM, MESO, and SKCM.
+- **Missing data:** the orange **[Unknown]** segment is small in most types but visible in ESCA, CESC, and THCA. These patients cannot be placed in a race group.
+- **Rare categories:** the dark blue **Other** segment is very thin, only visible in UCEC and CESC, so it is too small for reliable analysis.
+
+> ⚠️ **Caution:** this chart shows **percentages only**, so a 100% White bar could be 80 or 800 patients. Small cohorts (such as UVM, MESO, or CHOL) can look extreme from few patients. Also, **race is confounded with site and contributing center**, so differences in composition are not necessarily biological. Subgroup analyses by race in small categories (Asian, Other, Unknown) have **low statistical power**, so interpret them carefully.
+
+> 💡 **Reading the plot:** the **legend** maps each color to a race category (yellow is White, blue is Asian, green is Black or African American, dark blue is Other, orange is [Unknown]). Bars are ordered alphabetically, not by effect size, and the **gridlines at 25%, 50%, and 75%** help you judge how dominant the White segment is.
 
 ### Q15. How are patients distributed across stages?
 
@@ -629,6 +677,30 @@ save_fig(p_stage_counts, "Fig4_3_stage_counts.jpeg")
 <p align="center">
   <img src="figures/Fig4_3_stage_counts.jpeg" alt="Stage counts" width="60%">
 </p>
+
+### 🔍 What to look for
+
+**Compare the bar lengths to see which stages have the most patients, and check how the counts change from early (Stage I) to advanced (Stage IV) disease.** Each bar is the number of patients in one pathologic stage, so you are comparing counts directly.
+
+
+**📖 Interpretation:**
+
+| Stage | Approx. patients | Share of staged patients | What it means |
+|---|---|---|---|
+| **Stage I** | ~2,030 | ~31% | Early, localized disease |
+| **Stage II** | ~2,200 | ~34% | Larger or locally spread tumors, the **most common** stage |
+| **Stage III** | ~1,740 | ~27% | Regional spread, often to lymph nodes |
+| **Stage IV** | ~840 | ~13% | Distant metastasis, the **least common** stage |
+
+- **Stage II peaks:** Stage II has the most patients, closely followed by Stage I. Together, Stages I and II account for roughly **two thirds** of staged patients.
+- **Decline at advanced stages:** counts drop to about 1,740 at Stage III and about 840 at Stage IV, so Stage IV is **less than half** the size of Stage III.
+- **Why Stage IV is small:** patients with metastatic disease are often treated without surgery, so they are **less likely to have tissue collected** for a tumor-sequencing cohort. This is a form of **selection bias**.
+- **Implication for analysis:** Stage IV is the smallest group, so comparisons involving it will have **less statistical power** than comparisons among Stages I to III.
+
+> ⚠️ **Caution:** this chart shows **only patients with a recorded stage**, so patients with missing or unstaged data are excluded. Also, **pathologic stage is defined differently across cancer types**, and the distribution here is a mix of 30+ cancers, so it does not represent stage at diagnosis in the general population. Some cancers (such as LAML, GBM, or LGG) are not staged this way at all, which affects the totals.
+
+> 💡 **Reading the plot:** bars are ordered by stage (I at the bottom, IV at the top), the **x-axis** is the number of patients, and the **gridlines** every 500 patients help you read the counts. A single color is used because stage is the only variable shown.
+
 
 ### Q16. How does vital status vary by cancer type?
 
@@ -650,9 +722,28 @@ save_fig(p_vital_cancer, "Fig4_4_vital_cancer.jpeg", 7, 8)
   <img src="figures/Fig4_4_vital_cancer.jpeg" alt="Vital status by cancer type" width="80%">
 </p>
 
-**What to look for:** Aggressive cancers such as GBM show high mortality in
-the follow-up window, while THCA and PRAD show very low mortality. Follow-up
-length differs by cancer, so compare with care.
+### 🔍 What to look for
+
+**Check how much of each bar is orange (Dead) versus blue (Alive), and look for cancer types where the orange segment is unusually large or small.** Each bar is one cancer type scaled to 100%, so you are comparing the proportion of patients who had died at the time of data collection, not patient counts.
+
+**📖 Interpretation:**
+
+| Pattern | Cancer types | What it means |
+|---|---|---|
+| **Very high mortality (over 80% dead)** | MESO (~85%), GBM (~82%) | Highly lethal cancers with poor survival |
+| **High mortality (50 to 70% dead)** | LAML (~67%), UCS (~61%), OV (~60%), PAAD (~54%), CHOL (~50%) | Aggressive cancers with a majority of deaths |
+| **Intermediate mortality (30 to 50% dead)** | SKCM, BLCA, LUSC, HNSC, ESCA, STAD, SARC, LUAD, ACC, LIHC, KIRC | A substantial share of deaths, but most patients still alive |
+| **Lower mortality (10 to 30% dead)** | UVM, LGG, UCEC, COAD, CESC, DLBC, READ, KIRP, KICH, BRCA | Better outcomes or shorter follow-up |
+| **Very low mortality (under 10% dead)** | THCA, TGCT, PRAD, PCPG, THYM | Highly treatable cancers with few deaths |
+
+- **Poor-prognosis cancers:** MESO, GBM, LAML, UCS, OV, and PAAD have the largest orange segments. This matches clinical experience, since these cancers are often diagnosed late or respond poorly to treatment.
+- **Good-prognosis cancers:** THCA, PRAD, TGCT, and PCPG are nearly all blue, with only about 2 to 3% dead. These cancers have high long-term survival.
+- **Wide spread across types:** the dead fraction ranges from about 2% to 85%, so cancer type is a **strong determinant** of survival in this dataset.
+- **Follow-up time matters:** a low death percentage does not always mean a mild disease. In slow-growing cancers such as PRAD or THCA, deaths may simply not have occurred **yet**, because the follow-up was too short.
+
+> ⚠️ **Caution:** this chart shows the **crude proportion** of patients who had died, not survival probability over time. It ignores **follow-up length** and **censoring** (patients still alive may have been followed for only a few months). So you cannot compare survival across cancers from this chart alone. Use a **Kaplan-Meier or Cox analysis** for that. Also, small cohorts (such as CHOL or UCS) can show extreme percentages from few patients, and the **dead status may include non-cancer deaths**.
+
+> 💡 **Reading the plot:** the **legend** maps blue to Alive and orange to Dead. Bars are ordered alphabetically, not by mortality. The **gridlines at 25%, 50%, and 75%** help you judge how large the dead segment is, and the **50% line** marks where deaths outnumber survivors.
 
 ---
 
@@ -675,6 +766,10 @@ save_fig(p_immune, "Fig5_1_immune_subtypes.jpeg")
 <p align="center">
   <img src="figures/Fig5_1_immune_subtypes.jpeg" alt="Immune subtypes" width="70%">
 </p>
+
+
+
+
 
 ### Q18. How do immune subtypes differ across selected cancers?
 
@@ -702,8 +797,31 @@ save_fig(p_immune_facet, "Fig5_2_immune_facet.jpeg", 9, 6)
   <img src="figures/Fig5_2_immune_facet.jpeg" alt="Immune subtypes by cancer" width="90%">
 </p>
 
-**What to look for:** Free y-scales make the shapes easy to compare but hide
-the differences in panel size.
+### 🔍 What to look for
+
+**Compare which bar is tallest within each panel, and notice that each cancer type is dominated by a different immune subtype.** Each panel is one cancer, each bar is one immune subtype, and the height is the number of patients, so you are comparing the immune landscape across cancers.
+
+
+**📖 Interpretation:**
+
+| Cancer | Dominant subtype(s) | Approx. patients | What it means |
+|---|---|---|---|
+| **BRCA** | IFN-gamma Dominant and Wound Healing | ~390 and ~370 | Mixed profile, with a sizable Inflammatory group (~190) |
+| **COAD** | Wound Healing | ~330 | Strongly skewed, with IFN-gamma Dominant a distant second (~85) |
+| **GBM** | Lymphocyte Depleted | ~150 | Almost all patients in one subtype, consistent with a low-immune environment |
+| **KIRC** | Inflammatory | ~445 | Strongly inflammatory, with few patients in other subtypes |
+| **LUAD** | Inflammatory and IFN-gamma Dominant | ~180 and ~147 | Fairly balanced between two immune-active subtypes |
+| **SKCM** | Wound Healing | ~41 | Spread across several subtypes, with the smallest cohort (~40 per bar scale) |
+
+- **Cancer-specific immune profiles:** the tallest bar differs by cancer, so immune subtype is **strongly linked to tumor type**.
+- **GBM is the extreme case:** nearly all patients fall into **Lymphocyte Depleted**, matching the view of GBM as an immunologically "cold" tumor.
+- **KIRC is highly inflammatory:** the Inflammatory subtype dominates, in line with kidney cancer's known responsiveness to immune therapy.
+- **Rare subtypes:** **Immunologically Quiet** is nearly absent in every panel, and **TGF-beta Dominant** is small everywhere.
+- **Missing bars are meaningful:** a bar with zero height means no patients in that subtype for that cancer, not missing data.
+
+> ⚠️ **Caution:** each panel has its **own y-axis scale** (for example, 0 to 150 for GBM versus 0 to 400 for BRCA), so bar heights **cannot be compared across panels**. Compare the shapes within a panel instead. Also, this chart shows **counts, not proportions**, so cancers with more patients look larger. Subtypes are assigned by a published immune classification, and the cohorts differ in size (SKCM is much smaller than the others).
+
+> 💡 **Reading the plot:** the **x-axis labels** name the six immune subtypes, and the **colors** match the subtype so you can track the same category across panels. The **panel titles** give the cancer type, and the **y-axis** shows the number of patients.
 
 ### Q19. What are the BRCA molecular (PAM50) subtypes?
 
