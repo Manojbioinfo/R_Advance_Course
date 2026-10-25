@@ -94,7 +94,15 @@ tutorial. All questions reuse the same `clin` data frame, the same
 `theme_pub()` theme and the same `save_fig()` / `write_tbl()` helpers,
 so you only need to run this block once per session.
 
+### Setup: clean the workspace and load all packages used in the analysis
+
 ```r
+# Clear the workspace and load every package used in this analysis up front,
+# so the script starts from a clean state, runs reproducibly, and any missing
+# package is caught immediately instead of halfway through the pipeline.
+# suppressPackageStartupMessages() only hides the loading messages.
+
+
 rm(list = ls())
 
 suppressPackageStartupMessages({
