@@ -301,10 +301,10 @@ show_col(pal_npg()(5), labels = TRUE)
 
 ---
 
-### 5.4 Save a Gallery of All Journal Palettes
-
-
 <img src="color/Fig_col_13.jpeg" alt="ggsci journal palettes" width="80%">
+
+
+
 
 ---
 
