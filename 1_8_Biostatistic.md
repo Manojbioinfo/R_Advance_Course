@@ -239,6 +239,9 @@ clin <- readRDS(raw_path) |>
       right  = FALSE
     )
   )
+```
+
+```r
 
 # Sanity check: vital_status must contain real values, not all NA
 if (all(is.na(clin$vital_status)) || sum(!is.na(clin$vital_status)) == 0) {
