@@ -282,6 +282,21 @@ patients <- data.frame(
 patients
 ```
 
+```r
+# ID Age Weight
+# 1  1  45   64.4
+# 2  2  67   67.7
+# 3  3  59   85.6
+# 4  4  72   70.7
+# 5  5  38   71.3
+# 6  6  81   87.2
+# 7  7  55   74.6
+# 8  8  63   57.3
+```
+
+
+
+
 ### Example: classify each patient by age
 
 ```r
