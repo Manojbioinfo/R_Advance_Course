@@ -105,32 +105,36 @@ head(colors(), 10)
 
 ```r
 rainbow(6)
-
-
+# [1] "#FF0000" "#FFFF00" "#00FF00" "#00FFFF" "#0000FF" "#FF00FF"
 ```
 
 
 ```r
 heat.colors(6)
+#[1] "#FF0000" "#FF4000" "#FF8000" "#FFBF00" "#FFFF00" "#FFFF80"
 ```
 
 ```r
 terrain.colors(6)
+#[1] "#00A600" "#63C600" "#E6E600" "#EAB64E" "#EEB99F" "#F2F2F2"
 ```
 
 ```r
 
 topo.colors(6)
+#[1] "#4C00FF" "#00E5FF" "#00FF4D" "#E6FF00" "#FFFF00" "#FFE0B3"
 ```
 
 ```r
 cm.colors(6)
+#[1] "#80FFFF" "#AAFFFF" "#D5FFFF" "#FFD5FF" "#FFAAFF" "#FF80FF"
 ```
 
 ```r
 
 # rainbow() lets you adjust saturation (s) and value (v)
 rainbow(6, s = 0.5)
+#[1] "#FF8080" "#FFFF80" "#80FF80" "#80FFFF" "#8080FF" "#FF80FF"
 ```
 
 
