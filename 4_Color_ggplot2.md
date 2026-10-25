@@ -99,6 +99,7 @@ palette("default")
 head(colors(), 10)
 # [1] "white"         "aliceblue"     "antiquewhite"  "antiquewhite1" "antiquewhite2" "antiquewhite3" "antiquewhite4" "aquamarine"    "aquamarine1"   "aquamarine2"  
 ```
+<img src="color/Fig_col_2.jpeg" alt="Bar plot of pathologic stage" width="80%">
 
 
 ### Built-in gradient palettes (`grDevices`)
@@ -107,13 +108,13 @@ head(colors(), 10)
 rainbow(6)
 # [1] "#FF0000" "#FFFF00" "#00FF00" "#00FFFF" "#0000FF" "#FF00FF"
 ```
-
+<img src="color/Fig_col_3.jpeg" alt="Bar plot of pathologic stage" width="80%">
 
 ```r
 heat.colors(6)
 #[1] "#FF0000" "#FF4000" "#FF8000" "#FFBF00" "#FFFF00" "#FFFF80"
 ```
-
+<img src="color/Fig_col_4.jpeg" alt="Bar plot of pathologic stage" width="80%">
 
 
 ```r
@@ -121,20 +122,21 @@ terrain.colors(6)
 #[1] "#00A600" "#63C600" "#E6E600" "#EAB64E" "#EEB99F" "#F2F2F2"
 ```
 
-
+<img src="color/Fig_col_5.jpeg" alt="Bar plot of pathologic stage" width="80%">
 
 ```r
 
 topo.colors(6)
 #[1] "#4C00FF" "#00E5FF" "#00FF4D" "#E6FF00" "#FFFF00" "#FFE0B3"
 ```
-
+<img src="color/Fig_col_6.jpeg" alt="Bar plot of pathologic stage" width="80%">
 
 ```r
 cm.colors(6)
 #[1] "#80FFFF" "#AAFFFF" "#D5FFFF" "#FFD5FF" "#FFAAFF" "#FF80FF"
 ```
 
+<img src="color/Fig_col_7.jpeg" alt="Bar plot of pathologic stage" width="80%">
 
 ```r
 
@@ -142,7 +144,7 @@ cm.colors(6)
 rainbow(6, s = 0.5)
 #[1] "#FF8080" "#FFFF80" "#80FF80" "#80FFFF" "#8080FF" "#FF80FF"
 ```
-
+<img src="color/Fig_col_8.jpeg" alt="Bar plot of pathologic stage" width="80%">
 
 > ⚠️ `rainbow()` is rarely a good choice: it prints poorly in black and white and is hard to read for colorblind viewers (see [Accessibility Testing](#12-accessibility-testing)).
 
