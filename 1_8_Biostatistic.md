@@ -152,6 +152,9 @@ theme_pub <- function(base_size = 12) {
     )
 }
 
+```
+
+```r
 save_fig <- function(plot, name, width = 7, height = 5, dpi = 300) {
   dir.create("figures", showWarnings = FALSE, recursive = TRUE)
   ggplot2::ggsave(
@@ -160,7 +163,9 @@ save_fig <- function(plot, name, width = 7, height = 5, dpi = 300) {
   )
   invisible(plot)
 }
+```
 
+```r
 write_tbl <- function(x, name) {
   dir.create("results", showWarnings = FALSE, recursive = TRUE)
   readr::write_csv(
@@ -170,12 +175,20 @@ write_tbl <- function(x, name) {
   invisible(x)
 }
 
+```
+
+
+```r
 clean_label <- function(x) {
   x <- as.character(x)
   x[is.na(x)] <- "Unknown"
   tools::toTitleCase(tolower(gsub("[^A-Za-z ]", " ", x)))
 }
 
+```
+
+
+```r
 # Load and shape the data. Build factor levels ONCE from the RAW
 # vital_status column; never re-apply clean_label() on an already-factored
 # column (that was the original bug).
@@ -187,7 +200,10 @@ if (!file.exists(raw_path)) {
     "or update `raw_path`."
   )
 }
+```
 
+
+```r
 clin <- readRDS(raw_path) |>
   transmute(
     patient_id   = patient_id,
