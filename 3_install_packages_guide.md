@@ -395,8 +395,6 @@ If `.libPaths()` returns paths you cannot write to, that is the source of "Permi
 
 ## ❓ 9. Quick Quiz
 
-Test your understanding.
-
 
 ### Part A: Multiple choice
 
