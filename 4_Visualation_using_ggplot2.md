@@ -313,6 +313,30 @@ save_fig(p_age_status_violin, "Fig2_2_age_status_violin.jpeg")
   <img src="figures/Fig2_2_age_status_violin.jpeg" alt="Violin and box" width="60%">
 </p>
 
+
+### 🔍 What to look for
+
+**Compare the center (median line), spread (box height), and shape (violin width) of the two groups.** Look for a shift in the median and for differences in tails.
+
+**📖 Interpretation:**
+
+| Feature | Alive | Dead |
+|---|---|---|
+| **Median age** | about 59 years | about 63 years |
+| **Middle 50% (box)** | about 48 to 68 | about 54 to 73 |
+| **Violin shape** | widest near 60, tapering evenly | wider and flatter across 55 to 75 |
+| **Lower tail** | extends to about 8 | extends to about 3 |
+
+- **Center:** patients who died were **older at diagnosis** (median about 4 years higher). The whole box is shifted upward, not just the median.
+- **Spread:** the Dead group has a slightly higher and more compact upper range, with more weight at ages 60 to 75. The Alive group is more concentrated around 60.
+- **Shape:** both violins are roughly symmetric, with thin tails at the young and very old ends. The Dead violin is more "barrel" shaped, meaning more patients are spread across older ages.
+- **Takeaway:** older age at diagnosis is **associated with** higher mortality, which fits the general expectation that older patients tend to have poorer outcomes.
+
+> ⚠️ **Caution:** this is an association, not proof of cause. Age is also linked to disease stage, other illnesses, and treatment choices. Also, a visible shift does not prove a significant difference. Test it with `wilcox.test(Age ~ Vital_Status, data = data)` or `t.test()`.
+
+> 💡 **Reading the plot:** the **violin** shows the full distribution (wider = more patients at that age), while the **white box** shows the median and quartiles. Combining both is more informative than a boxplot alone.
+
+
 ### Q7. How does Age vary by cancer type?
 
 **Hint:** `reorder(Cancer_Type, Age, FUN = median)` sorts by median age;
