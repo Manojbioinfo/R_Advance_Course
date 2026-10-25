@@ -313,6 +313,20 @@ for (i in 1:nrow(patients)) {
 patients
 ```
 
+
+```r
+# patients
+#   ID Age Weight   Group
+# 1  1  45   64.4 Younger
+# 2  2  67   67.7   Older
+# 3  3  59   85.6 Younger
+# 4  4  72   70.7   Older
+# 5  5  38   71.3 Younger
+# 6  6  81   87.2   Older
+# 7  7  55   74.6 Younger
+# 8  8  63   57.3 Younger
+```
+
 **Interpretation:**
 1. `nrow(patients)` gives the number of rows, so the loop visits every patient.
 2. `patients$Age[i]` reads row `i`, and the result is **assigned back** into row `i`.
@@ -337,11 +351,11 @@ while (i < 5) {
 **Output:**
 
 ```
-[1] 1
-[1] 2
-[1] 3
-[1] 4
-[1] 5
+#[1] 1
+#[1] 2
+#[1] 3
+#[1] 4
+#[1] 5
 ```
 
 **Interpretation:**
@@ -369,8 +383,8 @@ round(money, 2)
 **Output:**
 
 ```
-[1] 11
-[1] 2104.85
+#[1] 11
+#[1] 2104.85
 ```
 
 **Interpretation:**
@@ -397,9 +411,9 @@ repeat {
 **Output:**
 
 ```
-[1] 1
-[1] 2
-[1] 3
+#[1] 1
+#[1] 2
+#[1] 3
 ```
 
 **Interpretation:**
@@ -427,14 +441,28 @@ Print the numbers 1 to 3:
 for (i in 1:3) {
   print(i)
 }
+```
+```r
+# [1] 1
+# [1] 2
+# [1] 3
+```
 
+```r
 # while
 i <- 1
 while (i <= 3) {
   print(i)
   i <- i + 1
 }
+```
+```r
+# [1] 1
+# [1] 2
+# [1] 3
+```
 
+```r
 # repeat
 i <- 1
 repeat {
@@ -442,6 +470,12 @@ repeat {
   i <- i + 1
   if (i > 3) break
 }
+```
+
+```r
+# [1] 1
+# [1] 2
+# [1] 3
 ```
 
 **Interpretation:**
