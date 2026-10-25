@@ -115,10 +115,15 @@ suppressPackageStartupMessages({
   library(forcats)      # fct_reorder, lump_n, fct_collapse
   library(tools)        # toTitleCase
 })
+```
 
+```r
 dir.create("results", showWarnings = FALSE)
 dir.create("figures", showWarnings = FALSE)
+```
 
+
+```r
 # Resolve name clashes once, in favour of the packages we actually mean
 if ("conflicted" %in% rownames(installed.packages())) {
   conflicted::conflicts_prefer(
@@ -129,7 +134,10 @@ if ("conflicted" %in% rownames(installed.packages())) {
     dplyr::recode
   )
 }
+```
 
+
+```r
 theme_pub <- function(base_size = 12) {
   theme_bw(base_size = base_size) +
     theme(
