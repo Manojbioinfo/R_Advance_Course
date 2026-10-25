@@ -177,6 +177,25 @@ display.brewer.all(colorblindFriendly = TRUE)
 
 
 
+
+```r
+data=read.csv("Data/LUAD_clean_data_all_patients.csv")
+head(data)
+# Factors are needed so the colors map to the categories
+data$Pathologic_stage <- factor(data$Pathologic_stage)
+data$Age_Group        <- factor(data$Age_Group)
+
+# How many colors do we need?
+n_stage <- nlevels(data$Pathologic_stage)
+n_age   <- nlevels(data$Age_Group)
+```
+
+```r
+n_stage
+[1] 9
+n_age
+[1] 2
+```
 ## 🔗 Further Reading
 
 * [Emil Hvitfeldt's Comprehensive List of R Palettes](https://emilhvitfeldt.github.io/r-color-palettes/)
