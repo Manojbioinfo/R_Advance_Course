@@ -105,14 +105,35 @@ head(colors(), 10)
 
 ```r
 rainbow(6)
+
+
+```
+
+
+```r
 heat.colors(6)
+```
+
+```r
 terrain.colors(6)
+```
+
+```r
+
 topo.colors(6)
+```
+
+```r
 cm.colors(6)
+```
+
+```r
 
 # rainbow() lets you adjust saturation (s) and value (v)
 rainbow(6, s = 0.5)
 ```
+
+
 
 ```r
 rainbowcols <- rainbow(6)
