@@ -724,3 +724,21 @@ Growing a vector with `c()` copies it on every pass, which is slow. Pre-allocati
 When each step depends on the previous one (simulations, recursive calculations), or when you need a `while` loop with an unknown number of repeats.
 
 </details>
+
+
+## Further Reading
+
+### Loop Basics
+- [Intro2R: Loops](https://intro2r.com/loops.html)
+- [W3Schools: R For Loop](https://www.w3schools.com/r/r_for_loop.asp)
+- [Loops and Functions in R (Data Carpentry R-ecology lesson)](https://erdavenport.github.io/R-ecology-lesson/03-loops-and-functions.html)
+- [DiscDown: Introduction to Programming with R, Loops](https://discdown.org/rprogramming/loops.html)
+- [IONOS: How to use the for loop in R](https://www.ionos.com/digitalguide/websites/web-development/for-loop-r/)
+- [R-bloggers: R For Loop](https://www.r-bloggers.com/2021/09/r-for-loop/)
+- [Data Carpentry: For Loops in R (Semester Biology)](https://datacarpentry.github.io/semester-biology/materials/for-loops-R/)
+- [Learning Statistics with R (psyr): Loops](https://psyr.djnavarro.net/loops.html)
+
+### Beyond Loops (apply family, purrr, iteration)
+- [R Programming for Data Science: Loop Functions](https://bookdown.org/rdpeng/rprogdatascience/loop-functions.html)
+- [R for Data Science: Iteration](https://r4ds.had.co.nz/iteration.html)
+- [The Epidemiologist R Handbook: Iteration, loops, and lists](https://www.epirhandbook.com/en/new_pages/iteration.html)
