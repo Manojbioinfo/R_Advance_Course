@@ -397,37 +397,6 @@ If `.libPaths()` returns paths you cannot write to, that is the source of "Permi
 
 Test your understanding.
 
-**Q1.** Where do `DESeq2`, `clusterProfiler`, and `org.Hs.eg.db` come from?
-
-<details><summary>Show answer</summary>
-Bioconductor — they are installed via `BiocManager::install()`, **not** `install.packages()`.
-</details>
-
-**Q2.** Why is it safe to run `install_all_packages.R` a second time?
-
-<details><summary>Show answer</summary>
-Because each install block computes `setdiff(pkgs, installed.packages())` first and skips packages that are already present. The script only installs what is missing.
-</details>
-
-**Q3.** What R version does the script warn about, and does it stop if you have an older one?
-
-<details><summary>Show answer</summary>
-It warns if R is older than 4.3.0, but does **not** stop — older R will usually still work, just with a warning message.
-</details>
-
-**Q4.** What four folders does the script create?
-
-<details><summary>Show answer</summary>
-`data/`, `figures/`, `results/`, and `results_rnaseq/`.
-</details>
-
-**Q5.** Where is the version report saved, and why is it useful?
-
-<details><summary>Show answer</summary>
-It is saved to `results/package_versions.csv`. It records the exact version of every installed package, which is your reproducibility receipt — reviewers can see exactly which package versions produced your results.
-</details>
-
-
 
 ### Part A: Multiple choice
 
