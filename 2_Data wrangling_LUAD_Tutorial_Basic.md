@@ -319,10 +319,38 @@ summary(Data)
 
 
 
-**📖 Interpretation:**
-After conversion, `summary()` shows the **count per category** instead of just the text length, so group sizes are visible immediately.
+### 📖 Interpretation
+
+After converting the text columns to factors, `summary()` reports **how many patients fall into each category** instead of just the text length.
+
+**Categorical variables**
+
+| Variable | What the output tells us |
+|---|---|
+| **Gender** | 247 females (55.5%) and 198 males (44.5%), a fairly balanced split |
+| **Race** | 386 European (86.7%), 51 African (11.5%), and only 8 Asian (1.8%) patients, so the cohort is **heavily dominated by one group** |
+| **Vital_Status** | 284 alive (63.8%) and 161 dead (36.2%) |
+| **Pathologic_stage** | Stage IA (130) and Stage IB (113) are the most common, so most patients had **early-stage disease**. Stage IV is rare (21). `(Other)` groups the 13 patients in the remaining, less frequent stages |
+| **Age_Group** | 217 Old and 228 Young patients, nearly equal group sizes |
+
+**Numerical variables**
+
+| Variable | Key values | Meaning |
+|---|---|---|
+| **Age** | Min 33, median 66, mean 65.23, max 88 | Median and mean are very close, suggesting a roughly **symmetric age distribution**. Most patients are in their 60s and 70s, typical for lung adenocarcinoma |
+| **Cigarettes_per_day** | Min 0, median 1.26, mean 1.555, max 8.438 | The mean is higher than the median, which hints at a **right-skewed** distribution (a few heavy smokers pull the average up). The 1st quartile of 0 shows that **at least a quarter of patients have no smoking exposure recorded** |
+
+The `ID` column is still shown as `Length / Class / Mode` because it is a unique identifier. It should stay as text and does not need to be a factor.
+
+**Why this matters**
+
+- **Group sizes are visible at once.** You can spot imbalances (for example, only 8 Asian patients) before running any analysis.
+- **Small groups limit conclusions.** Comparisons involving the Asian group or Stage IV would rest on very few patients, so treat those results with caution.
+- **R now treats these columns as groups.** Functions such as `boxplot()`, `table()`, and `group_by()` work correctly with them.
 
 > 💡 **Note:** `Data$Age` and `Data $ Age` mean the same thing in R. This tutorial uses the compact form `Data$Age`.
+
+> ✅ **Sanity check:** Gender (247 + 198), Race (51 + 8 + 386), Vital_Status (284 + 161), and Age_Group (217 + 228) all add up to **445**, matching `nrow(Data)`.
 
 ---
 
