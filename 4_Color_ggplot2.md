@@ -402,14 +402,10 @@ Many palettes have variants, and all accept an `alpha` argument.
 # NPG with transparency
 pal_npg(alpha = 0.6)(5)
 #[1] "#E64B3599" "#4DBBD599" "#00A08799" "#3C548899" "#F39B7F99"
-
-
 ```
 <img src="color/Fig_col_18.jpeg" alt="Stage bar plot with NPG" width="60%">
+
 ```r
-
-
-
 # JCO, D3 and others have variants
 pal_d3("category20")(20)
 # [1] "#1F77B4FF" "#FF7F0EFF" "#2CA02CFF" "#D62728FF" "#9467BDFF" "#8C564BFF" "#E377C2FF" "#7F7F7FFF" "#BCBD22FF" "#17BECFFF" "#AEC7E8FF" "#FFBB78FF" "#98DF8AFF" "#FF9896FF"
@@ -419,11 +415,12 @@ pal_d3("category20")(20)
 <img src="color/Fig_col_19.jpeg" alt="Stage bar plot with NPG" width="60%">
 
 ```r
-
 pal_aaas()(10)
 #[1] "#3B4992FF" "#EE0000FF" "#008B45FF" "#631879FF" "#008280FF" "#BB0021FF" "#5F559BFF" "#A20056FF" "#808180FF" "#1B1919FF"
 ```
+
 <img src="color/Fig_col_20.jpeg" alt="Stage bar plot with NPG" width="60%">
+
 ```r
 
 # Transparency inside ggplot2
@@ -434,9 +431,8 @@ ggplot(data, aes(x = Age, fill = Age_Group)) +
 ```
 <img src="color/Fig_col_21.jpeg" alt="Stage bar plot with NPG" width="60%">
 ```r
-
 Check `?pal_npg`, `?pal_d3`, and `?pal_igv` for the available variants.
-
+```
 ---
 
 ### 5.9 Other ggsci Families
@@ -494,8 +490,6 @@ ggplot(data, aes(x = Age, y = Cigarettes_per_day, color = Age)) +
   theme_classic()
 ```
 <img src="color/Fig_col_22.jpeg" alt="Stage bar plot with NPG" width="60%">
-```r
-
 For general continuous data, `viridis` or `scico` are usually safer choices than ggsci.
 
 ---
