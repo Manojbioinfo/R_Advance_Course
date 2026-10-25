@@ -49,6 +49,10 @@ Check your R version:
 R.version.string
 ```
 
+```r
+[1] "R version 4.3.2 (2023-10-31 ucrt)"
+```
+
 ---
 
 ## 📝 3. Create the Installation Script
