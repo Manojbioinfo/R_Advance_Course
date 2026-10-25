@@ -236,6 +236,389 @@ barplot(table(data$Age_Group),
 <img src="color/Fig_col_12.jpeg" alt="Bar plot of pathologic stage" width="40%">
 
 
+
+
+
+
+
+## 5. ggsci: Journal-Specific Color Palettes
+
+The **ggsci** package provides palettes inspired by scientific journals, data visualization libraries, and TV shows. If you are preparing a figure for a specific journal, ggsci lets you match its visual style with a single line of code.
+
+> 💡 **When to use ggsci:** use it for **qualitative (categorical)** data when you want a journal-style look. For continuous data, prefer `viridis` or `scico`.
+
+---
+
+### 5.1 Install and Load
+
+```r
+# Install (run once only)
+#install.packages("ggsci")
+
+# Or the development version from GitHub
+# remotes::install_github("nanxstats/ggsci")
+
+library(ggsci)
+library(ggplot2)
+library(scales)   # for show_col()
+```
+
+> 💡 Open the quick-start guide any time with `vignette("ggsci")`.
+
+---
+
+### 5.2 How ggsci Works
+
+ggsci gives you **two kinds of functions** for every palette:
+
+| Function type | Pattern | Purpose | Example |
+| :--- | :--- | :--- | :--- |
+| **Palette generator** | `pal_*()` | Returns hex codes (works in base R and ggplot2) | `pal_npg()(5)` |
+| **ggplot2 scale** | `scale_fill_*()` / `scale_color_*()` | Applies the palette inside ggplot2 | `scale_fill_npg()` |
+
+```r
+# pal_npg() returns a FUNCTION, so the double parentheses are needed
+pal_npg()(5)
+# [1] "#E64B35" "#4DBBD5" "#00A087" "#3C5488" "#F39B7F"
+
+# Preview with hex codes
+show_col(pal_npg()(5), labels = TRUE)
+```
+
+---
+
+### 5.3 Journal Palettes
+
+| Journal | Palette | Fill scale | Color scale |
+| :--- | :--- | :--- | :--- |
+| **Nature Publishing Group** | `pal_npg()` | `scale_fill_npg()` | `scale_color_npg()` |
+| **Science (AAAS)** | `pal_aaas()` | `scale_fill_aaas()` | `scale_color_aaas()` |
+| **NEJM** | `pal_nejm()` | `scale_fill_nejm()` | `scale_color_nejm()` |
+| **The Lancet** | `pal_lancet()` | `scale_fill_lancet()` | `scale_color_lancet()` |
+| **JAMA** | `pal_jama()` | `scale_fill_jama()` | `scale_color_jama()` |
+| **BMJ** | `pal_bmj()` | `scale_fill_bmj()` | `scale_color_bmj()` |
+| **JCO** | `pal_jco()` | `scale_fill_jco()` | `scale_color_jco()` |
+
+---
+
+### 5.4 Save a Gallery of All Journal Palettes
+
+```r
+dir.create("color", showWarnings = FALSE)
+
+journals <- list(
+  NPG    = pal_npg()(10),
+  AAAS   = pal_aaas()(10),
+  NEJM   = pal_nejm()(8),
+  Lancet = pal_lancet()(9),
+  JAMA   = pal_jama()(7),
+  BMJ    = pal_bmj()(9),
+  JCO    = pal_jco()(10)
+)
+
+jpeg("color/Fig_col_13.jpeg", width = 10, height = 8,
+     units = "in", res = 300, quality = 100)
+
+par(mfrow = c(4, 2), mar = c(1, 1, 3, 1))
+for (j in names(journals)) {
+  cols <- journals[[j]]
+  n    <- length(cols)
+  plot(NA, xlim = c(0, n), ylim = c(0, 1), axes = FALSE,
+       xlab = "", ylab = "", main = j, cex.main = 1.4, font.main = 2)
+  rect(0:(n - 1), 0.3, 1:n, 1, col = cols, border = "white", lwd = 2)
+  text((1:n) - 0.5, 0.15, labels = cols, cex = 0.6)
+}
+
+dev.off()
+```
+
+<img src="color/Fig_col_13.jpeg" alt="ggsci journal palettes" width="80%">
+
+---
+
+### 5.5 Apply Journal Palettes to the LUAD Data
+
+Use `scale_fill_*()` for **filled shapes** (bars, boxes) and `scale_color_*()` for **points and lines**.
+
+**Bar plot with NPG (Nature style):**
+
+```r
+p1 <- ggplot(data, aes(x = Pathologic_stage, fill = Pathologic_stage)) +
+  geom_bar() +
+  scale_fill_npg() +
+  labs(title = "Pathologic Stage Distribution (NPG)",
+       x = "Pathologic stage", y = "Number of patients") +
+  theme_classic(base_size = 12) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+        legend.position = "none")
+p1
+```
+
+<img src="color/Fig_col_14.jpeg" alt="Stage bar plot with NPG" width="60%">
+
+**Box plot with Lancet:**
+
+```r
+p2 <- ggplot(data, aes(x = Age_Group, y = Age, fill = Age_Group)) +
+  geom_boxplot() +
+  scale_fill_lancet() +
+  labs(title = "Age by Age Group (Lancet)",
+       x = "Age group", y = "Age (years)") +
+  theme_classic(base_size = 12) +
+  theme(legend.position = "none")
+p2
+```
+
+<img src="color/Fig_col_15.jpeg" alt="Age box plot with Lancet" width="40%">
+
+**Scatter plot with NEJM:**
+
+```r
+p3 <- ggplot(data, aes(x = Age, y = Cigarettes_per_day, color = Age_Group)) +
+  geom_point(size = 2, alpha = 0.7) +
+  scale_color_nejm() +
+  labs(title = "Age vs Smoking (NEJM)",
+       x = "Age (years)", y = "Cigarettes per day") +
+  theme_classic(base_size = 12)
+p3
+```
+
+<img src="color/Fig_col_16.jpeg" alt="Scatter plot with NEJM" width="60%">
+
+> 💡 To switch journal style, change only the suffix: `scale_fill_jama()`, `scale_fill_aaas()`, `scale_fill_jco()`, and so on.
+
+---
+
+### 5.6 Save Publication-Ready Figures
+
+```r
+ggsave("color/Fig_col_14.jpeg", p1, width = 7, height = 5,
+       units = "in", dpi = 300)
+ggsave("color/Fig_col_15.jpeg", p2, width = 5, height = 5,
+       units = "in", dpi = 300)
+ggsave("color/Fig_col_16.jpeg", p3, width = 7, height = 5,
+       units = "in", dpi = 300)
+```
+
+`ggsave()` is the ggplot2 equivalent of `jpeg()` + `dev.off()`. Use `dpi = 300` or higher for journal submission.
+
+---
+
+### 5.7 Use ggsci Colors in Base R
+
+Because `pal_*()` returns plain hex codes, ggsci palettes also work with `barplot()`, `hist()`, and `boxplot()`.
+
+```r
+stage_cols <- pal_npg()(nlevels(data$Pathologic_stage))
+
+barplot(table(data$Pathologic_stage),
+        col  = stage_cols,
+        main = "Pathologic Stage Distribution (NPG)",
+        ylab = "Number of patients",
+        las  = 2)
+```
+
+<img src="color/Fig_col_17.jpeg" alt="Base R bar plot with NPG" width="60%">
+
+---
+
+### 5.8 Palette Variants and Transparency
+
+Many palettes have variants, and all accept an `alpha` argument.
+
+```r
+# NPG with transparency
+pal_npg(alpha = 0.6)(5)
+
+# JCO, D3 and others have variants
+pal_d3("category20")(20)
+pal_aaas()(10)
+```
+
+```r
+# Transparency inside ggplot2
+ggplot(data, aes(x = Age, fill = Age_Group)) +
+  geom_density() +
+  scale_fill_npg(alpha = 0.6) +
+  theme_classic()
+```
+
+Check `?pal_npg`, `?pal_d3`, and `?pal_igv` for the available variants.
+
+---
+
+### 5.9 Other ggsci Families
+
+**Genomics tools (useful for bioinformatics figures):**
+
+| Palette | Function | Typical use |
+| :--- | :--- | :--- |
+| UCSC Genome Browser | `scale_fill_ucscgb()` | Chromosome colors |
+| IGV | `scale_fill_igv()` | Chromosomes and annotations |
+| LocusZoom | `scale_fill_locuszoom()` | GWAS regional plots |
+| COSMIC | `scale_fill_cosmic()` | Mutation signatures |
+| GSEA | `scale_fill_gsea()` | Continuous enrichment heatmaps |
+
+**Visualization and design systems:**
+
+| Palette | Function |
+| :--- | :--- |
+| D3 | `scale_fill_d3()` |
+| Gephi | `scale_fill_gephi()` |
+| Observable | `scale_fill_observable()` |
+| Primer (GitHub) | `scale_fill_primer()` |
+| Atlassian | `scale_fill_atlassian()` |
+| iTerm | `scale_fill_iterm()` |
+| UChicago | `scale_fill_uchicago()` |
+| Flat UI | `scale_fill_flatui()` |
+| Frontiers | `scale_fill_frontiers()` |
+| Bootstrap 5 | `scale_fill_bs5()` |
+| Material Design | `scale_fill_material()` |
+| Tailwind CSS | `scale_fill_tw3()` |
+
+**Sci-fi and TV (for presentations, not papers):**
+
+| Palette | Function |
+| :--- | :--- |
+| Star Trek | `scale_fill_startrek()` |
+| Tron Legacy | `scale_fill_tron()` |
+| Futurama | `scale_fill_futurama()` |
+| Rick and Morty | `scale_fill_rickandmorty()` |
+| The Simpsons | `scale_fill_simpsons()` |
+
+> 💡 Some palettes (for example `iterm`, `material`, `tw3`, `bs5`) need a color scheme or hue argument. Check the help page, e.g. `?scale_fill_material`. If a function is not found, update ggsci with `install.packages("ggsci")`, since newer palettes are added in recent versions.
+
+---
+
+### 5.10 Continuous Palettes
+
+Some ggsci palettes also provide **continuous** scales for heatmaps and gradients.
+
+```r
+# GSEA continuous palette
+ggplot(data, aes(x = Age, y = Cigarettes_per_day, color = Age)) +
+  geom_point(size = 2) +
+  scale_color_gsea() +
+  theme_classic()
+```
+
+For general continuous data, `viridis` or `scico` are usually safer choices than ggsci.
+
+---
+
+### ⚠️ 5.11 Accessibility Note
+
+Journal palettes are designed for **branding and print consistency**, not necessarily for color-vision deficiency. NPG and AAAS, for example, contain red and green tones that can look similar to colorblind readers.
+
+**Recommendations:**
+
+* Check the journal's author guidelines first.
+* Test your figure with a colorblind simulator (see [Accessibility Testing](#12-accessibility-testing)).
+* If accessibility matters more than journal style, use `pal_jco()`, Okabe-Ito, or the colorblind-friendly RColorBrewer palettes.
+* Use the **same color for the same category** across all figures in a paper.
+* Do not use more colors than needed. Most journal palettes work best with 8 or fewer categories.
+
+---
+
+### 5.12 Summary
+
+| Task | Code |
+| :--- | :--- |
+| Get hex codes | `pal_npg()(n)` |
+| Preview colors | `show_col(pal_npg()(n))` |
+| Fill in ggplot2 | `scale_fill_npg()` |
+| Color in ggplot2 | `scale_color_npg()` |
+| Add transparency | `pal_npg(alpha = 0.6)(n)` |
+| Use in base R | `col = pal_npg()(n)` |
+| Save at 300 dpi | `ggsave("file.jpeg", p, dpi = 300)` |
+
+**Quick pick:**
+
+| Goal | Palette |
+| :--- | :--- |
+| Nature-style figure | `npg` |
+| Science-style figure | `aaas` |
+| Clinical journals | `nejm`, `lancet`, `jama`, `bmj` |
+| Clear, high-contrast, general | `jco` |
+| Genome tracks and chromosomes | `igv`, `ucscgb` |
+| Many categories (up to 20) | `d3("category20")` |
+
+---
+
+### 🧠 5.13 Quick Check
+
+**Q1.** What is the difference between `pal_npg()` and `scale_fill_npg()`?
+
+<details><summary>Show answer</summary>
+
+`pal_npg()` returns a function that generates hex codes (usable anywhere, including base R). `scale_fill_npg()` is a ggplot2 scale that applies the palette to a `fill` aesthetic.
+
+</details>
+
+**Q2.** Why do we write `pal_npg()(5)` with two sets of parentheses?
+
+<details><summary>Show answer</summary>
+
+The first call, `pal_npg()`, returns a palette function. The second call, `(5)`, asks that function for 5 colors.
+
+</details>
+
+**Q3.** Which scale do you use for a scatter plot colored by group?
+
+<details><summary>Show answer</summary>
+
+`scale_color_*()` (for example `scale_color_nejm()`), because points use the `color` aesthetic. Bars and boxes use `scale_fill_*()`.
+
+</details>
+
+**Q4.** Are journal palettes always colorblind-safe?
+
+<details><summary>Show answer</summary>
+
+No. They are designed for journal branding. Test your figure with a colorblind simulator or choose a safer palette such as Okabe-Ito or `jco`.
+
+</details>
+
+---
+
+### ✏️ 5.14 Try It Yourself
+
+1. Recreate the stage bar plot using `scale_fill_jama()` and compare it with the NPG version.
+2. Make a box plot of `Cigarettes_per_day` by `Gender` using `scale_fill_aaas()`.
+3. Save one of your plots at 600 dpi with `ggsave()`.
+
+<details><summary>Show hints</summary>
+
+```r
+# 1
+ggplot(data, aes(Pathologic_stage, fill = Pathologic_stage)) +
+  geom_bar() + scale_fill_jama() + theme_classic() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1),
+        legend.position = "none")
+
+# 2
+ggplot(data, aes(Gender, Cigarettes_per_day, fill = Gender)) +
+  geom_boxplot() + scale_fill_aaas() + theme_classic()
+
+# 3
+ggsave("color/Fig_col_18.jpeg", width = 7, height = 5, dpi = 600)
+```
+
+</details>
+
+---
+
+Notes on how this fits your existing document:
+
+- I numbered it **5** to follow your current Section 4. Your table of contents lists RColorBrewer as 4 and ggsci as 11, so you will need to renumber it. If you want to keep your original numbering, change my heading to `## 11. ggsci: Complete Guide`.
+- Figure numbers continue from your last image (`Fig_col_12`), so the new ones are `Fig_col_13` to `Fig_col_17`. Remember to run the code once to generate them, or tell me and I can write a small helper function that saves each one automatically.
+- The `show_col()` call needs the `scales` package, which is loaded in 5.1.
+
+
+
+
+
+
 ## 🔗 Further Reading
 
 * [Emil Hvitfeldt's Comprehensive List of R Palettes](https://emilhvitfeldt.github.io/r-color-palettes/)
