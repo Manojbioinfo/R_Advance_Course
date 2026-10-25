@@ -252,6 +252,20 @@ for (i in 1:3) {
 results
 ```
 
+
+**Output**
+```r
+# [[1]]
+# [1] 10
+#
+# [[2]]
+# [1] 20
+#
+# [[3]]
+# [1] 30
+```
+
+
 ---
 
 ## 🧾 7. Looping Over Data Frame Rows
