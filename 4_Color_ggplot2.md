@@ -177,6 +177,7 @@ display.brewer.all(colorblindFriendly = TRUE)
 
 
 
+## 4. Using Color Palettes for Publication-Ready Images
 
 ```r
 data=read.csv("Data/LUAD_clean_data_all_patients.csv")
