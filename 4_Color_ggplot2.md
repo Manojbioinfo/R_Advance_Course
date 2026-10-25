@@ -164,7 +164,7 @@ library(RColorBrewer)
 display.brewer.all()
 
 ```
-<img src="color/Fig_col_9.jpeg" alt="Bar plot of pathologic stage" width="80%">
+<img src="color/Fig_col_9.jpeg" alt="Bar plot of pathologic stage" width="60%">
 
 
 ```r
@@ -173,7 +173,7 @@ display.brewer.all(colorblindFriendly = TRUE)
 
 ```
 
-<img src="color/Fig_col_10.jpeg" alt="Bar plot of pathologic stage" width="80%">
+<img src="color/Fig_col_10.jpeg" alt="Bar plot of pathologic stage" width="60%">
 
 
 
@@ -221,7 +221,7 @@ barplot(table(data$Pathologic_stage),
         ylab = "Number of patients",
         las  = 2)
 ```
-<img src="color/Fig_col_11.jpeg" alt="Bar plot of pathologic stage" width="80%">
+<img src="color/Fig_col_11.jpeg" alt="Bar plot of pathologic stage" width="60%">
 
 
 ```r
@@ -233,7 +233,7 @@ barplot(table(data$Age_Group),
         ylab = "Number of patients")
 
 ```
-<img src="color/Fig_col_12.jpeg" alt="Bar plot of pathologic stage" width="80%">
+<img src="color/Fig_col_12.jpeg" alt="Bar plot of pathologic stage" width="60%">
 
 
 ## 🔗 Further Reading
