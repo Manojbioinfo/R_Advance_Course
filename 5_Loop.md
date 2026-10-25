@@ -73,22 +73,31 @@ The counter `i` takes each value of `1:5` in turn, and R runs everything between
 for (i in 5:1) {
   print(i)
 }
+```
+**Output**
+```r
+#[1] 1
+#[1] 2
+#[1] 3
+#[1] 4
+#[1] 5
+```
 
+```r
 # Use the counter in a calculation
 for (i in 1:5) {
   print(i + 1)
 }
 ```
-
-**Output of the second loop:**
-
+**Output**
+```r
+# [1] 2
+# [1] 3
+# [1] 4
+# [1] 5
+# [1] 6
 ```
-[1] 2
-[1] 3
-[1] 4
-[1] 5
-[1] 6
-```
+
 
 > ⚠️ **Empty sequences:** `1:length(x)` goes wrong when `x` is empty (it gives `1, 0`). Use `seq_along(x)` instead, which gives nothing for an empty vector.
 
@@ -105,7 +114,18 @@ fruits <- c("apple", "banana", "cherry")
 for (x in fruits) {
   print(x)
 }
+```
 
+
+**Output:**
+```
+#[1] "apple"
+#[1] "banana"
+#[1] "cherry"
+
+```
+
+```r
 # Loop over positions (needed when you want the index)
 for (i in seq_along(fruits)) {
   print(paste(i, "=", fruits[i]))
@@ -115,12 +135,9 @@ for (i in seq_along(fruits)) {
 **Output:**
 
 ```
-[1] "apple"
-[1] "banana"
-[1] "cherry"
-[1] "1 = apple"
-[1] "2 = banana"
-[1] "3 = cherry"
+#[1] "1 = apple"
+#[1] "2 = banana"
+#[1] "3 = cherry"
 ```
 
 **Interpretation:**
