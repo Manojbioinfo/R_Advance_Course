@@ -211,9 +211,18 @@ save_fig(p_age_hist, "Fig1_2_age_hist.jpeg")
   <img src="figures/Fig1_2_age_hist.jpeg" alt="Age histogram" width="48%">
 </p>
 
+### 🔍 What to look for
 
-**What to look for:** Peak location, skew, and unusual spikes (for example a
-pile-up at age 90, where TCGA caps age for privacy).
+**Peak location, skew, and unusual spikes** (for example a pile-up at age 90, where TCGA caps age).
+
+**📖 Interpretation:**
+
+- **Peak location:** the distribution peaks at about **55 to 65 years**, with the tallest bars near 60 (about 1,500 patients per bin). This is the typical age range for cancer diagnosis.
+- **Skew:** the shape is slightly **left-skewed**. The left tail (young patients) is longer and gentler, while the right side falls off more steeply after about 70. So the mean sits a little below the median.
+- **Tails:** very few patients are younger than 25, and counts drop sharply after 80.
+- **Unusual spikes:** there is **no pile-up at age 90** in this plot. TCGA caps ages above 89, which can create a spike at the upper end. Here the last bar (about 85 to 90) is small, so there is no sign of that artifact, but always check the right edge of an age histogram.
+
+> 💡 **Tip:** the apparent peak and skew can change with bin width. Try `binwidth = 2`, `5`, and `10` to confirm the pattern is real and not an artifact of binning.
 
 ### Q3. How does the smoothed density compare?
 
