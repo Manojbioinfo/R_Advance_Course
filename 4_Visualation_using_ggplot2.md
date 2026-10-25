@@ -764,7 +764,7 @@ save_fig(p_immune, "Fig5_1_immune_subtypes.jpeg")
 ```
 
 <p align="center">
-  <img src="figures/Fig5_1_immune_subtypes.jpeg" alt="Immune subtypes" width="70%">
+  <img src="figures/Fig5_1_immune_facet.jpeg" alt="Immune subtypes" width="70%">
 </p>
 
 
