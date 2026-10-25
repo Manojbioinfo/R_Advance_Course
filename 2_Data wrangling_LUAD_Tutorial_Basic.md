@@ -8,7 +8,7 @@
 
 ### 🟦 Part 1: Getting Started
 
-1. [Introduction](#-1-introduction)
+1. [Introduction](#-1-Introduction)
 2. [Download the Dataset](#-2-download-the-dataset)
 3. [Workspace Preparation](#-3-workspace-preparation)
 4. [Load Required Libraries](#-4-load-required-libraries)
