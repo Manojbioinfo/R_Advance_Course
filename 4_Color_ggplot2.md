@@ -401,10 +401,17 @@ Many palettes have variants, and all accept an `alpha` argument.
 ```r
 # NPG with transparency
 pal_npg(alpha = 0.6)(5)
+#[1] "#E64B3599" "#4DBBD599" "#00A08799" "#3C548899" "#F39B7F99"
+
 
 # JCO, D3 and others have variants
 pal_d3("category20")(20)
+# [1] "#1F77B4FF" "#FF7F0EFF" "#2CA02CFF" "#D62728FF" "#9467BDFF" "#8C564BFF" "#E377C2FF" "#7F7F7FFF" "#BCBD22FF" "#17BECFFF" "#AEC7E8FF" "#FFBB78FF" "#98DF8AFF" "#FF9896FF"
+# [15] "#C5B0D5FF" "#C49C94FF" "#F7B6D2FF" "#C7C7C7FF" "#DBDB8DFF" "#9EDAE5FF"
+
+
 pal_aaas()(10)
+#[1] "#3B4992FF" "#EE0000FF" "#008B45FF" "#631879FF" "#008280FF" "#BB0021FF" "#5F559BFF" "#A20056FF" "#808180FF" "#1B1919FF"
 ```
 
 ```r
