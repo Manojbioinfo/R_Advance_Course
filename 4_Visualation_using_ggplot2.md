@@ -460,6 +460,32 @@ save_fig(p_lm, "Fig3_2_scatter_lm.jpeg")
   <img src="figures/Fig3_2_scatter_lm.jpeg" alt="Scatter with linear smooth" width="60%">
 </p>
 
+### 🔍 What to look for
+
+**Check whether the points drift in one direction as age increases, and how closely they hug the trend line.** Look at the slope of the orange line, then at how widely the points scatter around it. A steep line with tight points means a strong relationship, while a gentle line with a wide cloud means a weak one.
+
+
+**📖 Interpretation:**
+
+| Feature | What the plot shows |
+|---|---|
+| **Trend direction** | downward (negative) |
+| **Line at age about 10** | about 52 months |
+| **Line at age about 90** | about 22 months |
+| **Overall change** | about 30 months lower follow-up across the age range |
+| **Scatter around the line** | very wide, with strong overlap |
+
+- **Direction:** the line slopes **downward**, so older patients tend to have **shorter follow-up**. This fits the earlier plots, since older age is linked to higher mortality and death ends follow-up.
+- **Strength:** the slope is **gentle** relative to the scatter. Patients of every age appear at nearly every follow-up value from 0 to 100+ months, so age alone explains only a **small part** of the variation in follow-up time.
+- **Density:** the dark band at the bottom shows most patients have **under 60 months** of follow-up regardless of age. Semi-transparent points make overlapping areas look darker.
+- **Outliers:** a few patients above 250 months appear at ages 20 to 60. These long-term follow-ups pull on the line, but with thousands of patients, they do not change it much.
+- **Sparse ends:** very young (under 20) and very old (over 85) patients are few, so the line is **less reliable at both edges**.
+
+> ⚠️ **Caution:** a trend line is **not proof of cause**. Age is also tied to stage, cancer type, and treatment, and follow-up time includes **censored** patients (still alive or lost to follow-up). A straight line may also be too simple, since the true pattern could curve. Check the strength with `cor.test()` or a regression, and use survival analysis for outcome questions.
+
+> 💡 **Reading the plot:** each dot is one patient. The **orange line** is the best straight-line fit (least squares), summarizing the average change in follow-up per extra year of age. Its slope is read as "months of follow-up lost per year of age."
+
+
 ### Q11. Does the trend differ by Vital_Status?
 
 **Hint:** Map `Vital_Status` to `colour`; `geom_smooth()` then fits one line
@@ -482,8 +508,30 @@ save_fig(p_status_lm, "Fig3_3_status_lm.jpeg")
   <img src="figures/Fig3_3_status_lm.jpeg" alt="Trend by vital status" width="60%">
 </p>
 
-**What to look for:** Do not claim a group difference from line separation
-alone. Censoring and cancer-type mix are strong confounders.
+### 🔍 What to look for
+
+**Compare the two trend lines (blue = Alive, orange = Dead) and check whether the point clouds separate.** Look at the gap between the lines, whether they are parallel or cross, and whether either color dominates certain areas of the plot.
+
+
+**📖 Interpretation:**
+
+| Feature | Alive (blue) | Dead (orange) |
+|---|---|---|
+| **Trend direction** | downward | downward |
+| **Line at age about 15** | about 50 months | about 47 months |
+| **Line at age about 90** | about 26 months | about 17 months |
+| **Position** | slightly above | slightly below |
+| **Point cloud** | the majority, spread across all ranges | fewer, concentrated at low follow-up |
+
+- **Both lines slope down:** in both groups, older patients have shorter follow-up. The pattern from the previous plot holds even after splitting by vital status.
+- **Alive sits above Dead:** the blue line stays above the orange one across all ages, and the gap **widens with age** (about 3 months at 15 vs about 9 months at 90). The lines are not perfectly parallel, which hints at a possible **age x status interaction**.
+- **Heavy overlap:** the lines are close relative to the scatter, so vital status separates follow-up only **modestly**. Many dead and alive patients share the same follow-up values.
+- **Most deaths happen early:** orange points cluster near the bottom (under about 60 months), meaning patients who died usually did so within a few years of diagnosis. Orange points above 150 months are rare.
+- **Survivors dominate long follow-up:** the highest points are mostly blue, since staying alive allows follow-up to keep accumulating.
+
+> ⚠️ **Caution:** **Alive** patients are **censored**, meaning their follow-up time is just "time until last contact", not a final outcome. Recently enrolled survivors therefore have short follow-up too, which is why blue points also pile up near zero. Do not read follow-up of living patients as survival time. Use **Kaplan-Meier curves** and a **Cox model** to compare outcomes by age properly.
+
+> 💡 **Reading the plot:** the two colors are overlaid with transparency, so darker or muddier regions mean many overlapping patients of both groups. The **legend** on the right maps each color to a vital status, and each **line** is a separate linear fit per group.
 
 ### Q12. How do you test the correlation?
 
