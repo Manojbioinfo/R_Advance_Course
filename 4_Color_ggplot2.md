@@ -9,7 +9,6 @@
 | Resource | Description | Link |
 | :--- | :--- | :--- |
 | **R-Charts Color Guide** | Complete list of 657 named colors in R with HEX and RGB codes, with one-click copy. | [Open R-Charts →](https://r-charts.com/colors/) |
-| **Columbia University R Colors (PDF)** | Classic visual cheat sheet displaying all 657 built-in R colors with their exact names. | [View PDF →](http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf) |
 | **Emil Hvitfeldt R Palettes** | Comprehensive interactive gallery of color palettes across the entire R ecosystem (ggplot2, paletteer). | [Explore Palettes →](https://emilhvitfeldt.github.io/r-color-palettes/) |
 | **ColorBrewer 2.0** | Perceptually balanced sequential, diverging, and qualitative palettes for R (`RColorBrewer`). | [Open ColorBrewer →](https://colorbrewer2.org/) |
 | **R Graph Gallery Color Finder** | Searchable tool to explore and pick color palettes designed specifically for data visualization in R. | [Open Palette Finder →](https://r-graph-gallery.com/color-palette-finder) |
