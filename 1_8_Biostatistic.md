@@ -94,7 +94,7 @@ tutorial. All questions reuse the same `clin` data frame, the same
 `theme_pub()` theme and the same `save_fig()` / `write_tbl()` helpers,
 so you only need to run this block once per session.
 
-### Setup: clean the workspace and load all packages used in the analysis
+### Clean the workspace and load all packages used in the analysis
 
 ```r
 # Clear the workspace and load every package used in this analysis up front,
@@ -124,13 +124,13 @@ suppressPackageStartupMessages({
   library(tools)        # toTitleCase
 })
 ```
-
+### Create output folders for results and figures
 ```r
 dir.create("results", showWarnings = FALSE)
 dir.create("figures", showWarnings = FALSE)
 ```
 
-
+### Resolve function name conflicts in favour of the intended packages
 ```r
 # Resolve name clashes once, in favour of the packages we actually mean
 if ("conflicted" %in% rownames(installed.packages())) {
