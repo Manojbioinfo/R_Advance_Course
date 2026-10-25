@@ -166,12 +166,6 @@ display.brewer.all()
 # Show only colorblind-friendly palettes
 display.brewer.all(colorblindFriendly = TRUE)
 
-# Create a palette of 8 colors
-darkcols <- brewer.pal(8, "Dark2")
-hist(discoveries, col = darkcols)
-
-# You can use a subset
-hist(discoveries, col = darkcols[1:2])
 ```
 
 ### In ggplot2
