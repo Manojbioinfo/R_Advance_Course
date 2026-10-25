@@ -4,16 +4,6 @@
 
 ---
 
-## 📊 R Color Palettes & Color Codes
-
-| Resource | Description | Link |
-| :--- | :--- | :--- |
-| **R-Charts Color Guide** | Complete list of 657 named colors in R with HEX and RGB codes, with one-click copy. | [Open R-Charts →](https://r-charts.com/colors/) |
-| **Emil Hvitfeldt R Palettes** | Comprehensive interactive gallery of color palettes across the entire R ecosystem (ggplot2, paletteer). | [Explore Palettes →](https://emilhvitfeldt.github.io/r-color-palettes/) |
-| **ColorBrewer 2.0** | Perceptually balanced sequential, diverging, and qualitative palettes for R (`RColorBrewer`). | [Open ColorBrewer →](https://colorbrewer2.org/) |
-| **R Graph Gallery Color Finder** | Searchable tool to explore and pick color palettes designed specifically for data visualization in R. | [Open Palette Finder →](https://r-graph-gallery.com/color-palette-finder) |
-| **ggsci Documentation** | Official site for scientific journal and sci-fi themed palettes for ggplot2. | [Open ggsci →](https://nanx.me/ggsci/) |
-| **ggsci iTerm Preview** | Single-page preview of all 400+ iTerm color schemes available in ggsci. | [Open Preview →](https://nanx.me/ggsci-iterm/) |
 
 ### 🌈 General Color Inspiration
 
@@ -25,6 +15,19 @@
 | **Coolors: Christmas** | Popular Christmas palettes. | [Open →](https://coolors.co/palettes/popular/christmas) |
 | **Adobe Color Wheel** | Build palettes with color harmony rules. | [Open →](https://color.adobe.com/create/color-wheel) |
 | **2Colors (Colorion)** | Curated two-color combinations, duotone palettes, and contrast-ready pairs for UI/UX design. | [Open →](https://2colors.colorion.co/) |
+
+
+
+## 📊 R Color Palettes & Color Codes
+
+| Resource | Description | Link |
+| :--- | :--- | :--- |
+| **R-Charts Color Guide** | Complete list of 657 named colors in R with HEX and RGB codes, with one-click copy. | [Open R-Charts →](https://r-charts.com/colors/) |
+| **Emil Hvitfeldt R Palettes** | Comprehensive interactive gallery of color palettes across the entire R ecosystem (ggplot2, paletteer). | [Explore Palettes →](https://emilhvitfeldt.github.io/r-color-palettes/) |
+| **ColorBrewer 2.0** | Perceptually balanced sequential, diverging, and qualitative palettes for R (`RColorBrewer`). | [Open ColorBrewer →](https://colorbrewer2.org/) |
+| **R Graph Gallery Color Finder** | Searchable tool to explore and pick color palettes designed specifically for data visualization in R. | [Open Palette Finder →](https://r-graph-gallery.com/color-palette-finder) |
+| **ggsci Documentation** | Official site for scientific journal and sci-fi themed palettes for ggplot2. | [Open ggsci →](https://nanx.me/ggsci/) |
+| **ggsci iTerm Preview** | Single-page preview of all 400+ iTerm color schemes available in ggsci. | [Open Preview →](https://nanx.me/ggsci-iterm/) |
 
 ---
 
