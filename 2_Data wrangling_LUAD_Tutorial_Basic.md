@@ -468,16 +468,29 @@ barplot(table(Data$Gender),
 ### 8.4 Bar plot of pathologic stage
 
 ```r
+barplot(table(Data$Pathologic_stage),
+        col  = "darkgreen",
+        main = "Pathologic Stage Distribution")
+```
+
+**🖥️ Output:**
+
+<img src="images/LUAD_Pic4_1.jpg" alt="Bar plot of pathologic stage" width="60%">
+
+
+
+```r
 # las = 2 rotates the axis labels so they do not overlap
 barplot(table(Data$Pathologic_stage),
-        col  = "lightgreen",
+        col  = "darkgreen",
         main = "Pathologic Stage Distribution",
         las  = 2)
 ```
 
 **🖥️ Output:**
 
-<img src="images/LUAD_Pic4.jpg" alt="Bar plot of pathologic stage" width="60%">
+<img src="images/LUAD_Pic4_2.jpg" alt="Bar plot of pathologic stage" width="60%">
+
 
 **📖 Interpretation:**
 - **Histograms** show how a numerical variable is spread out.
