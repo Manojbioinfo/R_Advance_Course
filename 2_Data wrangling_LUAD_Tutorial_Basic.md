@@ -6,25 +6,29 @@
 
 ## 📑 Contents
 
-**Part 1: Getting Started**
+### 🟦 Part 1: Getting Started
+
 1. [Introduction](#-1-introduction)
 2. [Download the Dataset](#-2-download-the-dataset)
 3. [Workspace Preparation](#-3-workspace-preparation)
 4. [Load Required Libraries](#-4-load-required-libraries)
 5. [Load and Inspect the Dataset](#-5-load-and-inspect-the-dataset)
 
-**Part 2: Cleaning and Describing the Data**
+### 🟩 Part 2: Cleaning and Describing the Data
+
 6. [Data Cleaning](#-6-data-cleaning)
 7. [Descriptive Statistics](#-7-descriptive-statistics)
 
-**Part 3: Visualization and Relationships**
+### 🟨 Part 3: Visualization and Relationships
+
 8. [Data Visualization](#-8-data-visualization)
 9. [Relationship Analysis](#-9-relationship-analysis)
 10. [Correlation Analysis](#-10-correlation-analysis)
 11. [Boxplots](#-11-boxplots)
 12. [Saving Plots](#-12-saving-plots)
 
-**Part 4: Data Manipulation with dplyr**
+### 🟧 Part 4: Data Manipulation with dplyr
+
 13. [Why dplyr? The Pipe](#-13-why-dplyr-the-pipe)
 14. [Filter Rows](#-14-filter-rows)
 15. [Arrange (Sort) Rows](#-15-arrange-sort-rows)
@@ -34,12 +38,12 @@
 19. [Group-wise Summaries](#-19-group-wise-summaries)
 20. [Counting and Chaining Verbs](#-20-counting-and-chaining-verbs)
 
-**Part 5: Wrap-up**
+### 🟥 Part 5: Wrap-up
+
 21. [Reproducibility](#-21-reproducibility)
 22. [Conclusion](#-22-conclusion)
 23. [Quiz](#-23-quiz)
 24. [Quick Reference Cheat Sheet](#-24-quick-reference-cheat-sheet)
-
 ---
 
 > 📝 **A note on numbers.** The example outputs below are shown as they appeared in the original lessons. Your own output may differ slightly depending on the version of the CSV file you download. Where a number should be checked against your own file, you will see a ⚠️ **Check your output** box. Always trust what R prints on your screen.
