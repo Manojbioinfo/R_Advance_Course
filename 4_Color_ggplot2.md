@@ -196,6 +196,26 @@ n_stage
 n_age
 [1] 2
 ```
+```r
+stage_cols <- brewer.pal(max(3, n_stage), "Set2")[1:n_stage]
+
+barplot(table(data$Pathologic_stage),
+        col  = stage_cols,
+        main = "Pathologic Stage Distribution",
+        ylab = "Number of patients",
+        las  = 2)
+```
+
+```r
+age_cols <- brewer.pal(max(3, n_age), "Dark2")[1:n_age]
+
+barplot(table(data$Age_Group),
+        col  = age_cols,
+        main = "Age Group Distribution",
+        ylab = "Number of patients")
+
+```
+
 ## 🔗 Further Reading
 
 * [Emil Hvitfeldt's Comprehensive List of R Palettes](https://emilhvitfeldt.github.io/r-color-palettes/)
