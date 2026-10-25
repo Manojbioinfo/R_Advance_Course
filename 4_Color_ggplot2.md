@@ -221,6 +221,8 @@ barplot(table(data$Pathologic_stage),
         ylab = "Number of patients",
         las  = 2)
 ```
+<img src="color/Fig_col_10.jpeg" alt="Bar plot of pathologic stage" width="80%">
+
 
 ```r
 age_cols <- brewer.pal(max(3, n_age), "Dark2")[1:n_age]
@@ -231,6 +233,8 @@ barplot(table(data$Age_Group),
         ylab = "Number of patients")
 
 ```
+<img src="color/Fig_col_11.jpeg" alt="Bar plot of pathologic stage" width="80%">
+
 
 ## 🔗 Further Reading
 
