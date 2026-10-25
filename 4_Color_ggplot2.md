@@ -94,9 +94,7 @@ palette()
 ```r
 # Reset to default if you changed it earlier
 palette("default")
-```
 
-```r
 # All 657 built-in color names
 head(colors(), 10)
 # [1] "white"         "aliceblue"     "antiquewhite"  "antiquewhite1" "antiquewhite2" "antiquewhite3" "antiquewhite4" "aquamarine"    "aquamarine1"   "aquamarine2"  
