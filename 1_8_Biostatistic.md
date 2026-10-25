@@ -68,11 +68,14 @@ By the end of this tutorial you will be able to:
 ## Before you start
 
 Place the file `data/TCGA_pancancer_clinical.rds` next to the script.
+
 It contains the 12,591 patients × 16 columns the tutorial expects:
+
 `patient_id`, `cancer_type`, `age_at_initial_pathologic_diagnosis`,
 `gender`, `race`, `vital_status`, `tumor_status`, `OS`, `OS.time`,
-`DSS`, `DSS.time`, `DFI`, `DFI.time`, `PFI`, `PFI.time`. The script
-creates `figures/` and `results/` automatically.
+`DSS`, `DSS.time`, `DFI`, `DFI.time`, `PFI`, `PFI.time`.
+
+The script creates `figures/` and `results/` automatically.
 
 ## Setup
 
