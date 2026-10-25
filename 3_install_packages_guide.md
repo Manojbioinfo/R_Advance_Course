@@ -427,7 +427,128 @@ It warns if R is older than 4.3.0, but does **not** stop — older R will usuall
 It is saved to `results/package_versions.csv`. It records the exact version of every installed package, which is your reproducibility receipt — reviewers can see exactly which package versions produced your results.
 </details>
 
+
+
+### Part A: Multiple choice
+
+**Q1. Where do `DESeq2`, `clusterProfiler`, and `org.Hs.eg.db` come from?**
+
+- A. CRAN
+- B. GitHub
+- C. Bioconductor
+- D. They ship with base R
+
+<details><summary>Show answer</summary>
+
+**C.** They come from Bioconductor and are installed with `BiocManager::install()`, **not** `install.packages()`.
+
+</details>
+
+**Q2. Why is it safe to run `install_all_packages.R` a second time?**
+
+- A. It deletes all packages first and reinstalls them
+- B. It only installs packages that are missing
+- C. It runs in a separate R session
+- D. It is not safe to re-run
+
+<details><summary>Show answer</summary>
+
+**B.** Each install block computes `setdiff(pkgs, installed.packages())` first and skips packages that are already present, so only missing packages are installed.
+
+</details>
+
+**Q3. Where is the version report saved?**
+
+- A. `figures/package_versions.png`
+- B. `data/versions.txt`
+- C. `results/package_versions.csv`
+- D. It is only printed to the console
+
+<details><summary>Show answer</summary>
+
+**C.** It is saved to `results/package_versions.csv`. It records the exact version of every installed package, which is your reproducibility receipt.
+
+</details>
+
 ---
+
+### Part B: True or False
+
+**Q4. If you have R older than 4.3.0, the script stops with an error.**
+
+<details><summary>Show answer</summary>
+
+**False.** The script only prints a **warning**. Older R will usually still work, but R 4.3 or newer is recommended.
+
+</details>
+
+**Q5. `BiocManager` must be installed before any Bioconductor package can be installed.**
+
+<details><summary>Show answer</summary>
+
+**True.** The script installs `BiocManager` first (if missing), then uses it to install `DESeq2`, `apeglm`, `clusterProfiler`, `org.Hs.eg.db`, and `enrichplot`.
+
+</details>
+
+---
+### Part C: Select all that apply
+
+**Q6. Which of these folders does the script create? (choose all that apply)**
+
+- A. `data/`
+- B. `figures/`
+- C. `results/`
+- D. `scripts/`
+- E. `results_rnaseq/`
+
+<details><summary>Show answer</summary>
+
+**A, B, C and E.** The script creates `data/`, `figures/`, `results/`, and `results_rnaseq/`. It does **not** create `scripts/`.
+
+</details>
+
+---
+
+### Part D: Fill in the blank
+
+**Q7. The function that installs Bioconductor packages is `BiocManager::________()`.**
+
+<details><summary>Show answer</summary>
+
+**install**, as in `BiocManager::install()`.
+
+</details>
+
+**Q8. The function used to record package versions for reproducibility in the main LUAD tutorial is `________()`.**
+
+<details><summary>Show answer</summary>
+
+**sessionInfo**, as in `sessionInfo()`. In this script, the version table is built with `packageVersion()` and saved to a CSV file.
+
+</details>
+
+
+### Part E: Try it yourself
+
+1. Add a new CRAN package (for example `"janitor"`) to the script, re-run it, and check that **only** the new package gets installed.
+2. Open `results/package_versions.csv` and find the version of `DESeq2` that you installed.
+3. Deliberately misspell one package name in `cran_pkgs`, re-run the script, and read the message in the **failed** section. What does it tell you?
+
+<details><summary>Show hints</summary>
+
+```r
+# 1. Add the package name to the cran_pkgs vector, then run:
+source("install_all_packages.R")
+
+# 2. Read the version report in R
+read.csv("results/package_versions.csv")
+
+# 3. The failed packages are listed at the end:
+# ❌ These packages failed to install or load:
+```
+</details>
+
+
 
 ## ✅ 10. Conclusion
 
