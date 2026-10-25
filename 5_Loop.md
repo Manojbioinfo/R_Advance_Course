@@ -234,8 +234,8 @@ squares
 
 **Output:**
 
-```
-[1]  1  4  9 16 25
+```r
+# [1]  1  4  9 16 25
 ```
 
 > ⚠️ **Do not grow a vector inside a loop** with `x <- c(x, new_value)`. R copies the whole vector every time, which becomes very slow for large loops. Pre-allocate with `numeric(n)`, `character(n)`, or `vector("list", n)`.
