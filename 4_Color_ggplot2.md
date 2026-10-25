@@ -101,15 +101,6 @@ head(colors(), 10)
 ```
 
 
-```r
-# Convert a name to RGB
-col2rgb("steelblue")
-#     [,1]
-#red     70
-#green  130
-#blue   180
-```
-
 ### Built-in gradient palettes (`grDevices`)
 
 ```r
