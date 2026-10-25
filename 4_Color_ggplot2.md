@@ -182,13 +182,17 @@ display.brewer.all(colorblindFriendly = TRUE)
 ```r
 data=read.csv("Data/LUAD_clean_data_all_patients.csv")
 head(data)
-            ID Age Gender     Race Vital_Status Pathologic_stage Cigarettes_per_day Age_Group
-1 TCGA-55-A48X  63 Female European        Alive        Stage IIA          1.9726027     Young
-2 TCGA-NJ-A55R  67   Male European        Alive         Stage IA          0.2739726       Old
-3 TCGA-53-A4EZ  63   Male European        Alive        Stage IIA          2.1917808     Young
-4 TCGA-44-6777  85 Female European         Dead         Stage IB          3.5068493       Old
-5 TCGA-55-6982  79 Female European         Dead        Stage IIB          0.0000000       Old
-6 TCGA-50-7109  60   Male European         Dead         Stage IA          6.5753425     Young
+```
+
+```r
+
+#            ID Age Gender     Race Vital_Status Pathologic_stage Cigarettes_per_day Age_Group
+# 1 TCGA-55-A48X  63 Female European        Alive        Stage IIA          1.9726027     Young
+# 2 TCGA-NJ-A55R  67   Male European        Alive         Stage IA          0.2739726       Old
+# 3 TCGA-53-A4EZ  63   Male European        Alive        Stage IIA          2.1917808     Young
+# 4 TCGA-44-6777  85 Female European         Dead         Stage IB          3.5068493       Old
+# 5 TCGA-55-6982  79 Female European         Dead        Stage IIB          0.0000000       Old
+# 6 TCGA-50-7109  60   Male European         Dead         Stage IA          6.5753425     Young
 
 ```
 
