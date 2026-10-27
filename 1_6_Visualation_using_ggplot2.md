@@ -423,18 +423,92 @@ save_fig <- function(plot, name, w = 7, h = 5) {
 **Hint:** Count first, then plot with `geom_col()`. Use `reorder()` to sort
 and `coord_flip()` for readable labels.
 
+### Q1. How many patients are in each cancer type?
+
+We’ll break the code into small steps. Run each step and inspect its output before moving on.
+
+#### Step 1: Count patients in each cancer type
+
 ```r
-p_cancer_counts <- clinical |>
-  count(Cancer_Type) |>
+cancer_counts <- clinical |>
+  count(Cancer_Type)
+
+cancer_counts
+```
+
+- `clinical` is the patient table.
+- `count(Cancer_Type)` counts the rows for each cancer type.
+- The result is saved as `cancer_counts`.
+- The output has a cancer-type column and an `n` column containing the count.
+
+#### Step 2: Sort cancer types by count
+
+```r
+cancer_counts |>
+  mutate(Cancer_Type = reorder(Cancer_Type, n))
+```
+
+`reorder(Cancer_Type, n)` arranges the cancer-type categories according to their counts. This helps make the plot easier to read.
+
+#### Step 3: Create the bar plot
+
+```r
+p_cancer_counts <- cancer_counts |>
   ggplot(aes(x = reorder(Cancer_Type, n), y = n)) +
   geom_col(fill = "#0072B2") +
-  coord_flip() +
-  labs(title = "Patients per cancer type", x = "Cancer type", y = "Number of patients") +
+  coord_flip()
+```
+
+- `ggplot(aes(...))` maps cancer type to the x-axis and the count (`n`) to the y-axis.
+- `geom_col()` draws bars using the counts already calculated.
+- `fill` sets the bar color.
+- `coord_flip()` turns the vertical bars sideways so the cancer-type labels are easier to read.
+
+#### Step 4: Add a title and labels
+
+```r
+p_cancer_counts <- p_cancer_counts +
+  labs(
+    title = "Patients per cancer type",
+    x = "Cancer type",
+    y = "Number of patients"
+  ) +
   theme_minimal()
+
+p_cancer_counts
+```
+
+`labs()` adds the plot title and axis labels. `theme_minimal()` applies a clean plot style.
+
+#### Step 5: Save the plot
+
+```r
 save_fig(p_cancer_counts, "Fig1_1_cancer_counts.jpeg", 7, 8)
 ```
 
+This saves the plot using your `save_fig()` function. The `7` and `8` specify the figure’s width and height, depending on how that function is defined.
 
+### Complete code
+
+```r
+cancer_counts <- clinical |>
+  count(Cancer_Type)
+
+p_cancer_counts <- cancer_counts |>
+  ggplot(aes(x = reorder(Cancer_Type, n), y = n)) +
+  geom_col(fill = "#0072B2") +
+  coord_flip() +
+  labs(
+    title = "Patients per cancer type",
+    x = "Cancer type",
+    y = "Number of patients"
+  ) +
+  theme_minimal()
+
+p_cancer_counts
+
+save_fig(p_cancer_counts, "Fig1_1_cancer_counts.jpeg", 7, 8)
+```
 
 <p align="center">
   <img src="figures/Fig1_1_cancer_counts.jpeg" alt="Patients per cancer type" width="60%">
