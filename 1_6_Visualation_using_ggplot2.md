@@ -223,7 +223,104 @@ head(clinical$Stage,10)
 # [1] "Stage II"  "Stage IV"  "Stage III" "Stage IV"  "Stage III" "Stage II"  "Stage III" "Stage III" "Stage II"  "Stage IV" 
 ```
 
-### Cleaning
+### Try these additional cleaning steps
+
+Run each example separately to see how it changes the data. Here, `clinical` is the table created before the final cleaning steps.
+
+#### Convert `Gender` to a factor
+
+```r
+clinical_test <- clinical |>
+  mutate(Gender = factor(Gender))
+
+str(clinical_test$Gender)
+levels(clinical_test$Gender)
+```
+
+Try checking the categories before and after:
+
+```r
+unique(clinical$Gender)
+levels(clinical_test$Gender)
+```
+
+#### Order the `Stage` categories
+
+```r
+clinical_test <- clinical |>
+  mutate(
+    Stage = factor(
+      Stage,
+      levels = c("Stage I", "Stage II", "Stage III", "Stage IV")
+    )
+  )
+
+levels(clinical_test$Stage)
+table(clinical_test$Stage, useNA = "ifany")
+```
+
+The `levels` argument sets the order. Try changing the order and see how the output changes.
+
+#### Mark a race value as missing
+
+```r
+clinical_test <- clinical |>
+  mutate(Race = na_if(Race, "[Not Evaluated]"))
+
+table(clinical_test$Race, useNA = "ifany")
+```
+
+`na_if()` replaces the exact value `"[Not Evaluated]"` with `NA`. Try checking how many missing values there are:
+
+```r
+sum(is.na(clinical_test$Race))
+```
+
+####  Group uncommon race categories
+
+```r
+clinical_test <- clinical |>
+  mutate(
+    Race = fct_lump_min(
+      factor(Race),
+      min = 100,
+      other_level = "Other"
+    )
+  )
+
+count(clinical_test, Race, sort = TRUE)
+```
+
+Categories with fewer than 100 observations are combined into `"Other"`. Try changing `min = 100` to a smaller or larger number.
+
+#### Make age groups
+
+```r
+clinical_test <- clinical |>
+  mutate(
+    Age_Group = cut(
+      Age,
+      breaks = c(-Inf, 40, 55, 70, Inf),
+      labels = c("Young", "Middle", "Older", "Senior"),
+      ordered_result = TRUE
+    )
+  )
+
+count(clinical_test, Age_Group)
+```
+
+Try finding the age group for a few rows:
+
+```r
+clinical_test |>
+  select(Patient_ID, Age, Age_Group) |>
+  head(10)
+```
+
+`clinical_test` is a practice copy, so these examples do not overwrite `clinical`. When you’re ready, you can combine the steps in the full cleaning pipeline.
+
+
+### Let combine all steps above to make a final clean dataset
 
 ```r
 clinical <- raw |>
@@ -319,6 +416,11 @@ save_fig(p_cancer_counts, "Fig1_1_cancer_counts.jpeg", 7, 8)
 <p align="center">
   <img src="figures/Fig1_1_cancer_counts.jpeg" alt="Patients per cancer type" width="60%">
 </p>
+
+
+
+
+
 
 
 **What to look for:** The dataset is very unbalanced. BRCA is among the
