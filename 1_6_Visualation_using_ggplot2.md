@@ -232,17 +232,40 @@ Run each example separately to see how it changes the data. Here, `clinical` is 
 ```r
 clinical_test <- clinical |>
   mutate(Gender = factor(Gender))
-
-str(clinical_test$Gender)
-levels(clinical_test$Gender)
 ```
 
-Try checking the categories before and after:
+This makes `Gender` a **factor**—R’s way of storing categorical data, such as `"Female"` and `"Male"`.
 
 ```r
-unique(clinical$Gender)
+str(clinical_test$Gender)
+```
+
+`str()` means *structure*. It shows how R stores the column and gives a quick preview. You might see output like:
+
+```r
+Factor w/ 2 levels "Female","Male": 2 1 1 2 ...
+```
+
+This tells you that `Gender` is a factor with two categories. The numbers represent each row’s category: `1` refers to `"Female"` and `2` refers to `"Male"`.
+
+```r
 levels(clinical_test$Gender)
 ```
+
+`levels()` lists the factor’s category labels:
+
+```r
+[1] "Female" "Male"
+```
+
+To compare the original values with the factor categories:
+
+```r
+unique(clinical$Gender)       # Values found in the original column
+levels(clinical_test$Gender)  # Categories recorded in the factor
+```
+
+`unique()` shows the distinct values in the original column. `levels()` shows the categories defined for the factor. These may appear in a different order because factors store their levels separately.
 
 #### Order the `Stage` categories
 
