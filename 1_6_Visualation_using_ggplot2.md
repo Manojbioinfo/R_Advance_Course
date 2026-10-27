@@ -467,7 +467,55 @@ cancer_counts |>
   mutate(Cancer_Type = reorder(Cancer_Type, n))
 ```
 
+```r
+# A tibble: 33 × 2
+#   Cancer_Type     n
+#   <fct>       <int>
+# 1 ACC            92
+# 2 BLCA          412
+# 3 BRCA         1097
+# 4 CESC          307
+# 5 CHOL           36
+# 6 COAD          458
+# 7 DLBC           48
+# 8 ESCA          185
+# 9 GBM           588
+# 10 HNSC         528
+# ℹ 23 more rows
+# ℹ Use `print(n = ...)` to see more rows
+```
+
+
 `reorder(Cancer_Type, n)` arranges the cancer-type categories according to their counts. This helps make the plot easier to read.
+
+
+
+
+
+
+
+
+
+**Note that,** the only difference is the **type of `Cancer_Type`**:
+
+- In `cancer_counts`, `Cancer_Type` is a **character** column (`<chr>`).
+- After `reorder(Cancer_Type, n)`, it becomes a **factor** column (`<fct>`).
+
+```r
+cancer_counts |>
+  mutate(Cancer_Type = reorder(Cancer_Type, n))
+```
+
+`reorder()` sets the factor levels in order of `n` (the patient count). The rows still appear in their original order in the printed tibble; `reorder()` changes the category order used in plots, not the row order.
+
+You can check the factor levels with:
+
+```r
+levels(reorder(cancer_counts$Cancer_Type, cancer_counts$n))
+```
+
+In your plot, that ordering lets `ggplot()` arrange the bars by patient count.
+
 
 #### Step 3: Create the bar plot
 
