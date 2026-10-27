@@ -524,7 +524,16 @@ p_cancer_counts <- cancer_counts |>
   ggplot(aes(x = reorder(Cancer_Type, n), y = n)) +
   geom_col(fill = "#0072B2") +
   coord_flip()
+
+p_cancer_counts
 ```
+
+<p align="center">
+  <img src="figures/example1.jpeg" alt="Patients per cancer type" width="60%">
+</p>
+
+
+
 
 - `ggplot(aes(...))` maps cancer type to the x-axis and the count (`n`) to the y-axis.
 - `geom_col()` draws bars using the counts already calculated.
@@ -546,6 +555,15 @@ p_cancer_counts
 ```
 
 `labs()` adds the plot title and axis labels. `theme_minimal()` applies a clean plot style.
+
+
+<p align="center">
+  <img src="figures/example2.jpeg" alt="Patients per cancer type" width="60%">
+</p>
+
+
+
+
 
 #### Step 5: Save the plot
 
