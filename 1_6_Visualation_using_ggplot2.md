@@ -147,6 +147,34 @@ table(clinical$Cancer_Type)
 The first command displays up to 10 patient IDs. The second shows how many rows belong to each cancer type.
 
 
+
+#### Standardizing `Gender` and `Race`
+
+```r
+Gender = str_to_title(gender),
+Race   = str_to_title(race),
+```
+
+`str_to_title()` capitalizes the first letter of each word, making values more consistent. For example, `"female"` becomes `"Female"` and `"asian"` becomes `"Asian"`. The original columns are renamed to `Gender` and `Race`.
+
+### 2. Grouping the tumor stages
+
+```r
+mutate(
+  Stage = case_when(
+    str_detect(Stage_raw, "Stage IV")  ~ "Stage IV",
+    str_detect(Stage_raw, "Stage III") ~ "Stage III",
+    str_detect(Stage_raw, "Stage II")  ~ "Stage II",
+    str_detect(Stage_raw, "Stage I")   ~ "Stage I",
+    TRUE ~ NA_character_
+  )
+)
+```
+
+`str_detect()` checks whether `Stage_raw` contains each stage label. `case_when()` assigns the matching, simplified stage to the new `Stage` column. The checks go from Stage IV down to Stage I so that `"Stage IV"` is matched before the broader `"Stage I"` pattern. Values that match none of the patterns become `NA`.
+
+
+
 ### Cleaning
 
 ```r
