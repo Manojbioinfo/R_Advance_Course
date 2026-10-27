@@ -93,6 +93,9 @@ censored, so it is not the same as time to death.
 
 
 ### Understanding the Code
+
+#### The native R pipe operator `|>` and the magrittr pipe `%>%`
+
 The native R pipe operator `|>` and the magrittr pipe `%>%` are often interchangeable in simple pipelines. Both pass the result from one step to the next, though they differ in some behaviors and syntax.
 
 This code creates a table called `clinical` from `raw`:
@@ -128,7 +131,7 @@ For consistency, use the same pipe operator throughout the pipeline.
 You can create a new column from an existing one using a formula, for example: `New_Column = Old_Column`.
 
 
-### Checking the New `clinical` Table
+##### Checking the New `clinical` Table
 
 Now you can use `head()` to view the first 10 patient IDs and `table()` to count the records for each cancer type:
 
@@ -151,16 +154,31 @@ The first command displays up to 10 patient IDs. The second shows how many rows 
 #### Standardizing `Gender` and `Race`
 
 ```r
-Gender = str_to_title(gender),
-Race   = str_to_title(race),
+clinical <- raw %>%
+  distinct(patient_id, .keep_all = TRUE) %>%
+  transmute(
+    Gender = str_to_title(gender),
+    Race   = str_to_title(race)
+  )
+
 ```
 
 `str_to_title()` capitalizes the first letter of each word, making values more consistent. For example, `"female"` becomes `"Female"` and `"asian"` becomes `"Asian"`. The original columns are renamed to `Gender` and `Race`.
 
-### 2. Grouping the tumor stages
+For instance, when we do 
+```r
+head(clinical$Gender,10)
+
+# [1] "Male"   "Female" "Female" "Female" "Male"   "Female" "Female" "Male"   "Female" "Female"
+```
+
+
+#### Grouping the tumor stages
 
 ```r
-mutate(
+clinical <- raw %>%
+  distinct(patient_id, .keep_all = TRUE) %>%
+  mutate(
   Stage = case_when(
     str_detect(Stage_raw, "Stage IV")  ~ "Stage IV",
     str_detect(Stage_raw, "Stage III") ~ "Stage III",
@@ -174,6 +192,36 @@ mutate(
 `str_detect()` checks whether `Stage_raw` contains each stage label. `case_when()` assigns the matching, simplified stage to the new `Stage` column. The checks go from Stage IV down to Stage I so that `"Stage IV"` is matched before the broader `"Stage I"` pattern. Values that match none of the patterns become `NA`.
 
 
+For instance, the example below:
+
+```r
+clinical <- raw %>%
+  distinct(patient_id, .keep_all = TRUE) %>%
+  transmute(
+    Patient_ID        = patient_id,
+    Cancer_Type       = cancer_type,
+    Age               = age_at_initial_pathologic_diagnosis,
+    Gender            = str_to_title(gender),
+    Race              = str_to_title(race),
+    Stage_raw         = ajcc_pathologic_tumor_stage,
+  ) |>
+  mutate(
+    Stage = case_when(
+      str_detect(Stage_raw, "Stage IV")  ~ "Stage IV",
+      str_detect(Stage_raw, "Stage III") ~ "Stage III",
+      str_detect(Stage_raw, "Stage II")  ~ "Stage II",
+      str_detect(Stage_raw, "Stage I")   ~ "Stage I",
+      TRUE ~ NA_character_
+    )
+  )
+
+
+```
+
+```r
+head(clinical$Stage,10)
+# [1] "Stage II"  "Stage IV"  "Stage III" "Stage IV"  "Stage III" "Stage II"  "Stage III" "Stage III" "Stage II"  "Stage IV" 
+```
 
 ### Cleaning
 
