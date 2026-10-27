@@ -423,8 +423,6 @@ save_fig <- function(plot, name, w = 7, h = 5) {
 **Hint:** Count first, then plot with `geom_col()`. Use `reorder()` to sort
 and `coord_flip()` for readable labels.
 
-### Q1. How many patients are in each cancer type?
-
 We’ll break the code into small steps. Run each step and inspect its output before moving on.
 
 #### Step 1: Count patients in each cancer type
@@ -435,6 +433,27 @@ cancer_counts <- clinical |>
 
 cancer_counts
 ```
+
+
+```r
+# A tibble: 33 × 2
+#   Cancer_Type     n
+#   <chr>       <int>
+# 1 ACC            92
+# 2 BLCA          412
+# 3 BRCA         1097
+# 4 CESC          307
+# 5 CHOL           36
+# 6 COAD          458
+# 7 DLBC           48
+# 8 ESCA          185
+# 9 GBM           588
+# 10 HNSC         528
+# ℹ 23 more rows
+# ℹ Use `print(n = ...)` to see more rows
+```
+
+
 
 - `clinical` is the patient table.
 - `count(Cancer_Type)` counts the rows for each cancer type.
