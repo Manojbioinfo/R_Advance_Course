@@ -578,12 +578,16 @@ boxplot(Age ~ Pathologic_stage, data = Data,
         main = "Age by Pathologic Stage",
         las  = 2)
 ```
-Could you try to plot, so that the label on x axis are rotated to 90 degree and all labels are visible
+
 
 
 **🖥️ Output:**
 
 <img src="images/LUAD_Pic7.jpg" alt="Boxplot of age by stage" width="60%">
+
+```r
+Could you adjust the plot by rotating the pathological stage labels on the x-axis to 90 degrees to ensure that all labels are clearly visible?
+```
 
 ### 11.2 Age by race
 
