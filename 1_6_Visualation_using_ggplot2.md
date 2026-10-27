@@ -91,6 +91,62 @@ tibble [12,591 × 45] (S3: tbl_df/tbl/data.frame)
 `OS_months` is **follow-up time**. For patients who are still alive it is
 censored, so it is not the same as time to death.
 
+
+### Understanding the Code
+The native R pipe operator `|>` and the magrittr pipe `%>%` are often interchangeable in simple pipelines. Both pass the result from one step to the next, though they differ in some behaviors and syntax.
+
+This code creates a table called `clinical` from `raw`:
+
+```r
+clinical <- raw |>
+  distinct(patient_id, .keep_all = TRUE) |>
+  transmute(
+    Patient_ID  = patient_id,
+    Cancer_Type = cancer_type,
+    Age         = age_at_initial_pathologic_diagnosis
+  )
+```
+
+You can also write it using `%>%`:
+
+```r
+clinical <- raw %>%
+  distinct(patient_id, .keep_all = TRUE) %>%
+  transmute(
+    Patient_ID  = patient_id,
+    Cancer_Type = cancer_type,
+    Age         = age_at_initial_pathologic_diagnosis
+  )
+```
+
+For consistency, use the same pipe operator throughout the pipeline.
+
+- `distinct()` keeps one row per patient.
+- `transmute()` selects and renames columns.
+- `<-` saves the result as `clinical`.
+
+You can create a new column from an existing one using a formula, for example: `New_Column = Old_Column`.
+
+
+### Checking the New `clinical` Table
+
+Now you can use `head()` to view the first 10 patient IDs and `table()` to count the records for each cancer type:
+
+```r
+head(clinical$Patient_ID, 10)
+
+#[1] "TCGA-OR-A5J1" "TCGA-OR-A5J2" "TCGA-OR-A5J3" "TCGA-OR-A5J4" "TCGA-OR-A5J5" "TCGA-OR-A5J6" "TCGA-OR-A5J7" "TCGA-OR-A5J8" "TCGA-OR-A5J9" "TCGA-OR-A5JA"
+
+table(clinical$Cancer_Type)
+
+
+# ACC BLCA BRCA CESC CHOL COAD DLBC ESCA  GBM HNSC KICH KIRC KIRP LAML  LGG LIHC LUAD LUSC MESO   OV PAAD PCPG PRAD READ SARC SKCM STAD TGCT THCA THYM UCEC  UCS  UVM 
+#  92  412 1097  307   36  458   48  185  588  528   66  536  291  200  515  377  519  504   87  584  185  179  498  166  261  470  443  134  507  124  547   57   80 
+```
+
+The first command displays up to 10 patient IDs. The second shows how many rows belong to each cancer type.
+
+
 ### Cleaning
 
 ```r
