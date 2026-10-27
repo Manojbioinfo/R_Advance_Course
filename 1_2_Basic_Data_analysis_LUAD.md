@@ -578,6 +578,8 @@ boxplot(Age ~ Pathologic_stage, data = Data,
         main = "Age by Pathologic Stage",
         las  = 2)
 ```
+Could you try to plot, so that the label on x axis are rotated to 90 degree and all labels are visible
+
 
 **🖥️ Output:**
 
