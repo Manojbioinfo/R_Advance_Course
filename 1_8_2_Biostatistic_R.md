@@ -363,6 +363,10 @@ which suggests a mild left skew.
 ```r
 # Gender
 table(clin $ Gender, useNA = "ifany")
+
+```
+
+```r
 #
 # FEMALE   MALE
 #   5017   4655
@@ -374,6 +378,10 @@ table(clin $ Gender, useNA = "ifany")
 ```r
 # Race
 table(clin $ Race, useNA = "ifany")
+
+```
+
+```r
 #
 #                          [Not Evaluated]                                 [Unknown]          AMERICAN INDIAN OR ALASKA NATIVE                                     ASIAN 
 #                                      148                                       127                                        25                                       642 
@@ -390,6 +398,10 @@ table(clin $ Race, useNA = "ifany")
 ```r
 # Vital status
 table(clin$Vital, useNA = "ifany")
+
+```
+
+```r
 #
 # [Discrepancy]         Alive          Dead          <NA>
 #             1          6960          2710             1
