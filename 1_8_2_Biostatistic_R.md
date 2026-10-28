@@ -249,12 +249,23 @@ the observations are independent.
 
 ```r
 table(clin$Stage, useNA = "ifany")
+
+#[Discrepancy]     [Unknown]      I/II NOS            IS       Stage I      Stage IA      Stage IB      Stage II     Stage IIA     Stage IIB     Stage IIC     Stage III    Stage IIIA    Stage IIIB 
+#           52             5             1            46          1209           362           367           590           780           676            52           651           484           240 
+#   Stage IIIC      Stage IV     Stage IVA     Stage IVB     Stage IVC       Stage X          <NA> 
+#          190           445           331            19             7            13          3152 
 ```
 
 **What to look for:** many sub-stages (IA, IB, IIA, IIIC and so on), a few
 odd labels (`[Discrepancy]`, `[Unknown]`) and 3,152 missing values.
 
 *Fix applied:* from Q15 onward we keep only Stage I, II, III and IV.
+
+
+try with 
+```r
+table(clin$Stage, useNA = "ifany")
+```
 
 > **Note:** **Tiny categories break tests.** Merging or dropping sparse
 > labels is a decision you must report. Pitfall: leaving `[Unknown]` in as
