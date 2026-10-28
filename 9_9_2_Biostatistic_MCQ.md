@@ -1,15 +1,5 @@
-# Biostatistics with TCGA Clinical Data: 30 Questions, R Tutorial, and Reproducible Script
+# Biostatistics Quiz Basic
 
-> **Scope and data assumptions.** This tutorial preserves the original 30 questions and adapts examples to the available schema: `raw` (reported as 9,672 rows × 51 columns), patient/sample identifiers, age, gender, race, stage, vital status, OS/OS.time and six gene fields (BIRC5, CDKN2A, KRAS, MSLN, SMAD4, TP53), among others. Actual files are not supplied here. The script accepts an existing R object `raw`, otherwise reads `Data/TCGA_pancancer_clinical.rds` (default), or a CSV fallback. CA 19-9, tumor size, smoking, treatment, and paired measurements are **not assumed**. No patient data, counts, p-values or findings are fabricated.
-
-> **How to use.** Save `tutorial_30_questions.R` beside this Markdown file and run from the project directory. It creates `results/` and `figures2/`; table/text and figure names below match its outputs. Use the collapsible hint, code, and output panels to self-test before revealing answers. Relative image links are to `figures2/` and appear inside clickable output panels.
-
-## Getting started
-
-1. Open the script and check the configured input path (`TCGA_RDS_PATH` or `TCGA_CSV_PATH`) and current directory. If your R session already has `raw`, it is used first. The source data are read-only from this script; generated files go to `results/` and `figures2/`.
-2. Install only needed packages once: `install.packages("ggplot2")` for charts; `install.packages("survival")` for Q29; optionally `install.packages("agricolae")` for Duncan. Base R performs many tables and tests. Missing optional packages do not prevent non-plot analyses.
-3. Run `source("tutorial_30_questions.R")` or `Rscript tutorial_30_questions.R`. Confirm the printed row/column count and actual names. The reported shape is context, not a promise that your local copy is identical.
-4. Inspect the source data dictionary for units, record unit, stage coding, gene transformations, survival event/time definitions, and privacy requirements before interpreting results.
 
 ### Learning objectives
 
