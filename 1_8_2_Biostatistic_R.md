@@ -243,33 +243,90 @@ the observations are independent.
 > patient had two samples, they would be counted twice. Pitfall: ignoring
 > repeated samples from the same person.
 
+
 ### Q5. How many patients are in each stage category?
 
-> **Hint:** `table()` with `useNA = "ifany"` also counts missing values.
+> **Hint:** `table()` hides missing values by default. Add `useNA = "ifany"`
+> to count them too, and compare the two calls.
 
 ```r
-table(clin$Stage, useNA = "ifany")
+# Version A: default, missing values are silently dropped
+table(clin $ Stage)
 
+```
+**Output (Version A):**
+
+```
 #[Discrepancy]     [Unknown]      I/II NOS            IS       Stage I      Stage IA      Stage IB      Stage II     Stage IIA     Stage IIB     Stage IIC     Stage III    Stage IIIA    Stage IIIB 
 #           52             5             1            46          1209           362           367           590           780           676            52           651           484           240 
-#   Stage IIIC      Stage IV     Stage IVA     Stage IVB     Stage IVC       Stage X          <NA> 
-#          190           445           331            19             7            13          3152 
+#   Stage IIIC      Stage IV     Stage IVA     Stage IVB     Stage IVC       Stage X 
+#          190           445           331            19             7            13 
 ```
 
-**What to look for:** many sub-stages (IA, IB, IIA, IIIC and so on), a few
-odd labels (`[Discrepancy]`, `[Unknown]`) and 3,152 missing values.
-
-*Fix applied:* from Q15 onward we keep only Stage I, II, III and IV.
 
 
-try with 
 ```r
-table(clin$Stage, useNA = "ifany")
+
+# Version B: missing values are counted
+table(clin $ Stage, useNA = "ifany")
 ```
 
-> **Note:** **Tiny categories break tests.** Merging or dropping sparse
-> labels is a decision you must report. Pitfall: leaving `[Unknown]` in as
-> if it were a real stage.
+
+
+**Output (Version B):**
+
+```
+#[Discrepancy]     [Unknown]      I/II NOS            IS       Stage I      Stage IA      Stage IB
+#           52             5             1            46          1209           362           367
+#     Stage II     Stage IIA     Stage IIB     Stage IIC     Stage III    Stage IIIA    Stage IIIB
+#          590           780           676            52           651           484           240
+#   Stage IIIC      Stage IV     Stage IVA     Stage IVB     Stage IVC       Stage X          <NA>
+#          190           445           331            19             7            13          3152
+```
+
+**Comparing the two calls**
+
+| | Version A: `table(clin$Stage)` | Version B: `useNA = "ifany"` |
+|---|---|---|
+| Stage categories shown | 24 | 24 |
+| `<NA>` column | absent | **3,152** |
+| Patients counted | 6,520 | 9,672 (the full cohort) |
+| Risk | You may think 6,520 is your sample size | Totals match `nrow(clin)` |
+
+The category counts are identical. The only difference is the `<NA>`
+column, which holds 3,152 patients (about 33 percent of the cohort).
+
+**What to look for:**
+
+- **Sub-stages:** IA, IB, IIA, IIB, IIC, IIIA, IIIB, IIIC, IVA, IVB and IVC
+  all belong to a main stage.
+- **Odd labels:** `[Discrepancy]`, `[Unknown]`, `I/II NOS`, `IS` and
+  `Stage X` are not usable stages.
+- **Missing values:** 3,152 patients have no stage at all.
+
+**Quick check:**
+
+```r
+nrow(clin)                       # 9672
+sum(table(clin $ Stage))           # 6520, NA dropped
+sum(table(clin $ Stage, useNA = "ifany"))   # 9672, matches nrow
+```
+
+> **Fix applied:** from Q15 onward we keep only Stage I, II, III and IV
+> (2,888 patients with age available).
+>
+> **Note: tiny categories break tests.**
+> Sparse labels such as `[Unknown]` (n = 5) or `I/II NOS` (n = 1) give
+> unstable estimates and expected counts below 5.
+>
+> | Option | When to use it |
+> |---|---|
+> | Drop the label | It is not a real stage (`[Unknown]`, `[Discrepancy]`) |
+> | Merge into a main stage | Sub-stages (IA and IB into Stage I) |
+> | Report separately | The group is clinically meaningful |
+>
+> **Pitfall:** leaving `[Unknown]` in as if it were a real stage. **Always
+> report which labels you dropped or merged.**
 
 ---
 
