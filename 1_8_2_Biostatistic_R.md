@@ -475,8 +475,8 @@ clin %>% summarise(mean_TP53 = mean(TP53, na.rm = TRUE),
                    median_TP53 = median(TP53, na.rm = TRUE))
 ```
 ```
-  mean_TP53 median_TP53
-1     10.34       10.44
+#  mean_TP53 median_TP53
+# 1     10.34       10.44
 ```
 
 **What to look for:** mean and median are close, so the distribution is
