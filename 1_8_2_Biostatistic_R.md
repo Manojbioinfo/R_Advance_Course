@@ -1122,11 +1122,4 @@ You inspected the data before analysis, chose methods based on outcome type and 
 - Assuming survival event coding, follow-up units or stage comparability without checking documentation.
 - Treating simulated examples as real patient evidence or interpreting observational associations causally.
 
-## License
-
-This tutorial text and original code are offered under the MIT License. The dataset retains its own source license and privacy conditions; this statement does not alter them.
-
----
-
-*Demonstration-output note: bundled figures were created from a seeded simulated dataset in this sandbox. The real user RDS was not mounted. Generated mock values and plots are for code illustration only; regenerate everything with the actual dataset before use.*
 
