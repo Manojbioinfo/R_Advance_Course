@@ -342,8 +342,8 @@ clin %>% summarise(mean_age = mean(Age, na.rm = TRUE),
                    sd_age = sd(Age, na.rm = TRUE))
 ```
 ```
-  mean_age median_age   sd_age
-1    59.29         61    14.33
+#  mean_age median_age   sd_age
+#1    59.29         61    14.33
 ```
 
 **What to look for:** the median (61) is slightly above the mean (59.3),
@@ -357,24 +357,61 @@ which suggests a mild left skew.
 
 ### Q7. How are patients distributed by gender, race and vital status?
 
-> **Hint:** one `table()` per column.
+> **Hint:** one `table()` per column. Use `useNA = "ifany"` so missing
+> values are visible.
 
 ```r
+# Gender
 table(clin $ Gender, useNA = "ifany")
-table(clin $ Race, useNA = "ifany")
-table(clin$Vital, useNA = "ifany")
+#
+# FEMALE   MALE
+#   5017   4655
+#
+# Answer: balanced cohort. 5,017 female (51.9%) and 4,655 male (48.1%),
+# no missing values, so gender comparisons are well powered.
 ```
 
-**What to look for:** 5,017 female and 4,655 male. White patients dominate
-(6,901 of 9,672). 6,960 are alive and 2,710 are dead.
+```r
+# Race
+table(clin $ Race, useNA = "ifany")
+#
+#                          [Not Evaluated]                                 [Unknown]          AMERICAN INDIAN OR ALASKA NATIVE                                     ASIAN 
+#                                      148                                       127                                        25                                       642 
+#                BLACK OR AFRICAN AMERICAN NATIVE HAWAIIAN OR OTHER PACIFIC ISLANDER                                     WHITE                                      <NA> 
+#                                      852                                        13          
+#
+# Answer: strongly imbalanced. White = 6,901 of 9,672 (71.4%), Black = 852
+# (8.8%), Asian = 642 (6.6%). American Indian (25) and Pacific Islander (13)
+# are tiny. 964 missing + 275 uninformative labels = about 13% of patients
+# with no usable race.
 
-*Fix applied:* one `[Discrepancy]` and two missing vital status values are
-excluded later.
+```
 
-> **Note:** **TCGA is not a population sample.** Race is heavily
-> imbalanced, so subgroup results for small groups are unreliable.
-> Pitfall: comparing 13 Pacific Islander patients with 6,901 White patients
-> as if the groups were equally informative.
+```r
+# Vital status
+table(clin$Vital, useNA = "ifany")
+#
+# [Discrepancy]         Alive          Dead          <NA>
+#             1          6960          2710             1
+#
+# Answer: 6,960 alive (72.0%) and 2,710 dead (28.0%). One [Discrepancy] and
+# one NA are excluded later. 28% events is enough for survival analysis
+# (Q29 and Q30).
+```
+
+**What to look for:** gender is nearly equal, race has one dominant group
+and several tiny groups, and vital status has two invalid entries to remove
+before any test.
+
+> **Fix applied:** Section 3 keeps only `Alive` and `Dead`
+> (`filter(Vital %in% c("Alive", "Dead"))`).
+>
+> **Note: TCGA is not a population sample.** Race is heavily imbalanced,
+> so subgroup results for small groups are unreliable.
+>
+> **Pitfall:** comparing 13 Pacific Islander patients with 6,901 White
+> patients as if the groups were equally informative. Report group sizes
+> next to every result, or merge or drop very small groups and say so.
 
 ### Q8. What does the age distribution look like?
 
