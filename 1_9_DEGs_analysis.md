@@ -30,11 +30,6 @@ project-folder/
 7.  [Differential expression results](#7-differential-expression-results)
 8.  [Volcano plot](#8-volcano-plot)
 9.  [Heatmap of top genes](#9-heatmap-of-top-genes)
-10. [Optional significant-gene table](#10-optional-significant-gene-table)
-11. [How to read the results table](#how-to-read-the-results-table)
-12. [Important caveats](#important-caveats)
-13. [Troubleshooting](#troubleshooting)
-14. [Summary checklist](#summary-checklist)
 ------------------------------------------------------------------------
 
 ## 1. Prerequisites and setup
