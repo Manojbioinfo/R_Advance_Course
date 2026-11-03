@@ -440,29 +440,32 @@ ggsave("figures/step5_pca.png", p_pca, width = 7, height = 5, dpi = 300)
 
 ### Purpose
 
-Extract the Tumor-versus-Normal contrast from the fitted model, sort genes by adjusted p-value, save the full table, and print DESeq2's summary.
+Extract the Tumor-versus-Normal contrast from the fitted DESeq2 model, convert it to a table, sort genes by adjusted p-value, save the full table, and print DESeq2's summary of how many genes pass the default significance threshold.
 
 ### Code
 
 ```r
 res <- results(dds, contrast = c("group", "Tumor", "Normal"))
-res_df <- as.data.frame(res) %>%
+res_df <- as.data.frame(res)
+head(res_df)
+```
+
+```text
+        baseMean log2FoldChange      lfcSE       stat      pvalue       padj
+TSPAN6 11.964987     0.02530776 0.06721636  0.3765118 0.706536411 0.93081338
+DPM1   10.506238     0.09462110 0.07311741  1.2940981 0.195631523 0.58499681
+SCYL3   8.719237    -0.07493614 0.07645227 -0.9801689 0.327002763 0.73749338
+FGR     7.443468    -0.08652676 0.08253412 -1.0483757 0.294465552 0.70502913
+CFH     9.104272    -0.24061661 0.07143506 -3.3683268 0.000756259 0.00898599
+FUCA2  11.019138     0.03525766 0.07024715  0.5019088 0.615731671 0.90726700
+```
+
+```r
+res_df <- res_df %>%
   rownames_to_column("gene") %>%
   arrange(padj)
 head(res_df)
-write_csv(res_df, "Results/DESeq2_CRC_Tumor_vs_Normal.csv", na = "")
-print(summary(res))
 ```
-
-### Line-by-line
-
-- `results(..., contrast = c("group", "Tumor", "Normal"))` computes Tumor relative to Normal, so a positive log2 fold change means higher in Tumor.
-- `as.data.frame()` converts the result object to a table, `rownames_to_column("gene")` turns the gene names into a column, and `arrange(padj)` sorts from smallest adjusted p-value.
-- `head(res_df)` shows the top six genes.
-- `write_csv()` saves the full table; `na = ""` writes missing values as blank cells.
-- `summary(res)` counts genes passing padj < 0.1 and reports outlier and low-count categories.
-
-### Actual output obtained
 
 ```text
    gene baseMean log2FoldChange      lfcSE      stat       pvalue         padj
@@ -474,6 +477,11 @@ print(summary(res))
 6 SFRP1 5.177039      -1.138089 0.07850834 -14.49641 1.276565e-47 1.967551e-44
 ```
 
+```r
+write_csv(res_df, "Results/DESeq2_CRC_Tumor_vs_Normal.csv", na = "")
+print(summary(res))
+```
+
 ```text
 out of 10789 with nonzero total read count
 adjusted p-value < 0.1
@@ -482,15 +490,39 @@ LFC < 0 (down)     : 1004, 9.3%
 outliers [1]       : 0, 0%
 low counts [2]     : 0, 0%
 (mean count < 4)
+[1] see 'cooksCutoff' argument of ?results
+[2] see 'independentFiltering' argument of ?results
+
+NULL
 ```
 
-### How to interpret it
+### Line-by-line
 
-- Of 10,789 tested genes, 496 (4.6%) are higher in Tumor and 1,004 (9.3%) are lower in Tumor at padj < 0.1. The summary does not apply a fold-change cutoff.
-- In the top rows, all log2FoldChange values are negative, meaning these genes are lower in Tumor than Normal. For example, CA7 has log2FC = -1.37, roughly a 2.6-fold decrease.
-- `padj` values like 6.4e-72 indicate very strong statistical evidence. With 41 Normal and 471 Tumor samples, even small differences can reach very small p-values, so look at effect size (`log2FoldChange`) as well as `padj`.
-- Because the input was rounded from log2(count + 1) values, fold changes are compressed and p-values should be treated as approximate.
+- `results(dds, contrast = c("group", "Tumor", "Normal"))` extracts the comparison with Tumor as the numerator and Normal as the reference, so a positive log2 fold change means higher in Tumor.
+- `as.data.frame(res)` converts the DESeq2 result object into an ordinary table. The gene names are still stored as row names, so the first `head()` shows genes like TSPAN6 and DPM1 in their original matrix order.
+- `rownames_to_column("gene")` moves the gene names into a column named `gene`.
+- `arrange(padj)` sorts the table from the smallest adjusted p-value to the largest, with missing values last. The second `head()` therefore shows the six most significant genes.
+- `write_csv(..., na = "")` saves the complete sorted table to `Results/DESeq2_CRC_Tumor_vs_Normal.csv` and writes missing values as blank cells.
+- `print(summary(res))` prints DESeq2's summary. The trailing `NULL` appears because `summary()` prints its report itself and then returns nothing, so wrapping it in `print()` prints that empty return value. Using `summary(res)` alone avoids the `NULL`.
 
+### Output columns
+
+| Column | Meaning |
+|---|---|
+| `baseMean` | Mean of normalized values across all samples (an abundance summary, not specific to one group). |
+| `log2FoldChange` | Estimated log2 ratio of Tumor to Normal. Positive means higher in Tumor, negative means lower in Tumor. |
+| `lfcSE` | Standard error of the log2 fold change. |
+| `stat` | Wald test statistic (log2 fold change divided by its standard error). |
+| `pvalue` | Unadjusted p-value for the test of no difference between groups. |
+| `padj` | P-value adjusted for testing many genes (Benjamini-Hochberg false discovery rate). |
+
+### How to interpret the output
+
+- **Unsorted table (first `head()`):** the first rows are simply the first genes in the matrix. TSPAN6, DPM1, SCYL3, FGR, and FUCA2 have `padj` between 0.58 and 0.93 and fold changes close to 0, so they show no evidence of a difference. CFH (`padj` = 0.009, log2FC = -0.24) is statistically significant but has a small effect.
+- **Sorted table (second `head()`):** the six most significant genes are CA7, BEST4, CD177, BMP3, ABCA8, and SFRP1. All have negative log2 fold changes between about -1.14 and -1.37, meaning they are lower in Tumor than in Normal. For example, CA7 has log2FC = -1.37, which is roughly a 2.6-fold decrease in Tumor.
+- **Very small p-values:** `padj` values such as 6.4e-72 indicate extremely strong statistical evidence. With 41 Normal and 471 Tumor samples, even modest differences can reach very small p-values, so judge genes by effect size (`log2FoldChange`) as well as `padj`.
+- **Summary counts:** out of 10,789 tested genes, 496 (4.6%) are higher in Tumor and 1,004 (9.3%) are lower in Tumor at `padj` < 0.1. This summary uses only the adjusted p-value cutoff and does not require a minimum fold change.
+- **Outliers and low counts:** both are 0, meaning no genes were flagged as count outliers and none were removed by independent filtering. The note `(mean count < 4)` gives the mean-count threshold below which independent filtering would apply.
 ---
 
 ## 7. Volcano plot
