@@ -529,7 +529,7 @@ NULL
 
 ### Purpose
 
-Show effect size and significance for every tested gene in one plot.
+Show effect size and statistical significance for every tested gene in one plot. Genes are colored by whether they pass both the adjusted p-value cutoff (padj < 0.05) and the fold-change cutoff (|log2FC| >= 1).
 
 ### Code
 
@@ -543,10 +543,38 @@ volcano_df <- res_df %>%
       TRUE ~ "Other"
     )
   )
+head(volcano_df)
+```
+
+```text
+   gene baseMean log2FoldChange      lfcSE      stat       pvalue         padj    plot_padj        status
+1   CA7 4.965120      -1.368112 0.07418029 -18.44307 5.928164e-76 6.395896e-72 6.395896e-72 Down in Tumor
+2 BEST4 5.318164      -1.216623 0.07360366 -16.52939 2.254246e-61 1.216053e-57 1.216053e-57 Down in Tumor
+3 CD177 6.597397      -1.137781 0.06926785 -16.42582 1.249780e-60 4.494626e-57 4.494626e-57 Down in Tumor
+4  BMP3 4.715216      -1.370938 0.08917879 -15.37291 2.487286e-53 6.708832e-50 6.708832e-50 Down in Tumor
+5 ABCA8 4.972736      -1.174565 0.07787582 -15.08253 2.110123e-51 4.553223e-48 4.553223e-48 Down in Tumor
+6 SFRP1 5.177039      -1.138089 0.07850834 -14.49641 1.276565e-47 1.967551e-44 1.967551e-44 Down in Tumor
+```
+
+```r
 label_df <- volcano_df %>%
   filter(!is.na(padj), is.finite(log2FoldChange)) %>%
   arrange(padj) %>%
   slice_head(n = 10)
+head(label_df)
+```
+
+```text
+   gene baseMean log2FoldChange      lfcSE      stat       pvalue         padj    plot_padj        status
+1   CA7 4.965120      -1.368112 0.07418029 -18.44307 5.928164e-76 6.395896e-72 6.395896e-72 Down in Tumor
+2 BEST4 5.318164      -1.216623 0.07360366 -16.52939 2.254246e-61 1.216053e-57 1.216053e-57 Down in Tumor
+3 CD177 6.597397      -1.137781 0.06926785 -16.42582 1.249780e-60 4.494626e-57 4.494626e-57 Down in Tumor
+4  BMP3 4.715216      -1.370938 0.08917879 -15.37291 2.487286e-53 6.708832e-50 6.708832e-50 Down in Tumor
+5 ABCA8 4.972736      -1.174565 0.07787582 -15.08253 2.110123e-51 4.553223e-48 4.553223e-48 Down in Tumor
+6 SFRP1 5.177039      -1.138089 0.07850834 -14.49641 1.276565e-47 1.967551e-44 1.967551e-44 Down in Tumor
+```
+
+```r
 p_volcano <- ggplot(volcano_df, aes(log2FoldChange, -log10(plot_padj), color = status)) +
   geom_point(alpha = 0.7, size = 1.2) +
   scale_color_manual(values = c(
@@ -565,12 +593,18 @@ ggsave("figures/step7_volcano.png", p_volcano, width = 7, height = 5, dpi = 300)
 
 ### Line-by-line
 
-- `plot_padj` replaces missing adjusted p-values with 1 and prevents zero values, so `-log10()` never returns `Inf`.
-- `case_when()` labels a gene **Up in Tumor** if padj < 0.05 and log2FC >= 1, **Down in Tumor** if padj < 0.05 and log2FC <= -1, and **Other** otherwise.
-- `label_df` picks the 10 genes with the smallest padj for labeling.
-- The x-axis is log2 fold change and the y-axis is -log10 adjusted p-value, so higher points are more significant.
-- Dashed lines mark padj = 0.05 and log2FC = -1 and +1.
-- `check_overlap = TRUE` hides labels that would overlap.
+- `plot_padj` replaces missing adjusted p-values with 1 and replaces zeros with the smallest positive number R can store, so `-log10()` never returns `Inf`.
+- `case_when()` assigns each gene to a category:
+  - **Up in Tumor**: padj < 0.05 and log2FC >= 1.
+  - **Down in Tumor**: padj < 0.05 and log2FC <= -1.
+  - **Other**: everything else, including significant genes with a small fold change.
+- `head(volcano_df)` shows the new `plot_padj` and `status` columns. All six top genes are classified **Down in Tumor** because each has padj far below 0.05 and a log2FC below -1.
+- `label_df` keeps the 10 genes with the smallest padj, which are the ones that get text labels. `head(label_df)` matches the top of `volcano_df` because both are sorted by padj.
+- In `ggplot()`, the x-axis is log2 fold change and the y-axis is -log10 adjusted p-value, so higher points are more significant.
+- `scale_color_manual()` sets grey for Other, red for Up in Tumor, and blue for Down in Tumor.
+- The horizontal dashed line marks padj = 0.05, and the vertical dashed lines mark log2FC = -1 and +1.
+- `geom_text(..., check_overlap = TRUE)` labels the top 10 genes and hides labels that would overlap.
+- `ggsave()` saves the plot as a 300-dpi PNG.
 
 ### Volcano plot
 
@@ -578,11 +612,11 @@ ggsave("figures/step7_volcano.png", p_volcano, width = 7, height = 5, dpi = 300)
 
 ### How to interpret it
 
-- Red points (right) are significantly higher in Tumor, and blue points (left) are significantly lower in Tumor. Grey points do not meet both cutoffs.
-- The plot has two wings, one up and one down, with high points near the top being the most significant genes.
-- Labeled genes in this image (CDH3, KRT80, ETV4, FOXQ1, SIM2, CLDN1, AJUBA) have both large positive fold changes and very high significance.
-- The cutoffs are descriptive. A gene with a tiny p-value but log2FC near 0 is statistically clear but has a small effect.
-
+- Each point is one gene. Points on the right are higher in Tumor, points on the left are lower in Tumor, and points higher up are more significant.
+- Red points pass both cutoffs and are higher in Tumor. Blue points pass both cutoffs and are lower in Tumor. Grey points fail at least one cutoff.
+- The labeled genes are the 10 smallest padj values. In your console output the top genes (CA7, BEST4, CD177, BMP3, ABCA8, SFRP1) are all blue, meaning strongly lower in Tumor, with log2FC between about -1.14 and -1.37.
+- Genes in the grey region between the vertical dashed lines may still be statistically significant, but their fold change is under 2-fold.
+- The cutoffs are descriptive choices, not proof of biological importance. A gene with a tiny p-value but a log2FC near 0 is statistically clear but has a small effect.
 ---
 
 ## 8. Heatmap of top genes
