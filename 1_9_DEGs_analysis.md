@@ -382,54 +382,15 @@ fitting model and testing
 - The values were rounded from log2(count + 1) rather than being raw counts, so dispersion and p-values should be interpreted as approximate and for teaching purposes only.
 - If your own `DESeq()` log also shows a line such as `-- replacing outliers and refitting for N genes`, that is DESeq2's built-in handling of extreme counts for eligible genes (groups with at least 7 replicates). It does not mean those genes are significant.
 
-## 6. Extract, summarize, and save results
+## 5. PCA using variance-stabilized expression
 
 ### Purpose
 
-Request the explicit Tumor-versus-Normal contrast, order the gene table by adjusted p-value, save the complete results, and print DESeq2's standard summary of significance and filtering.
+Before looking at differential expression, check whether samples separate by group at a global level. The variance-stabilizing transformation (VST) removes the dependence of variance on mean expression, making the data suitable for PCA. PCA is exploratory; it is not the differential-expression test.
 
 ### Code
 
-``` r
-res <- results(dds, contrast = c("group", "Tumor", "Normal"))
-res_df <- as.data.frame(res) %>%
-  rownames_to_column("gene") %>%
-  arrange(padj)
-write_csv(res_df, "Results/DESeq2_CRC_Tumor_vs_Normal.csv", na = "")
-print(summary(res))
-```
-
-### Line-by-line
-
--   `results(..., contrast = c("group", "Tumor", "Normal"))` computes the requested comparison with Tumor as the numerator and Normal as the reference.
--   `as.data.frame()` converts the DESeq2 result object to a data frame; `rownames_to_column("gene")` preserves gene identifiers as a named column; `arrange(padj)` sorts from the smallest adjusted p-value upward, with missing values at the end.
--   `write_csv()` writes the complete result table to `Results/DESeq2_CRC_Tumor_vs_Normal.csv`; `na = ""` exports missing values as blank cells.
--   `summary(res)` reports counts passing a default adjusted-p-value threshold of 0.1 and other diagnostic categories. This threshold is the summary default; it is not the volcano plot's stricter display rule.
-
-### Actual `summary(res)` output obtained
-
-``` text
-out of 24175 with nonzero total read count
-adjusted p-value < 0.1
-LFC > 0 (up)       : 11314, 47%
-LFC < 0 (down)     : 7590, 31%
-outliers [1]       : 0, 0%
-low counts [2]     : 0, 0%
-```
-
-`[1]` indicates genes flagged as outliers in the summary; `[2]` indicates genes not tested because the mean normalized count was below 2. These summary counts use padj \< 0.1 and do not also require an absolute fold change of at least 1.
-
-------------------------------------------------------------------------
-
-## 7. PCA using variance-stabilized expression
-
-### Purpose
-
-Visualize sample-level similarity after variance stabilization. The variance-stabilizing transformation (VST) reduces the dependence of variability on mean abundance, making the data more suitable for PCA visualization. The plotted 500 most variable genes summarize broad sample patterns; PCA is not the differential-expression test.
-
-### Code
-
-``` r
+```r
 vsd <- vst(dds, blind = TRUE)
 pca_df <- plotPCA(vsd, intgroup = "group", ntop = 500, returnData = TRUE)
 percent_var <- round(100 * attr(pca_df, "percentVar"))
@@ -442,40 +403,97 @@ p_pca <- ggplot(pca_df, aes(PC1, PC2, color = group)) +
     color = "Group"
   ) +
   theme_classic()
-ggsave("figures/step7_pca.png", p_pca, width = 7, height = 5, dpi = 300)
+ggsave("figures/step5_pca.png", p_pca, width = 7, height = 5, dpi = 300)
 ```
 
 ### Line-by-line
 
--   `vst(dds, blind = TRUE)` computes a VST that does not use the group design to choose the transformation; this is useful for an exploratory, group-unbiased view.
--   `plotPCA(..., intgroup = "group")` calculates principal components using the group label for coloring. `ntop = 500` uses up to the 500 most variable genes, and `returnData = TRUE` returns plotting coordinates and variance information.
--   `percentVar` reports the fraction of variation explained by each displayed component, converted to percentages and rounded.
--   `ggplot()` maps PC1 and PC2 to axes and group to color; `geom_point()` draws one dot per sample. Axis labels include explained variance.
--   `ggsave()` writes a 7 × 5 inch PNG at 300 dpi to the requested lowercase folder.
-
-### Actual output
-
-The script creates `figures/step7_pca.png` after a successful run. No PCA coordinates or variance percentages are specified here because they were not provided as captured console output.
+- `vst(dds, blind = TRUE)` applies the VST without using the group labels, so the view is not biased toward the design.
+- `plotPCA(..., ntop = 500, returnData = TRUE)` runs PCA on the 500 most variable genes and returns the coordinates and variance explained instead of drawing the plot.
+- `percentVar` is converted to rounded percentages for the axis labels.
+- `ggplot()` plots PC1 against PC2 with one point per sample, colored by group.
+- `ggsave()` writes a 7 x 5 inch PNG at 300 dpi.
 
 ### PCA plot
 
-![PCA of variance-stabilized TCGA-COAD samples](figures/step7_pca.png)
+![PCA of variance-stabilized TCGA-COAD samples](figures/step5_pca.png)
 
 ### How to interpret it
 
-Each point is one sample. Points close together have more similar profiles across the genes used for PCA. Separation between Normal and Tumor may indicate broad expression differences; overlap does not negate gene-level differences. Also inspect whether an apparent pattern might reflect technical effects, batch, or the unequal group sizes rather than the biological contrast alone.
+- PC1 explains 23% of the variance and PC2 explains 9%.
+- Normal samples (red) cluster together on the right side of PC1, while Tumor samples (teal) are spread widely across the left and center.
+- A few Normal samples sit closer to the Tumor cloud, and a few Tumor samples extend toward the Normal cluster. This overlap is expected biologically (for example, tumor purity and normal-adjacent tissue differences).
+- The spread of Tumor samples is much larger than that of Normal samples, which reflects tumor heterogeneity.
+- PCA shows broad separation only. It does not prove that individual genes are differentially expressed, and it cannot rule out batch or other technical effects.
 
-------------------------------------------------------------------------
+---
 
-## 8. Volcano plot
+## 6. Differential expression results
 
 ### Purpose
 
-Display estimated effect size and statistical evidence for every tested gene. Color categories use both thresholds: adjusted p-value below 0.05 and absolute log2 fold change of at least 1. The direction is defined as Tumor relative to Normal.
+Extract the Tumor-versus-Normal contrast from the fitted model, sort genes by adjusted p-value, save the full table, and print DESeq2's summary.
 
 ### Code
 
-``` r
+```r
+res <- results(dds, contrast = c("group", "Tumor", "Normal"))
+res_df <- as.data.frame(res) %>%
+  rownames_to_column("gene") %>%
+  arrange(padj)
+head(res_df)
+write_csv(res_df, "Results/DESeq2_CRC_Tumor_vs_Normal.csv", na = "")
+print(summary(res))
+```
+
+### Line-by-line
+
+- `results(..., contrast = c("group", "Tumor", "Normal"))` computes Tumor relative to Normal, so a positive log2 fold change means higher in Tumor.
+- `as.data.frame()` converts the result object to a table, `rownames_to_column("gene")` turns the gene names into a column, and `arrange(padj)` sorts from smallest adjusted p-value.
+- `head(res_df)` shows the top six genes.
+- `write_csv()` saves the full table; `na = ""` writes missing values as blank cells.
+- `summary(res)` counts genes passing padj < 0.1 and reports outlier and low-count categories.
+
+### Actual output obtained
+
+```text
+   gene baseMean log2FoldChange      lfcSE      stat       pvalue         padj
+1   CA7 4.965120      -1.368112 0.07418029 -18.44307 5.928164e-76 6.395896e-72
+2 BEST4 5.318164      -1.216623 0.07360366 -16.52939 2.254246e-61 1.216053e-57
+3 CD177 6.597397      -1.137781 0.06926785 -16.42582 1.249780e-60 4.494626e-57
+4  BMP3 4.715216      -1.370938 0.08917879 -15.37291 2.487286e-53 6.708832e-50
+5 ABCA8 4.972736      -1.174565 0.07787582 -15.08253 2.110123e-51 4.553223e-48
+6 SFRP1 5.177039      -1.138089 0.07850834 -14.49641 1.276565e-47 1.967551e-44
+```
+
+```text
+out of 10789 with nonzero total read count
+adjusted p-value < 0.1
+LFC > 0 (up)       : 496, 4.6%
+LFC < 0 (down)     : 1004, 9.3%
+outliers [1]       : 0, 0%
+low counts [2]     : 0, 0%
+(mean count < 4)
+```
+
+### How to interpret it
+
+- Of 10,789 tested genes, 496 (4.6%) are higher in Tumor and 1,004 (9.3%) are lower in Tumor at padj < 0.1. The summary does not apply a fold-change cutoff.
+- In the top rows, all log2FoldChange values are negative, meaning these genes are lower in Tumor than Normal. For example, CA7 has log2FC = -1.37, roughly a 2.6-fold decrease.
+- `padj` values like 6.4e-72 indicate very strong statistical evidence. With 41 Normal and 471 Tumor samples, even small differences can reach very small p-values, so look at effect size (`log2FoldChange`) as well as `padj`.
+- Because the input was rounded from log2(count + 1) values, fold changes are compressed and p-values should be treated as approximate.
+
+---
+
+## 7. Volcano plot
+
+### Purpose
+
+Show effect size and significance for every tested gene in one plot.
+
+### Code
+
+```r
 volcano_df <- res_df %>%
   mutate(
     plot_padj = if_else(is.na(padj), 1, pmax(padj, .Machine$double.xmin)),
@@ -502,160 +520,79 @@ p_volcano <- ggplot(volcano_df, aes(log2FoldChange, -log10(plot_padj), color = s
        x = "log2 fold change (Tumor / Normal)",
        y = "-log10 adjusted p-value", color = NULL) +
   theme_classic()
-ggsave("figures/step8_volcano.png", p_volcano, width = 7, height = 5, dpi = 300)
+ggsave("figures/step7_volcano.png", p_volcano, width = 7, height = 5, dpi = 300)
 ```
 
 ### Line-by-line
 
--   `plot_padj` protects the y-axis calculation from missing adjusted p-values and zero values, for which `-log10()` would be undefined or infinite. A missing padj is plotted at the bottom as 1 but remains in category `Other`.
--   `case_when()` classifies genes with padj \< 0.05 and log2 fold change \>= 1 as **Up in Tumor**; genes with padj \< 0.05 and log2 fold change \<= -1 as **Down in Tumor**; every other result is **Other**.
--   `label_df` selects up to ten genes with finite effect estimates and available adjusted p-values, ordered by smallest padj.
--   The x-axis shows log2 fold change; the y-axis is negative log10 adjusted p-value. Higher points have smaller adjusted p-values, and larger absolute x-values indicate larger estimated effects.
--   `scale_color_manual()` assigns grey to Other, muted red to Up in Tumor, and blue to Down in Tumor.
--   The horizontal dashed line marks padj = 0.05. Vertical dashed lines show log2 fold changes of -1 and +1.
--   `geom_text(..., check_overlap = TRUE)` attempts to annotate the top ten ranked genes while suppressing text collisions.
--   `ggsave()` saves the 300-dpi plot to `figures/step8_volcano.png`.
-
-### Actual output
-
-The script creates `figures/step8_volcano.png` after a successful run. The supplied summary output does not report the number of genes passing the volcano thresholds.
+- `plot_padj` replaces missing adjusted p-values with 1 and prevents zero values, so `-log10()` never returns `Inf`.
+- `case_when()` labels a gene **Up in Tumor** if padj < 0.05 and log2FC >= 1, **Down in Tumor** if padj < 0.05 and log2FC <= -1, and **Other** otherwise.
+- `label_df` picks the 10 genes with the smallest padj for labeling.
+- The x-axis is log2 fold change and the y-axis is -log10 adjusted p-value, so higher points are more significant.
+- Dashed lines mark padj = 0.05 and log2FC = -1 and +1.
+- `check_overlap = TRUE` hides labels that would overlap.
 
 ### Volcano plot
 
-![Volcano plot of Tumor versus Normal](figures/step8_volcano.png)
+![Volcano plot of Tumor versus Normal](figures/step7_volcano.png)
 
 ### How to interpret it
 
-A point to the right has a positive fold change and is higher in Tumor; a point to the left is lower in Tumor. Red and blue points meet both the chosen adjusted-p-value and fold-change cutoffs. A high point near zero fold change can be statistically convincing but have a smaller effect; a large effect near the bottom may be uncertain. These visual cutoffs are descriptive criteria, not proof of clinical or biological importance.
+- Red points (right) are significantly higher in Tumor, and blue points (left) are significantly lower in Tumor. Grey points do not meet both cutoffs.
+- The plot has two wings, one up and one down, with high points near the top being the most significant genes.
+- Labeled genes in this image (CDH3, KRT80, ETV4, FOXQ1, SIM2, CLDN1, AJUBA) have both large positive fold changes and very high significance.
+- The cutoffs are descriptive. A gene with a tiny p-value but log2FC near 0 is statistically clear but has a small effect.
 
-------------------------------------------------------------------------
+---
 
-## 9. Heatmap of top genes
+## 8. Heatmap of top genes
 
 ### Purpose
 
-Show relative expression patterns for the 30 genes with the smallest available adjusted p-values. Each gene is z-scored across samples so the color emphasizes within-gene relative patterns; columns are annotated by group and sample names are hidden to keep the plot readable.
+Show whether the most significant genes separate Normal from Tumor samples across all samples.
 
 ### Code
 
-``` r
+```r
 heat_genes <- res_df %>%
   filter(!is.na(padj)) %>%
   arrange(padj) %>%
   slice_head(n = 30) %>%
   pull(gene)
-if (length(heat_genes) > 0L) {
-  heat_mat <- assay(vsd)[heat_genes, , drop = FALSE]
-  heat_mat <- t(scale(t(heat_mat)))
-  heat_mat[!is.finite(heat_mat)] <- 0
-  annotation_col <- data.frame(group = coldata$group, row.names = rownames(coldata))
-  png("figures/step9_heatmap.png", width = 2400, height = 2100, res = 300)
-  heatmap_plot <- pheatmap(
-    heat_mat, annotation_col = annotation_col, show_colnames = FALSE,
-    main = "Top 30 DE genes (row z-scores)", silent = TRUE
-  )
-  grid::grid.newpage()
-  grid::grid.draw(heatmap_plot$gtable)
-  dev.off()
-}
+heat_mat <- assay(vsd)[heat_genes, , drop = FALSE]
+heat_mat <- t(scale(t(heat_mat)))
+heat_mat[!is.finite(heat_mat)] <- 0
+annotation_col <- data.frame(group = coldata$group, row.names = rownames(coldata))
+png("figures/step8_heatmap.png", width = 2400, height = 2100, res = 300)
+pheatmap(heat_mat, annotation_col = annotation_col, show_colnames = FALSE,
+         main = "Top 30 DE genes (row z-scores)")
+dev.off()
 ```
 
 ### Line-by-line
 
--   `filter(!is.na(padj))`, `arrange(padj)`, and `slice_head(n = 30)` choose up to the 30 most significant genes with available adjusted p-values.
--   `pull(gene)` extracts their identifiers. If no gene is eligible, the full script skips the plot with a warning.
--   `assay(vsd)` extracts variance-stabilized values; it is used here for visualization, not for the DESeq2 statistical test.
--   `t(scale(t(heat_mat)))` centers and scales each gene across samples (row-wise z-scores). Non-finite z-scores, for example from a constant row, are set to zero.
--   `annotation_col` supplies one group label per sample column.
--   `png()` opens a 2400 × 2100 pixel image device at 300 dpi. `pheatmap()` draws the heatmap with group annotation and hidden sample labels; `silent = TRUE` returns the plot object rather than drawing it directly.
--   `grid.newpage()` and `grid.draw()` draw the returned heatmap, and `dev.off()` closes the PNG file.
-
-### Actual output
-
-The script creates `figures/step9_heatmap.png` if at least one gene has an available adjusted p-value.
+- The first block selects the 30 genes with the smallest adjusted p-values.
+- `assay(vsd)[heat_genes, ]` pulls their VST values.
+- `t(scale(t(heat_mat)))` converts each gene to a z-score across samples, so color shows relative, not absolute, expression.
+- Non-finite z-scores (from constant rows) are set to 0.
+- `annotation_col` adds a colored bar showing each sample's group.
+- `pheatmap()` clusters rows and columns, hides the 512 sample names, and writes the result to a 300-dpi PNG.
 
 ### Heatmap
 
-![Heatmap of top genes by adjusted p-value](figures/step9_heatmap.png)
+![Heatmap of top 30 genes](figures/step8_heatmap.png)
 
 ### How to interpret it
 
-Rows are genes and columns are samples. The row z-score indicates whether that sample's expression for a particular gene is relatively above or below that gene's across-sample average; it is not an absolute count or fold change. The group annotation helps compare patterns across Normal and Tumor. Because genes were selected using this same dataset, the heatmap is descriptive rather than independent validation.
+- Columns are samples, rows are genes, and red means above that gene's average while blue means below.
+- The Normal samples (cyan bar) cluster together on the left and are clearly separated from Tumor (salmon bar) by column clustering.
+- The top rows (GLTP, BEST4, CLEC3B, PEX26, PHLPP2, UGP2, APPL2) are high in Normal and lower in Tumor. The lower rows (for example CDH3, KRT80, AJUBA, SIM2) are low in Normal and higher in Tumor.
+- Since these genes were chosen because they differ between the groups, this clear separation is expected and is not independent validation.
 
-------------------------------------------------------------------------
+---
 
-## 10. Optional significant-gene table
+## Important caveats
 
-### Purpose
-
-Save a focused subset of genes meeting both a multiple-testing criterion and an effect-size cutoff. This extra output complements, but does not replace, the complete results CSV.
-
-### Code
-
-``` r
-significant_df <- res_df %>%
-  filter(!is.na(padj), padj < 0.05, abs(log2FoldChange) >= 1)
-write_csv(significant_df, "Results/DESeq2_CRC_significant_genes.csv", na = "")
-cat("Significant genes saved:", nrow(significant_df), "\n")
-```
-
-### Line-by-line
-
--   Keep only genes with a non-missing adjusted p-value below 0.05 and an absolute log2 fold change of at least 1.
--   Write those rows to a separate CSV and print the number saved. The precise row count was not supplied as an observed output, so it is not assumed here.
-
-### Output
-
-`Results/DESeq2_CRC_significant_genes.csv` is created by the script; it may contain zero or more genes.
-
-------------------------------------------------------------------------
-
-## How to read the results table {#how-to-read-the-results-table}
-
-The complete file is `Results/DESeq2_CRC_Tumor_vs_Normal.csv`. One row represents one gene.
-
-| Column           | Meaning                                                                                                                                                                                                                                                            |
-|------------------------------------|------------------------------------|
-| `gene`           | Gene identifier carried in the expression matrix row names.                                                                                                                                                                                                        |
-| `baseMean`       | Mean of normalized counts across all samples; it is an abundance summary, not a group-specific mean.                                                                                                                                                               |
-| `log2FoldChange` | Estimated log2 ratio for Tumor relative to Normal. **Positive means higher in Tumor; negative means lower in Tumor.** A value of +1 corresponds to an estimated two-fold increase; -1 corresponds to half the Normal level, subject to the model and data caveats. |
-| `lfcSE`          | Standard error of the estimated log2 fold change; smaller values generally indicate greater precision.                                                                                                                                                             |
-| `stat`           | Wald test statistic, approximately the estimated fold change divided by its standard error.                                                                                                                                                                        |
-| `pvalue`         | Unadjusted p-value for the test of no group difference for that gene.                                                                                                                                                                                              |
-| `padj`           | P-value adjusted for testing many genes, using DESeq2's default Benjamini--Hochberg procedure. This helps control the false discovery rate.                                                                                                                        |
-
-Genes can have missing values, including adjusted p-values, for reasons such as filtering or insufficient information. Review the column values and diagnostics rather than treating blank entries as evidence of no effect.
-
-## Important caveats {#important-caveats}
-
-1.  **The input is not raw count data.** Xena expression values are log2(count + 1). `round(2^x - 1)` is a rough inverse with rounding and cannot recover original raw GDC counts, upstream processing, or count uncertainty. For publication-quality DESeq2, obtain and analyze raw GDC counts with a documented pipeline. Do not present this back-transformed exercise as equivalent to raw-count analysis.
-2.  **The groups are highly unbalanced:** 41 Normal samples versus 471 Tumor samples. This affects precision and interpretation, and warrants careful review of the Normal sample composition and QC.
-3.  **No batch or other covariates are modeled.** The design is only `~ group`; technical batches, clinical covariates, or other confounders are not adjusted for in this script.
-4.  **The comparison is unpaired.** Tumor and Normal samples are treated as independent groups; this design does not account for within-patient pairing.
-5.  The chosen log2 fold-change and adjusted-p-value cutoffs are useful filters, not universal definitions of meaningful biology. Validate findings independently and consider biological context.
-6.  PCA and heatmap use VST values for visualization; the inferential model uses the integer-like matrix supplied to DESeq2. The plots do not validate the assumptions or restore the original counts.
-
-## Troubleshooting {#troubleshooting}
-
-| Symptom                                                       | Likely reason                                                                                         | What to check / do                                                                                                                                     |
-|------------------------|------------------------|------------------------|
-| `identical(colnames(expr), as.character(pheno$sample))` fails | Sample names differ, are reordered, or were stored differently in the two RDS files.                  | Compare a few IDs and investigate the correct mapping. Do not simply remove the check or pair samples by row position without confirming identity.     |
-| `cannot open ... Data/CRC_expression.rds`                     | The working directory is not the project root, or the `Data/` path/file name differs.                 | In R, check `getwd()` and list files. Run the script from the folder containing `Data/`, and verify spelling/capitalization.                           |
-| Figure or CSV is not written / "cannot open file"             | Output-folder case differs, or the working directory is unexpected.                                   | Use `figures/` exactly for PNGs and `Results/` for CSVs. Confirm both are being created under the project directory.                                   |
-| `vst()` errors or reports too few genes                       | The count matrix may have too few rows, invalid/non-finite values, or an unexpected sample alignment. | Check dimensions, integer/non-negative counts, and prefilter output. The supplied run retained 24,175 genes.                                           |
-| DESeq2 says counts must be integer or non-negative            | Counts were not converted as intended or there are invalid values.                                    | Inspect `storage.mode(expr)`, `any(expr < 0)`, and finite values after conversion. Do not silently treat negative or transformed values as raw counts. |
-| Heatmap does not appear                                       | The image is created as a file, or there were no genes with finite padj.                              | Check `figures/step9_heatmap.png` and the warning in the console. Open the PNG from the project folder.                                                |
-
-## Summary checklist {#summary-checklist}
-
--   [ ] Run from the project root with both RDS inputs in `Data/`.
--   [ ] Install/load DESeq2, tidyverse, and pheatmap.
--   [ ] Confirm expression is 60,660 genes × 514 samples and phenotype has 514 rows.
--   [ ] Confirm sample identifiers align exactly before selecting samples.
--   [ ] Verify and document Normal 41, Other 2, Tumor 471; exclude `Other`.
--   [ ] Recognize that log2(count + 1) back-transformation is approximate; raw GDC counts are preferred for publication.
--   [ ] Check prefilter count (24,175 genes) and the DESeq2 fitting log.
--   [ ] Review the saved complete result table and its adjusted p-values/effect sizes.
--   [ ] Inspect the PCA, volcano, and heatmap PNGs; remember they are visualizations, not independent validation.
--   [ ] Interpret positive log2 fold change as higher expression in Tumor, and account for unbalanced, unpaired groups and omitted covariates.
-
+1. The input is log2(count + 1) values rounded to integers, not raw GDC counts. Fold changes and p-values are approximate, so use raw counts for real work.
+2. The groups are unbalanced (41 Normal vs 471 Tumor) and unpaired, and the design is only `~ group` with no covariates.
+3. Very small p-values are partly due to the large sample size, so prioritize genes by both `padj` and `log2FoldChange`.
