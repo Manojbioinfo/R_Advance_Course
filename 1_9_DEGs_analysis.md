@@ -336,7 +336,13 @@ count_mat <- expr[, rownames(coldata), drop = FALSE]
 keep_genes <- rowSums(count_mat >= 10L) >= min_group_size
 count_mat <- count_mat[keep_genes, , drop = FALSE]
 cat("Genes kept after filtering:", nrow(count_mat), "\n")
+```
 
+``` r
+Genes kept after filtering: 10789 
+```
+
+``` r
 dds <- DESeqDataSetFromMatrix(
   countData = count_mat,
   colData = coldata,
@@ -345,6 +351,17 @@ dds <- DESeqDataSetFromMatrix(
 dds <- DESeq(dds)
 ```
 
+``` r
+# estimating size factors
+# estimating dispersions
+# gene-wise dispersion estimates
+# mean-dispersion relationship
+# -- note: fitType='parametric', but the dispersion trend was not well captured by the
+#   function: y = a/x + b, and a local regression fit was automatically substituted.
+#   specify fitType='local' or 'mean' to avoid this message next time.
+# final dispersion estimates
+# fitting model and testing
+```
 ### Line-by-line
 
 -   `min(table(coldata$group))` calculates the size of the smaller group: 41.
@@ -354,18 +371,6 @@ dds <- DESeq(dds)
 -   `DESeqDataSetFromMatrix()` combines the integer-like count matrix with sample metadata. `design = ~ group` models group differences without other covariates.
 -   `DESeq()` performs the main analysis. Broadly, DESeq2 estimates **size factors** to account for differences in sequencing depth/composition; estimates gene-wise **dispersion** (biological variability beyond a Poisson model) and moderates estimates across genes; fits a negative-binomial model; and uses a **Wald test** for the group contrast by default.
 -   DESeq2 can detect extreme count outliers and replace counts for eligible genes before refitting/testing, which is one of the safeguards involved in the reported run. The log reported outlier replacement for 1,802 genes. This is not a statement that all those genes are statistically significant.
-
-### Actual output obtained
-
-``` text
-Genes kept after filtering: 24175
-```
-
-DESeq2 log included:
-
-``` text
-outliers replaced for 1802 genes
-```
 
 ------------------------------------------------------------------------
 
