@@ -46,6 +46,9 @@ Load the R packages used for differential expression, data wrangling, and heatma
 ### Code
 
 ``` r
+rm(list=ls())
+
+
 # Install once if needed:
 # if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
 # BiocManager::install("DESeq2")
