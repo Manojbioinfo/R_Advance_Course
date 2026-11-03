@@ -280,48 +280,47 @@ Normal  Tumor
 ```
 ------------------------------------------------------------------------
 
-## 4. Check values and convert to integer-like counts
+## 4. Check values and prepare integer matrix
 
 ### Purpose
 
-DESeq2 models non-negative integer read counts. The supplied expression values are not raw counts: the maximum is 21.68023 and the values represent log2(count + 1). The script therefore applies the requested teaching approximation `round(2^x - 1)`, with an explicit check that values are not negative.
+DESeq2 requires a matrix of whole numbers. We use the expression values as they are and round them to integers. No back-transformation is applied.
 
 ### Code
 
-``` r
+```r
 mode(expr) <- "numeric"
 max_expr <- max(expr, na.rm = TRUE)
 has_negative <- any(expr < 0, na.rm = TRUE)
 cat("Maximum expression value:", max_expr, "\n")
 cat("Any negative values:", has_negative, "\n")
-if (has_negative) stop("Negative expression values cannot be back-transformed as counts.")
-if (any(abs(expr - round(expr)) > 1e-8, na.rm = TRUE)) {
-  message("Expression values are not integers; converting with round(2^x - 1).")
-  expr <- round(2^expr - 1)
-}
+if (has_negative) stop("Negative expression values are not allowed.")
+expr <- round(expr)
 expr[!is.finite(expr)] <- 0
 storage.mode(expr) <- "integer"
 ```
 
 ### Line-by-line
 
--   `mode(expr) <- "numeric"` ensures arithmetic is performed numerically.
--   `max(..., na.rm = TRUE)` checks the largest finite observed value; `any(... < 0)` checks whether any value is negative.
--   The `cat()` calls print those checks. Negative values cause a stop, because this inverse transform is not suitable for them.
--   The `if` tests whether any value differs from its nearest integer by more than a small floating-point tolerance. If so, it reports the conversion and applies `2^x - 1`, which is the mathematical inverse of `log2(count + 1)` before rounding.
--   Non-finite entries are set to zero, and the matrix is stored as integer mode for DESeq2.
+- `mode(expr) <- "numeric"` makes sure the matrix is numeric so the checks and rounding work correctly.
+- `max(expr, na.rm = TRUE)` finds the largest value in the matrix, which shows the scale of the data.
+- `any(expr < 0, na.rm = TRUE)` checks whether any value is negative.
+- The two `cat()` lines print the maximum value and the negative-value check so you can see them in the console.
+- `if (has_negative) stop(...)` halts the script if a negative value is found, since DESeq2 cannot use negative numbers.
+- `expr <- round(expr)` rounds every value to the nearest whole number. The values are kept as they are, with no other transformation.
+- `expr[!is.finite(expr)] <- 0` replaces any `NA`, `NaN`, or `Inf` entries with 0 so DESeq2 does not fail.
+- `storage.mode(expr) <- "integer"` stores the matrix as integers, which is the format DESeq2 expects.
 
 ### Actual output obtained
 
-``` text
+```text
 Maximum expression value: 21.68023
 Any negative values: FALSE
-Expression values are not integers; converting with round(2^x - 1).
 ```
 
-**Important:** rounding this back-transformation cannot restore the exact original counts or their measurement properties. See [Important caveats](#important-caveats).
+### Result
 
-------------------------------------------------------------------------
+`expr` is now an integer matrix with the same genes (rows) and samples (columns), ready to be used in `DESeqDataSetFromMatrix()`.
 
 ## 5. Prefilter genes and fit DESeq2
 
