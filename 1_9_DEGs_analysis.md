@@ -20,21 +20,21 @@ project-folder/
 
 ## Table of contents
 
+## Table of contents
 1.  [Prerequisites and setup](#1-prerequisites-and-setup)
 2.  [Load data and run sanity checks](#2-load-data-and-run-sanity-checks)
 3.  [Keep Tumor and Normal samples](#3-keep-tumor-and-normal-samples)
-4.  [Check values and convert to integer-like counts](#4-check-values-and-convert-to-integer-like-counts)
-5.  [Prefilter genes and fit DESeq2](#5-prefilter-genes-and-fit-deseq2)
-6.  [Extract, summarize, and save results](#6-extract-summarize-and-save-results)
-7.  [PCA using variance-stabilized expression](#7-pca-using-variance-stabilized-expression)
-8.  [Volcano plot](#8-volcano-plot)
-9.  [Heatmap of top genes](#9-heatmap-of-top-genes)
+4.  [Check values and prepare integer matrix](#4-check-values-and-prepare-integer-matrix)
+5.  [Filter low-expression genes and fit DESeq2](#5-filter-low-expression-genes-and-fit-deseq2)
+6.  [Differential expression results](#6-differential-expression-results)
+7.  [Volcano plot](#7-volcano-plot)
+8.  [Heatmap of top genes](#8-heatmap-of-top-genes)
+9.  [PCA using variance-stabilized expression](#9-pca-using-variance-stabilized-expression)
 10. [Optional significant-gene table](#10-optional-significant-gene-table)
 11. [How to read the results table](#how-to-read-the-results-table)
 12. [Important caveats](#important-caveats)
 13. [Troubleshooting](#troubleshooting)
 14. [Summary checklist](#summary-checklist)
-
 ------------------------------------------------------------------------
 
 ## 1. Prerequisites and setup
