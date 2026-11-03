@@ -46,6 +46,8 @@ Load the R packages used for differential expression, data wrangling, and heatma
 ### Code
 
 ``` r
+
+# Clean the environment
 rm(list=ls())
 
 
