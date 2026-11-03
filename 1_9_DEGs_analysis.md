@@ -26,10 +26,10 @@ project-folder/
 3.  [Keep Tumor and Normal samples](#3-keep-tumor-and-normal-samples)
 4.  [Check values and prepare integer matrix](#4-check-values-and-prepare-integer-matrix)
 5.  [Filter low-expression genes and fit DESeq2](#5-filter-low-expression-genes-and-fit-deseq2)
-6.  [Differential expression results](#6-differential-expression-results)
-7.  [Volcano plot](#7-volcano-plot)
-8.  [Heatmap of top genes](#8-heatmap-of-top-genes)
-9.  [PCA using variance-stabilized expression](#9-pca-using-variance-stabilized-expression)
+6.  [PCA using variance-stabilized expression](#6-pca-using-variance-stabilized-expression)
+7.  [Differential expression results](#7-differential-expression-results)
+8.  [Volcano plot](#7-volcano-plot)
+9.  [Heatmap of top genes](#8-heatmap-of-top-genes)
 10. [Optional significant-gene table](#10-optional-significant-gene-table)
 11. [How to read the results table](#how-to-read-the-results-table)
 12. [Important caveats](#important-caveats)
@@ -382,7 +382,7 @@ fitting model and testing
 - The values were rounded from log2(count + 1) rather than being raw counts, so dispersion and p-values should be interpreted as approximate and for teaching purposes only.
 - If your own `DESeq()` log also shows a line such as `-- replacing outliers and refitting for N genes`, that is DESeq2's built-in handling of extreme counts for eligible genes (groups with at least 7 replicates). It does not mean those genes are significant.
 
-## 5. PCA using variance-stabilized expression
+## 6. PCA using variance-stabilized expression
 
 ### Purpose
 
@@ -436,7 +436,7 @@ ggsave("figures/step5_pca.png", p_pca, width = 7, height = 5, dpi = 300)
 
 ---
 
-## 6. Differential expression results
+## 7. Differential expression results
 
 ### Purpose
 
@@ -525,7 +525,7 @@ NULL
 - **Outliers and low counts:** both are 0, meaning no genes were flagged as count outliers and none were removed by independent filtering. The note `(mean count < 4)` gives the mean-count threshold below which independent filtering would apply.
 ---
 
-## 7. Volcano plot
+## 8. Volcano plot
 
 ### Purpose
 
@@ -619,7 +619,7 @@ ggsave("figures/step7_volcano.png", p_volcano, width = 7, height = 5, dpi = 300)
 - The cutoffs are descriptive choices, not proof of biological importance. A gene with a tiny p-value but a log2FC near 0 is statistically clear but has a small effect.
 ---
 
-## 8. Heatmap of top genes
+## 9. Heatmap of top genes
 
 ### Purpose
 
