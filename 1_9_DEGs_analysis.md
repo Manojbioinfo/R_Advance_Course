@@ -96,15 +96,133 @@ expr <- as.matrix(expr)
 
 -   `readRDS()` imports the expression object and phenotype data frame.
 -   `as.matrix(expr)` makes sure the expression object can be handled as a genes-by-samples matrix.
--   `stopifnot()` immediately stops the script if any expected structure is wrong: 60,660 rows, 514 expression columns, 514 phenotype rows, both required columns, and exactly matching sample IDs in the same order.
--   `identical()` is intentionally strict. Matching dimensions alone do not establish that sample identities and order match.
--   The `cat()` line prints an easily checked dimension summary.
 
-### Actual output obtained
 
-``` text
-Expression: 60660 genes x 514 samples
+### What does the phenotype table look like?
+
+`CRC_pheno.rds` is a tibble with **514 rows (one per sample) x 90 columns**. Running `str(clinical)` prints every column; the most informative ones are shown below (the full output is truncated here for readability):
+
+```r
+str(clinical, list.len = 12)
 ```
+
+```
+tibble [514 x 90] (S3: tbl_df/tbl/data.frame)
+ $ sample                      : chr [1:514] "TCGA-5M-AAT6-01A" "TCGA-AA-3552-01A" "TCGA-AA-3867-01A" "TCGA-AD-6895-01A" ...
+ $ id                          : chr [1:514] "ce00896a-f7d2-4123-bb95-24cb6e53fc32" ...
+ $ disease_type                : chr [1:514] "Adenomas and Adenocarcinomas" ...
+ $ primary_site                : chr [1:514] "Colon" "Colon" "Colon" "Colon" ...
+ $ race.demographic            : chr [1:514] "black or african american" "not reported" "not reported" "white" ...
+ $ gender.demographic          : chr [1:514] "female" "male" "male" "male" ...
+ $ ethnicity.demographic       : chr [1:514] "hispanic or latino" "not reported" ...
+ $ vital_status.demographic    : chr [1:514] "Dead" "Dead" "Alive" "Alive" ...
+ $ age_at_index.demographic    : num [1:514] 40 85 74 84 72 82 67 75 81 90 ...
+ $ ajcc_pathologic_stage.diagnoses: chr [1:514] "Stage IV" "Stage IIIC" "Stage IV" "Stage IIIB" ...
+ $ OS                          : num [1:514] 1 1 0 0 0 0 0 0 1 NA ...
+ $ OS.time                     : num [1:514] 290 396 731 763 608 ...
+ $ sample_type_code            : chr [1:514] "01" "01" "01" "01" ...
+ $ group                       : chr [1:514] "Tumor" "Tumor" "Tumor" "Tumor" ...
+ [list output truncated]
+```
+
+### Columns used in this tutorial
+
+| Column | Type | Meaning | Used for |
+|---|---|---|---|
+| `sample` | chr | Full TCGA sample barcode (e.g. `TCGA-AA-3552-01A`) | Matching phenotype rows to expression columns |
+| `group` | chr | `Tumor`, `Normal` or `Other` | **The DESeq2 comparison variable** |
+| `sample_type.samples` | chr | GDC sample type (e.g. `Primary Tumor`) | Source of `group` |
+| `sample_type_code` | chr | Barcode code: `01` = tumor, `11` = normal | Source of `group` |
+| `gender.demographic` | chr | `female` / `male` | Possible covariate |
+| `age_at_index.demographic` | num | Age at diagnosis (years) | Possible covariate |
+| `ajcc_pathologic_stage.diagnoses` | chr | Pathologic stage (I-IV) | Stage-based follow-up analyses |
+| `vital_status.demographic` | chr | `Alive` / `Dead` | Survival analysis |
+| `OS`, `OS.time` | num | Event indicator (1 = dead) and time in days | Survival analysis |
+
+The remaining columns (annotations, treatments, sample dimensions, tissue source site, etc.) are not needed for this DESeq2 comparison.
+
+> **Note:** several columns (for example `annotations` and `treatments.diagnoses`) contain list-like strings such as `"['released', 'released']"`. These come from the GDC export, where one patient can have multiple records, so avoid using them directly as covariates.
+
+
+### What does the expression matrix look like?
+
+`CRC_expression.rds` is a plain numeric matrix with **60,660 genes (rows) x 514 samples (columns)**:
+
+```r
+str(expr)
+```
+
+```
+ num [1:60660, 1:514] 10.25 2.32 10.27 8.51 8.35 ...
+ - attr(*, "dimnames")=List of 2
+  ..$ : chr [1:60660] "TSPAN6" "TNMD" "DPM1" "SCYL3" ...
+  ..$ : chr [1:514] "TCGA-5M-AAT6-01A" "TCGA-AA-3552-01A" "TCGA-AA-3867-01A" "TCGA-AD-6895-01A" ...
+```
+
+How to read this output:
+
+| Part of the output | Meaning |
+|---|---|
+| `num [1:60660, 1:514]` | A numeric matrix: 60,660 rows (genes) by 514 columns (samples) |
+| `10.25 2.32 10.27 ...` | The first values: **log2(count + 1)** expression, not raw counts. Raw counts would be large integers. |
+| `dimnames` row names | Gene symbols (`TSPAN6`, `TNMD`, `DPM1`, `SCYL3`, ...) |
+| `dimnames` column names | TCGA sample barcodes (`TCGA-5M-AAT6-01A`, ...) |
+
+### Why the column names matter
+
+DESeq2 pairs each count column with a row of `colData` by **position**, so the two tables must be in the same order. This is why Step 2 contains:
+
+```r
+stopifnot(identical(colnames(expr), clinical$sample))
+```
+
+If this check passes, column `j` of `expr` and row `j` of `clinical` describe the same sample. If it fails, reorder with `expr <- expr[, clinical$sample]`.
+
+### Quick sanity checks
+
+### Quick sanity checks
+
+```r
+dim(expr)
+```
+
+```
+[1] 60660   514
+```
+
+```r
+range(expr)
+```
+
+```
+[1]  0.00000 21.68023
+```
+
+```r
+any(is.na(expr))
+```
+
+```
+[1] FALSE
+```
+
+```r
+head(rownames(expr))
+```
+
+```
+[1] "TSPAN6"   "TNMD"     "DPM1"     "SCYL3"    "C1orf112" "FGR"     
+```
+
+```r
+anyDuplicated(rownames(expr))
+```
+
+```
+[1] 0
+```
+> **Why the log2 values matter:** values like `10.25` and `2.32` are not integers, which is why Step 4 detects non-integer values and back-transforms them with `round(2^x - 1)`. The maximum of `21.68` in your data corresponds to about 3.4 million reads (`2^21.68 - 1`), a plausible count for a highly expressed gene.
+
 
 The sanity checks passed for the provided data.
 
