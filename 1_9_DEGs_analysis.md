@@ -322,15 +322,15 @@ Any negative values: FALSE
 
 `expr` is now an integer matrix with the same genes (rows) and samples (columns), ready to be used in `DESeqDataSetFromMatrix()`.
 
-## 5. Prefilter genes and fit DESeq2
+## 5. Filter low-expression genes and fit DESeq2
 
 ### Purpose
 
-Remove very low-expression genes before model fitting, then estimate library-size normalization factors and gene-wise dispersion and test the Tumor-versus-Normal contrast. The filter used here keeps genes with a count of at least 10 in at least the size of the smallest group (41 samples). It retained 24,175 genes.
+Remove very low-expression genes before model fitting, then estimate library-size normalization factors and gene-wise dispersions and fit the model for the Tumor-versus-Normal contrast. The filter keeps genes with a value of at least 10 in at least as many samples as the smallest group (41 samples). It retained 10,789 genes.
 
 ### Code
 
-``` r
+```r
 min_group_size <- min(table(coldata$group))
 count_mat <- expr[, rownames(coldata), drop = FALSE]
 keep_genes <- rowSums(count_mat >= 10L) >= min_group_size
@@ -338,11 +338,11 @@ count_mat <- count_mat[keep_genes, , drop = FALSE]
 cat("Genes kept after filtering:", nrow(count_mat), "\n")
 ```
 
-``` r
-Genes kept after filtering: 10789 
+```text
+Genes kept after filtering: 10789
 ```
 
-``` r
+```r
 dds <- DESeqDataSetFromMatrix(
   countData = count_mat,
   colData = coldata,
@@ -351,28 +351,36 @@ dds <- DESeqDataSetFromMatrix(
 dds <- DESeq(dds)
 ```
 
-``` r
-# estimating size factors
-# estimating dispersions
-# gene-wise dispersion estimates
-# mean-dispersion relationship
-# -- note: fitType='parametric', but the dispersion trend was not well captured by the
-#   function: y = a/x + b, and a local regression fit was automatically substituted.
-#   specify fitType='local' or 'mean' to avoid this message next time.
-# final dispersion estimates
-# fitting model and testing
+```text
+estimating size factors
+estimating dispersions
+gene-wise dispersion estimates
+mean-dispersion relationship
+-- note: fitType='parametric', but the dispersion trend was not well captured by the
+   function: y = a/x + b, and a local regression fit was automatically substituted.
+   specify fitType='local' or 'mean' to avoid this message next time.
+final dispersion estimates
+fitting model and testing
 ```
+
 ### Line-by-line
 
--   `min(table(coldata$group))` calculates the size of the smaller group: 41.
--   `count_mat` aligns the selected expression columns to the sample metadata row names.
--   `rowSums(count_mat >= 10L)` counts, for every gene, the number of samples with at least 10 counts. The comparison with `min_group_size` applies the prefilter.
--   The next line keeps only passing rows and prints the resulting number of genes.
--   `DESeqDataSetFromMatrix()` combines the integer-like count matrix with sample metadata. `design = ~ group` models group differences without other covariates.
--   `DESeq()` performs the main analysis. Broadly, DESeq2 estimates **size factors** to account for differences in sequencing depth/composition; estimates gene-wise **dispersion** (biological variability beyond a Poisson model) and moderates estimates across genes; fits a negative-binomial model; and uses a **Wald test** for the group contrast by default.
--   DESeq2 can detect extreme count outliers and replace counts for eligible genes before refitting/testing, which is one of the safeguards involved in the reported run. The log reported outlier replacement for 1,802 genes. This is not a statement that all those genes are statistically significant.
+- `min(table(coldata$group))` finds the size of the smaller group: 41 (Normal).
+- `count_mat <- expr[, rownames(coldata), drop = FALSE]` selects the expression columns in the same order as the sample metadata, so counts and `coldata` align.
+- `rowSums(count_mat >= 10L)` counts, for every gene, the number of samples with a value of at least 10. Comparing this with `min_group_size` gives the prefilter.
+- The next line keeps only the passing genes, and `cat()` prints how many remain (10,789).
+- `DESeqDataSetFromMatrix()` combines the integer matrix with the sample metadata. `design = ~ group` models the Tumor-versus-Normal difference with no other covariates.
+- `DESeq()` runs the main analysis in one call:
+  - estimates **size factors** to correct for differences in sequencing depth and composition;
+  - estimates gene-wise **dispersions** (variability beyond a Poisson model), fits the mean-dispersion trend, and shrinks the estimates toward it;
+  - fits a negative-binomial model for each gene;
+  - applies a **Wald test** for the group coefficient.
 
-------------------------------------------------------------------------
+### Notes on the output
+
+- The `fitType='parametric'` message means the default trend `y = a/x + b` did not describe the data well, so DESeq2 automatically used a local regression fit. This is informational. To avoid the message, run `DESeq(dds, fitType = "local")`.
+- The values were rounded from log2(count + 1) rather than being raw counts, so dispersion and p-values should be interpreted as approximate and for teaching purposes only.
+- If your own `DESeq()` log also shows a line such as `-- replacing outliers and refitting for N genes`, that is DESeq2's built-in handling of extreme counts for eligible genes (groups with at least 7 replicates). It does not mean those genes are significant.
 
 ## 6. Extract, summarize, and save results
 
