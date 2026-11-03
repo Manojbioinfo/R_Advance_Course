@@ -677,3 +677,142 @@ null device
 1. The input is log2(count + 1) values rounded to integers, not raw GDC counts. Fold changes and p-values are approximate, so use raw counts for real work.
 2. The groups are unbalanced (41 Normal vs 471 Tumor) and unpaired, and the design is only `~ group` with no covariates.
 3. Very small p-values are partly due to the large sample size, so prioritize genes by both `padj` and `log2FoldChange`.
+
+
+---
+
+## 🧠 Quiz
+
+Test yourself. Try each question before opening the answer.
+
+### Basic (1-4)
+
+**Q1 - Sample order.** Why do we run
+`stopifnot(identical(colnames(expr), rownames(pheno)))` before DESeq2?
+
+<details><summary>Show answer</summary>
+
+DESeq2 matches expression columns to phenotype rows by position. If the order
+differs, group labels go to the wrong samples and every result is wrong, with
+no error message.
+
+</details>
+
+**Q2 - Reference level.** The factor is set with levels `c("Normal", "Tumor")`.
+What does a positive log2 fold change mean?
+
+<details><summary>Show answer</summary>
+
+Normal is the reference group, so a positive value means higher expression in
+Tumor, and a negative value means lower in Tumor.
+
+</details>
+
+**Q3 - Fold change direction.** CA7 has log2FoldChange = -1.37. How do you
+describe it?
+
+<details><summary>Show answer</summary>
+
+CA7 is lower in Tumor than in Normal, about 2.6-fold lower (2 to the power
+1.37 is about 2.6).
+
+</details>
+
+**Q4 - What is DESeq2 for?** What kind of question does DESeq2 answer in this
+tutorial?
+
+<details><summary>Show answer</summary>
+
+It finds genes whose expression differs between two groups, here Tumor versus
+Normal, and gives a fold change and an adjusted p-value for each gene.
+
+</details>
+
+### Intermediate (5-8)
+
+**Q5 - padj versus pvalue.** Why call genes significant with `padj` and not
+`pvalue`?
+
+<details><summary>Show answer</summary>
+
+We test 10,789 genes at once. At p < 0.05 we would expect about 540 false
+positives by chance. `padj` (Benjamini-Hochberg) controls the false discovery
+rate across all tests.
+
+</details>
+
+**Q6 - Summary thresholds.** `summary(res)` reports 496 up and 1,004 down at
+padj < 0.1, but the volcano plot colors fewer genes. Why?
+
+<details><summary>Show answer</summary>
+
+`summary()` uses padj < 0.1 and no fold-change cutoff. The volcano plot uses
+padj < 0.05 and |log2FC| >= 1, which is stricter. Always state the thresholds
+you used.
+
+</details>
+
+**Q7 - Reading the volcano plot.** On the volcano plot, where do you look for
+genes that are both strongly changed and highly significant?
+
+<details><summary>Show answer</summary>
+
+At the top left and top right. The x-axis is the log2 fold change (far from 0
+means a large change), and the y-axis is -log10 adjusted p-value (higher means
+more significant). Red points on the right are higher in Tumor, and blue
+points on the left are lower in Tumor.
+
+</details>
+
+**Q8 - VST and z-scores.** Why do PCA and the heatmap use `vst()` data and row
+z-scores instead of the raw counts used for the test?
+
+<details><summary>Show answer</summary>
+
+VST removes the dependence of variance on mean, which suits PCA and
+clustering. Row z-scores show whether a sample is above or below each gene's
+own average, so genes at very different expression levels share one color
+scale. The statistical test itself uses raw counts with a negative binomial
+model.
+
+</details>
+
+### Advanced (9-10)
+
+**Q9 - Design limits.** The design is `~ group` with 41 Normal and 471 Tumor
+samples. Name two limitations.
+
+<details><summary>Show answer</summary>
+
+The groups are highly unbalanced, so estimates for Normal are less precise.
+The model is unpaired and ignores covariates such as batch, age and gender, so
+group differences may be confounded. A paired design (`~ patient + group`) is
+better if matched samples exist.
+
+</details>
+
+**Q10 - Selection bias.** Why is the clear separation in the top-30 heatmap
+not independent validation?
+
+<details><summary>Show answer</summary>
+
+The 30 genes were chosen because they differ most between these same samples,
+so separation is expected by construction. Validate in an independent cohort.
+
+</details>
+
+### Scoring guide
+
+| Level | Questions | Points each | Subtotal |
+|---|---|---|---|
+| Basic | Q1-Q4 | 1 | 4 |
+| Intermediate | Q5-Q8 | 2 | 8 |
+| Advanced | Q9-Q10 | 3 | 6 |
+| **Total** | **10** | | **18** |
+
+| Score | Level | What to do next |
+|---|---|---|
+| 0-7 | Starting out | Re-read Sections 1 to 6 and rerun the code blocks. |
+| 8-13 | Solid | Revisit the questions you missed, especially on thresholds and the volcano plot (Q5-Q7). |
+| 14-16 | Strong | Repeat the analysis with a paired design or another contrast. |
+| 17-18 | Excellent | You are ready to run DESeq2 on raw GDC counts for your own question. |
