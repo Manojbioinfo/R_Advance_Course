@@ -8,9 +8,23 @@ The analysis observed **41 Normal** and **471 Tumor** samples. The two groups ar
 
 Run `CRC_DESeq2_tutorial.R` from the project directory. The R script and this guide expect the inputs and output folders to have the following layout:
 
+
+## Download the data
+
+The data can be downloaded from this Google Drive folder:
+[CRC data folder](https://drive.google.com/drive/folders/1KxmMuZBKcNAAh4D6h3rBolbrl48_ky3Q?usp=sharing)
+
+The folder contains two files:
+
+| File | Size | Content |
+|---|---|---|
+| `CRC_expression.rds` | 48.3 MB | Gene expression matrix (60,660 genes × 514 samples) |
+| `CRC_pheno.rds` | 128 KB | Sample phenotype table (514 rows) |
+
+Save both files in the `Data/` folder of your project before running the code.
+
 ``` text
 project-folder/
-├── CRC_DESeq2_tutorial.R
 ├── Data/
 │   ├── CRC_expression.rds
 │   └── CRC_pheno.rds
