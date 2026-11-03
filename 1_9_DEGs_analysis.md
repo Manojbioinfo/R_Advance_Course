@@ -428,7 +428,7 @@ ggsave("figures/step5_pca.png", p_pca, width = 7, height = 5, dpi = 300)
 
 ### How to interpret it
 
-- PC1 explains 23% of the variance and PC2 explains 9%.
+- PC1 explains 22% of the variance and PC2 explains 9%.
 - Normal samples (red) cluster together on the right side of PC1, while Tumor samples (teal) are spread widely across the left and center.
 - A few Normal samples sit closer to the Tumor cloud, and a few Tumor samples extend toward the Normal cluster. This overlap is expected biologically (for example, tumor purity and normal-adjacent tissue differences).
 - The spread of Tumor samples is much larger than that of Normal samples, which reflects tumor heterogeneity.
