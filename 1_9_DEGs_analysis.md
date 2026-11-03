@@ -623,7 +623,7 @@ ggsave("figures/step7_volcano.png", p_volcano, width = 7, height = 5, dpi = 300)
 
 ### Purpose
 
-Show whether the most significant genes separate Normal from Tumor samples across all samples.
+Show the expression pattern of the 30 genes with the smallest adjusted p-values across all samples. Each gene is z-scored across samples, so the colors show whether a sample is above or below that gene's average, and the column annotation shows Normal versus Tumor.
 
 ### Code
 
@@ -633,6 +633,14 @@ heat_genes <- res_df %>%
   arrange(padj) %>%
   slice_head(n = 30) %>%
   pull(gene)
+head(heat_genes)
+```
+
+```text
+[1] "CA7"   "BEST4" "CD177" "BMP3"  "ABCA8" "SFRP1"
+```
+
+```r
 heat_mat <- assay(vsd)[heat_genes, , drop = FALSE]
 heat_mat <- t(scale(t(heat_mat)))
 heat_mat[!is.finite(heat_mat)] <- 0
@@ -643,30 +651,34 @@ pheatmap(heat_mat, annotation_col = annotation_col, show_colnames = FALSE,
 dev.off()
 ```
 
+```text
+null device 
+          1 
+```
+
 ### Line-by-line
 
-- The first block selects the 30 genes with the smallest adjusted p-values.
-- `assay(vsd)[heat_genes, ]` pulls their VST values.
-- `t(scale(t(heat_mat)))` converts each gene to a z-score across samples, so color shows relative, not absolute, expression.
-- Non-finite z-scores (from constant rows) are set to 0.
-- `annotation_col` adds a colored bar showing each sample's group.
-- `pheatmap()` clusters rows and columns, hides the 512 sample names, and writes the result to a 300-dpi PNG.
+- `filter(!is.na(padj))` removes genes without an adjusted p-value, `arrange(padj)` sorts from most to least significant, and `slice_head(n = 30)` keeps the top 30.
+- `pull(gene)` extracts the gene names as a vector. `head(heat_genes)` shows the first six: CA7, BEST4, CD177, BMP3, ABCA8, SFRP1, the same genes at the top of the results table.
+- `assay(vsd)[heat_genes, , drop = FALSE]` takes the variance-stabilized expression for those 30 genes across all samples. `drop = FALSE` keeps it as a matrix.
+- `t(scale(t(heat_mat)))` converts each gene (row) to a z-score across samples. `scale()` works on columns, so the matrix is transposed before and after.
+- `heat_mat[!is.finite(heat_mat)] <- 0` replaces any `NaN` or `Inf` values (for example from a gene with no variance) with 0.
+- `annotation_col` builds a small table assigning each sample to Normal or Tumor, so the colored bar above the heatmap shows the group.
+- `png()` opens a 2400 x 2100 pixel file at 300 dpi, `pheatmap()` draws the plot into it, and `show_colnames = FALSE` hides the 512 sample names that would be unreadable.
+- `dev.off()` closes the file and writes the image. The output `null device 1` is normal and means the file was saved.
 
 ### Heatmap
 
-![Heatmap of top 30 genes](figures/step8_heatmap.png)
+![Heatmap of top 30 genes by adjusted p-value](figures/step8_heatmap.png)
 
 ### How to interpret it
 
-- Columns are samples, rows are genes, and red means above that gene's average while blue means below.
-- The Normal samples (cyan bar) cluster together on the left and are clearly separated from Tumor (salmon bar) by column clustering.
-- The top rows (GLTP, BEST4, CLEC3B, PEX26, PHLPP2, UGP2, APPL2) are high in Normal and lower in Tumor. The lower rows (for example CDH3, KRT80, AJUBA, SIM2) are low in Normal and higher in Tumor.
-- Since these genes were chosen because they differ between the groups, this clear separation is expected and is not independent validation.
-
----
-
-## Important caveats
-
+- Rows are genes and columns are samples. Red means a sample is above that gene's average expression, and blue means below.
+- The colored bar on top marks each sample as Normal or Tumor. Samples are clustered by similar expression, so Normal samples should group together if these genes separate the groups well.
+- Since the top genes are strongly lower in Tumor, expect blocks of blue in Tumor columns and red in Normal columns for those genes.
+- Z-scores show relative differences within a gene, not absolute expression or fold change. Two genes with very different expression levels can look equally red.
+- These 30 genes were picked because they differ most between the groups in this same dataset, so strong separation here is expected and is not independent validation.
+- With 41 Normal and 471 Tumor samples, the Normal group is a small part of the plot.
 1. The input is log2(count + 1) values rounded to integers, not raw GDC counts. Fold changes and p-values are approximate, so use raw counts for real work.
 2. The groups are unbalanced (41 Normal vs 471 Tumor) and unpaired, and the design is only `~ group` with no covariates.
 3. Very small p-values are partly due to the large sample size, so prioritize genes by both `padj` and `log2FoldChange`.
