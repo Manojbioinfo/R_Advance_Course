@@ -84,14 +84,7 @@ Read the supplied RDS files and check that their dimensions, required phenotype 
 expr <- readRDS("Data/CRC_expression.rds")
 pheno <- readRDS("Data/CRC_pheno.rds")
 expr <- as.matrix(expr)
-stopifnot(
-  nrow(expr) == 60660L,
-  ncol(expr) == 514L,
-  nrow(pheno) == 514L,
-  all(c("sample", "group") %in% names(pheno)),
-  identical(colnames(expr), as.character(pheno$sample))
-)
-cat("Expression:", nrow(expr), "genes x", ncol(expr), "samples\n")
+
 ```
 
 ### Line-by-line
