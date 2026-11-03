@@ -236,47 +236,48 @@ Retain only the two groups in the intended contrast. Two samples are labelled `O
 
 ### Code
 
-``` r
-pheno$sample <- as.character(pheno$sample)
-pheno$group <- as.character(pheno$group)
-print(table(pheno$group))
-keep <- pheno$group %in% c("Normal", "Tumor")
+```r
+pheno $ sample <- as.character(pheno $ sample)
+pheno $ group  <- as.character(pheno $ group)
+print(table(pheno $ group))
+
+keep <- pheno $ group %in% c("Normal", "Tumor")
 pheno <- pheno[keep, , drop = FALSE]
-expr <- expr[, pheno$sample, drop = FALSE]
-pheno$group <- factor(pheno$group, levels = c("Normal", "Tumor"))
-rownames(pheno) <- pheno$sample
-stopifnot(identical(colnames(expr), rownames(pheno)))
-coldata <- data.frame(group = pheno$group, row.names = pheno$sample)
+expr  <- expr[, pheno $ sample, drop = FALSE]
+
+pheno $ group <- factor(pheno $ group, levels = c("Normal", "Tumor"))
+stopifnot(identical(colnames(expr), pheno $ sample))
+
+coldata <- data.frame(group = pheno $ group, row.names = pheno $ sample)
 print(table(coldata$group))
 ```
 
 ### Line-by-line
 
--   Convert sample IDs and group labels to character strings before filtering and matching.
--   `table(pheno$group)` records the original group counts, including the `Other` category.
--   `%in% c("Normal", "Tumor")` selects the desired samples; `drop = FALSE` keeps the phenotype as a data frame and the expression object as a matrix, even when subsetting.
--   Subset expression columns by the retained phenotype sample IDs, thereby preserving phenotype order.
--   `factor(..., levels = c("Normal", "Tumor"))` sets Normal as the reference level and Tumor as the comparison level.
--   Set phenotype row names to sample IDs; the following `stopifnot()` confirms exact alignment after filtering.
--   `coldata` is the sample-level metadata object required by DESeq2; its row names must correspond, in the same order, to the columns in the count matrix.
--   The second `table()` reports the actual comparison sample counts.
+- Convert sample IDs and group labels to character strings before filtering and matching.
+- `table(pheno$group)` records the original group counts, including the `Other` category.
+- `%in% c("Normal", "Tumor")` selects the desired samples. `drop = FALSE` keeps the phenotype as a data frame and the expression object as a matrix, even when subsetting.
+- Subsetting expression columns by the retained phenotype sample IDs removes the `Other` samples and keeps the columns in phenotype order.
+- `factor(..., levels = c("Normal", "Tumor"))` sets Normal as the reference level and Tumor as the comparison level, so positive log2 fold changes mean higher expression in Tumor.
+- `stopifnot(identical(colnames(expr), pheno$sample))` confirms that the expression columns and phenotype rows are in exactly the same order.
+- `coldata` is the sample-level metadata object required by DESeq2. Its row names must match, in the same order, the columns of the count matrix.
+- The second `table()` reports the actual comparison sample counts.
 
 ### Actual output obtained
 
 Before filtering:
 
-``` text
-Normal  Other  Tumor
-    41      2    471
+```text
+Normal  Other  Tumor 
+    41      2    471 
 ```
 
-After filtering, the comparison is:
+After filtering:
 
-``` text
-Normal Tumor
-    41   471
+```text
+Normal  Tumor 
+    41    471 
 ```
-
 ------------------------------------------------------------------------
 
 ## 4. Check values and convert to integer-like counts
