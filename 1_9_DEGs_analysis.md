@@ -392,6 +392,14 @@ Before looking at differential expression, check whether samples separate by gro
 
 ```r
 vsd <- vst(dds, blind = TRUE)
+```
+
+```r
+# -- note: fitType='parametric', but the dispersion trend was not well captured by the
+#   function: y = a/x + b, and a local regression fit was automatically substituted.
+#   specify fitType='local' or 'mean' to avoid this message next time.
+```
+```r
 pca_df <- plotPCA(vsd, intgroup = "group", ntop = 500, returnData = TRUE)
 percent_var <- round(100 * attr(pca_df, "percentVar"))
 p_pca <- ggplot(pca_df, aes(PC1, PC2, color = group)) +
