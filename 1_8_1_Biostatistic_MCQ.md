@@ -17,7 +17,7 @@
 <details><summary>👀 Show answer</summary>
 
 **Answer: B.** It describes the cohort without predicting or claiming cause.
-
+ 
 </details>
 
 **Q2. Which question is *predictive*?**
