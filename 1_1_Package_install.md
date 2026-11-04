@@ -15,7 +15,7 @@
 9. [Recap](#8-recap)
 10. [Quiz](#quiz)
 
----
+--- 
 
 ## Quick links
 
