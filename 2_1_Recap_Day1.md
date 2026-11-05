@@ -194,6 +194,9 @@ p3 <- ggplot(data, aes(x = Pathologic_stage, fill = Pathologic_stage)) +
 p3
 ```
 
+![Pathologic stage distribution](images/Fig_Q3_stage_distribution.jpeg)
+
+
 </details>
 
 **3.3** Save the plot as a JPEG at 300 dpi.
@@ -284,6 +287,7 @@ p4 <- ggplot(clean_data, aes(x = Pathologic_stage, fill = Pathologic_stage)) +
 p4
 ggsave("images/Fig_Q4_stage_cleaned.jpeg", p4, width = 7, height = 5, units = "in", dpi = 300)
 ```
+![Pathologic stage distribution2](images//Fig_Q4_stage_cleaned.jpeg)
 
 Expected: `clean_data` has 332 rows and 8 pathological-stage levels; Stage IB is gone. NPG assigns colours in level order, so colours shift after removing Stage IB (normal). The JPEG is saved in `images/` at 300 dpi.
 
@@ -325,6 +329,9 @@ Add `plot_annotation(tag_levels = "A")` to the combined plot with `+`.
 combined <- p3 + p4 + plot_annotation(tag_levels = "A")
 combined
 ```
+
+![Pathologic stage distribution2](images/Fig_Q5_combined.jpeg)
+
 
 </details>
 
