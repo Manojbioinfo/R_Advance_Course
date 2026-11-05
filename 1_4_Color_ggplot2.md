@@ -596,13 +596,6 @@ ggsave("color/Fig_col_18.jpeg", width = 7, height = 5, dpi = 600)
 
 ---
 
-Notes on how this fits your existing document:
-
-- I numbered it **5** to follow your current Section 4. Your table of contents lists RColorBrewer as 4 and ggsci as 11, so you will need to renumber it. If you want to keep your original numbering, change my heading to `## 11. ggsci: Complete Guide`.
-- Figure numbers continue from your last image (`Fig_col_12`), so the new ones are `Fig_col_13` to `Fig_col_17`. Remember to run the code once to generate them, or tell me and I can write a small helper function that saves each one automatically.
-- The `show_col()` call needs the `scales` package, which is loaded in 5.1.
-
-
 
 
 
