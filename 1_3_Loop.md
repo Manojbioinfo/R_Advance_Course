@@ -195,21 +195,21 @@ dice <- 1:6
 
 for (x in dice) {
   if (x == 6) {
-    print(paste("The dice number is", x, "- Yahtzee!"))
+    print(paste("The dice number is", x, "- Bingo!"))
   } else {
-    print(paste("The dice number is", x, "- Not Yahtzee"))
+    print(paste("The dice number is", x, "- Not Bingo"))
   }
 }
 ```
 
 **Output:**
 ```r
-# [1] "The dice number is 1 - Not Yahtzee"
-# [1] "The dice number is 2 - Not Yahtzee"
-# [1] "The dice number is 3 - Not Yahtzee"
-# [1] "The dice number is 4 - Not Yahtzee"
-# [1] "The dice number is 5 - Not Yahtzee"
-# [1] "The dice number is 6 - Yahtzee!"
+# [1] "The dice number is 1 - Not Bingo"
+# [1] "The dice number is 2 - Not Bingo"
+# [1] "The dice number is 3 - Not Bingo"
+# [1] "The dice number is 4 - Not Bingo"
+# [1] "The dice number is 5 - Not Bingo"
+# [1] "The dice number is 6 - Bingo!"
 ```
 
 **Interpretation:**
