@@ -4,7 +4,7 @@ Review the five Day 2 tasks below, then open each answer to check the R code and
 
 ## Question 1
 
-1. Create a directory named `R_day2`.
+**1.1** Create a directory named `R_day2`.
 
 <details>
 <summary>Show hint</summary>
@@ -22,8 +22,7 @@ dir.create("R_day2")
 
 </details>
 
-
-2. Set `R_day2` as the working directory.
+**1.2** Set `R_day2` as the working directory.
 
 <details>
 <summary>Show hint</summary>
@@ -42,8 +41,7 @@ setwd("R_day2")
 
 </details>
 
-
-3. Create a new R script named `Example.R` and save it in that folder.
+**1.3** Create a new R script named `Example.R` and save it in that folder.
 
 <details>
 <summary>Show hint</summary>
@@ -61,8 +59,7 @@ Use File > New File > R Script, then save it as `Example.R` while you are inside
 
 </details>
 
-
-4. Check the working directory and the `Data` folder, then create an `images` folder.
+**1.4** Check the working directory and the `Data` folder, then create an `images` folder.
 
 <details>
 <summary>Show hint</summary>
@@ -86,7 +83,7 @@ Expected: `getwd()` ends with `.../R_day2`; `list.files("Data")` lists `LUAD_cle
 
 ## Question 2
 
-1. Load tidyverse, dplyr, ggplot2, ggsci, scales, and patchwork.
+**2.1** Load tidyverse, dplyr, ggplot2, ggsci, scales, and patchwork.
 
 <details>
 <summary>Show hint</summary>
@@ -109,8 +106,7 @@ library(patchwork)
 
 </details>
 
-
-2. Read `Data/LUAD_clean_data_all_patients.csv`.
+**2.2** Read `Data/LUAD_clean_data_all_patients.csv`.
 
 <details>
 <summary>Show hint</summary>
@@ -128,8 +124,7 @@ data <- read.csv("Data/LUAD_clean_data_all_patients.csv")
 
 </details>
 
-
-3. Print the last row, convert `Pathologic_stage` and `Age_Group` to factors, and inspect the structure.
+**2.3** Print the last row, convert `Pathologic_stage` and `Age_Group` to factors, and inspect the structure.
 
 <details>
 <summary>Show hint</summary>
@@ -159,7 +154,7 @@ Expected:
 
 ## Question 3
 
-1. Group the data by `Gender` and calculate mean `Age`.
+**3.1** Group the data by `Gender` and calculate mean `Age`.
 
 <details>
 <summary>Show hint</summary>
@@ -177,8 +172,7 @@ data %>% group_by(Gender) %>% summarise(Mean_age = mean(Age))
 
 </details>
 
-
-2. Use `geom_bar()` to plot the pathological stages, fill by stage with the NPG style, and rotate the x-axis labels 90 degrees (`angle = 90`, `hjust = 1`, `vjust = 0.5`).
+**3.2** Use `geom_bar()` to plot the pathological stages, fill by stage with the NPG style, and rotate the x-axis labels 90 degrees (`angle = 90`, `hjust = 1`, `vjust = 0.5`).
 
 <details>
 <summary>Show hint</summary>
@@ -202,8 +196,7 @@ p3
 
 </details>
 
-
-3. Save the plot as a JPEG at 300 dpi.
+**3.3** Save the plot as a JPEG at 300 dpi.
 
 <details>
 <summary>Show hint</summary>
@@ -230,7 +223,7 @@ Expected:
 
 ## Question 4
 
-1. Inspect the pathological-stage levels and counts.
+**4.1** Inspect the pathological-stage levels and counts.
 
 <details>
 <summary>Show hint</summary>
@@ -249,8 +242,7 @@ table(data $ Pathologic_stage, useNA = "ifany")
 
 </details>
 
-
-2. Identify the problematic stage from the bar plot (Stage IB), remove it with `filter()`, and drop unused factor levels with `droplevels()`.
+**4.2** Identify the problematic stage from the bar plot (Stage IB), remove it with `filter()`, and drop unused factor levels with `droplevels()`.
 
 <details>
 <summary>Show hint</summary>
@@ -270,8 +262,7 @@ nrow(clean_data)   # 445 - 113 = 332
 
 </details>
 
-
-3. Re-plot with `geom_bar()` and `scale_fill_npg(alpha = 0.5)`, then save as a JPEG at 300 dpi.
+**4.3** Re-plot with `geom_bar()` and `scale_fill_npg(alpha = 0.5)`, then save as a JPEG at 300 dpi.
 
 <details>
 <summary>Show hint</summary>
@@ -300,7 +291,7 @@ Expected: `clean_data` has 332 rows and 8 pathological-stage levels; Stage IB is
 
 ## Question 5
 
-1. Combine the Q3 and Q4 plots side by side with patchwork.
+**5.1** Combine the Q3 and Q4 plots side by side with patchwork.
 
 <details>
 <summary>Show hint</summary>
@@ -318,8 +309,7 @@ combined <- p3 + p4
 
 </details>
 
-
-2. Tag the panels A and B.
+**5.2** Tag the panels A and B.
 
 <details>
 <summary>Show hint</summary>
@@ -338,8 +328,7 @@ combined
 
 </details>
 
-
-3. Save the combined plot as a JPEG at 300 dpi and as a PDF.
+**5.3** Save the combined plot as a JPEG at 300 dpi and as a PDF.
 
 <details>
 <summary>Show hint</summary>
